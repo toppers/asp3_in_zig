@@ -39,7 +39,6 @@ kernel/kernel_api.def
 kernel/kernel_cfg.zig
 kernel/kernel_check.trb
 kernel/kernel_impl.zig
-kernel/kernel_sym.def
 kernel/mempfix.zig
 kernel/mutex.zig
 kernel/notify.zig

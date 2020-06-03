@@ -8,7 +8,6 @@ chip_kernel.zig
 chip_kernel_impl.zig
 chip_stddef.h
 chip_stddef.zig
-chip_sym.def
 chip_timer.zig
 rza1.h
 rza1.zig
