@@ -339,8 +339,8 @@ fn mutexReleaseAll(p_tcb: *TCB) void {
 ///  ミューテックスのロック
 ///
 pub fn loc_mtx(mtxid: ID) ItronError!void {
-    log.locMtxEnter(mtxid);
-    errdefer |err| log.locMtxLeave(err);
+    traceLog("locMtxEnter", .{ mtxid });
+    errdefer |err| traceLog("locMtxLeave", .{ err });
     try checkDispatch();
     const p_mtxcb = try checkAndGetMtxCB(mtxid);
     {
@@ -374,15 +374,15 @@ pub fn loc_mtx(mtxid: ID) ItronError!void {
             }
         }
     }
-    log.locMtxLeave(null);
+    traceLog("locMtxLeave", .{ null });
 }
 
 ///
 ///  ミューテックスのロック（ポーリング）
 ///
 pub fn ploc_mtx(mtxid: ID) ItronError!void {
-    log.pLocMtxEnter(mtxid);
-    errdefer |err| log.pLocMtxLeave(err);
+    traceLog("pLocMtxEnter", .{ mtxid });
+    errdefer |err| traceLog("pLocMtxLeave", .{ err });
     try checkContextTaskUnlock();
     const p_mtxcb = try checkAndGetMtxCB(mtxid);
     {
@@ -406,15 +406,15 @@ pub fn ploc_mtx(mtxid: ID) ItronError!void {
             return ItronError.TimeoutError;
         }
     }
-    log.pLocMtxLeave(null);
+    traceLog("pLocMtxLeave", .{ null });
 }
 
 ///
 ///  ミューテックスのロック（タイムアウトあり）
 ///
 pub fn tloc_mtx(mtxid: ID, tmout: TMO) ItronError!void {
-    log.tLocMtxEnter(mtxid, tmout);
-    errdefer |err| log.tLocMtxLeave(err);
+    traceLog("tLocMtxEnter", .{ mtxid, tmout });
+    errdefer |err| traceLog("tLocMtxLeave", .{ err });
     try checkDispatch();
     const p_mtxcb = try checkAndGetMtxCB(mtxid);
     try checkParameter(validTimeout(tmout));
@@ -453,15 +453,15 @@ pub fn tloc_mtx(mtxid: ID, tmout: TMO) ItronError!void {
             }
         }
     }
-    log.tLocMtxLeave(null);
+    traceLog("tLocMtxLeave", .{ null });
 }
 
 ///
 ///  ミューテックスのロック解除
 ///
 pub fn unl_mtx(mtxid: ID) ItronError!void {
-    log.unlMtxEnter(mtxid);
-    errdefer |err| log.unlMtxLeave(err);
+    traceLog("unlMtxEnter", .{ mtxid });
+    errdefer |err| traceLog("unlMtxLeave", .{ err });
     try checkContextTaskUnlock();
     const p_mtxcb = try checkAndGetMtxCB(mtxid);
     {
@@ -478,15 +478,15 @@ pub fn unl_mtx(mtxid: ID) ItronError!void {
             taskDispatch();
         }
     }
-    log.unlMtxLeave(null);
+    traceLog("unlMtxLeave", .{ null });
 }
 
 ///
 ///  ミューテックスの再初期化
 ///
 pub fn ini_mtx(mtxid: ID) ItronError!void {
-    log.iniMtxEnter(mtxid);
-    errdefer |err| log.iniMtxLeave(err);
+    traceLog("iniMtxEnter", .{ mtxid });
+    errdefer |err| traceLog("iniMtxLeave", .{ err });
     try checkContextTaskUnlock();
     const p_mtxcb = try checkAndGetMtxCB(mtxid);
     {
@@ -508,15 +508,15 @@ pub fn ini_mtx(mtxid: ID) ItronError!void {
         }
         taskDispatch();
     }
-    log.iniMtxLeave(null);
+    traceLog("iniMtxLeave", .{ null });
 }
 
 ///
 ///  ミューテックスの状態参照
 ///
 pub fn ref_mtx(mtxid: ID, pk_rmtx: *T_RMTX) ItronError!void {
-    log.refMtxEnter(mtxid, pk_rmtx);
-    errdefer |err| log.refMtxLeave(err, pk_rmtx);
+    traceLog("refMtxEnter", .{ mtxid, pk_rmtx });
+    errdefer |err| traceLog("refMtxLeave", .{ err, pk_rmtx });
     try checkContextTaskUnlock();
     const p_mtxcb = try checkAndGetMtxCB(mtxid);
     {
@@ -531,7 +531,7 @@ pub fn ref_mtx(mtxid: ID, pk_rmtx: *T_RMTX) ItronError!void {
         }
         pk_rmtx.wtskid = wait_tskid(&p_mtxcb.wait_queue);
     }
-    log.refMtxLeave(null, pk_rmtx);
+    traceLog("refMtxLeave", .{ null, pk_rmtx });
 }
 
 ///

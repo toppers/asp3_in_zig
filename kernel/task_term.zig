@@ -52,8 +52,8 @@ usingnamespace check;
 ///  自タスクの終了［NGKI1162］
 ///
 pub fn ext_tsk() ItronError!void {
-    log.extTskEnter();
-    errdefer |err| log.extTskLeave(err);
+    traceLog("extTskEnter", .{});
+    errdefer |err| traceLog("extTskLeave", .{ err });
     try checkContextTask();                     //［NGKI1164］
 
     if (target_impl.senseLock()) {
@@ -91,8 +91,8 @@ pub fn ext_tsk() ItronError!void {
 ///  タスクの終了要求［NGKI3469］
 ///
 pub fn ras_ter(tskid : ID) ItronError!void {
-    log.rasTerEnter(tskid);
-    errdefer |err| log.rasTerLeave(err);
+    traceLog("rasTerEnter", .{ tskid });
+    errdefer |err| traceLog("rasTerLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI3470］［NGKI3471］
     const p_tcb = try checkAndGetTCB(tskid);    //［NGKI3472］
     try checkIllegalUse(p_tcb != p_runtsk);     //［NGKI3475］
@@ -119,7 +119,7 @@ pub fn ras_ter(tskid : ID) ItronError!void {
                                       ItronError.TerminationRequestRaised };
                 }                               //［NGKI3480］
                 p_tcb.tstat = TS_RUNNABLE;      //［NGKI3606］
-                log.taskStateChange(p_tcb);
+                traceLog("taskStateChange", .{ p_tcb });
                 make_runnable(p_tcb);
                 if (p_runtsk != p_schedtsk) {
                     target_impl.dispatch();
@@ -127,15 +127,15 @@ pub fn ras_ter(tskid : ID) ItronError!void {
             }
         }
     }
-    log.rasTerLeave(null);
+    traceLog("rasTerLeave", .{ null });
 }
 
 ///
 ///  タスク終了の禁止［NGKI3482］
 ///
 pub fn dis_ter() ItronError!void {
-    log.disTerEnter();
-    errdefer |err| log.disTerLeave(err);
+    traceLog("disTerEnter", .{});
+    errdefer |err| traceLog("disTerLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI3483］［NGKI3484］
     {
         target_impl.lockCpu();
@@ -143,15 +143,15 @@ pub fn dis_ter() ItronError!void {
 
         p_runtsk.?.flags.enater = false;        //［NGKI3486］
     }
-    log.disTerLeave(null);
+    traceLog("disTerLeave", .{ null });
 }
 
 ///
 ///  タスク終了の許可
 ///
 pub fn ena_ter() ItronError!void {
-    log.enaTerEnter();
-    errdefer |err| log.enaTerLeave(err);
+    traceLog("enaTerEnter", .{});
+    errdefer |err| traceLog("enaTerLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI3488］［NGKI3489］
     {
         target_impl.lockCpu();
@@ -170,18 +170,18 @@ pub fn ena_ter() ItronError!void {
             p_runtsk.?.flags.enater = true;     //［NGKI3491］
         }
     }
-    log.enaTerLeave(null);
+    traceLog("enaTerLeave", .{ null });
 }
 
 ///
 ///  タスク終了禁止状態の参照［NGKI3494］
 ///
 pub fn sns_ter() bool {
-    log.snsTerEnter();
+    traceLog("snsTerEnter", .{});
     // enaterを変更できるのは自タスクのみであるため，排他制御せずに読
     // んでも問題ない．
     var state = if (p_runtsk) |p_tcb| !p_tcb.flags.enater else true;
-    log.snsTerLeave(state);
+    traceLog("snsTerLeave", .{ state });
     return state;
 }
 
@@ -189,8 +189,8 @@ pub fn sns_ter() bool {
 ///  タスクの強制終了［NGKI1170］
 ///
 pub fn ter_tsk(tskid : ID) ItronError!void {
-    log.terTskEnter(tskid);
-    errdefer |err| log.terTskLeave(err);
+    traceLog("terTskEnter", .{ tskid });
+    errdefer |err| traceLog("terTskLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI1171］［NGKI1172］
     const p_tcb = try checkAndGetTCB(tskid);    //［NGKI1173］
     try checkIllegalUse(p_tcb != p_runtsk);     //［NGKI1176］
@@ -208,5 +208,5 @@ pub fn ter_tsk(tskid : ID) ItronError!void {
             }
         }
     }
-    log.terTskLeave(null);
+    traceLog("terTskLeave", .{ null });
 }

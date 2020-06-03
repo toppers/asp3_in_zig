@@ -99,8 +99,8 @@ fn referWaitingState(p_tcb: *TCB, pk_rtsk: *T_RTSK) void {
 pub fn ref_tsk(tskid: ID, pk_rtsk: *T_RTSK) ItronError!void {
     var p_tcb: *TCB = undefined;
 
-    log.refTskEnter(tskid, pk_rtsk);
-    errdefer |err| log.refTskLeave(err, pk_rtsk);
+    traceLog("refTskEnter", .{ tskid, pk_rtsk });
+    errdefer |err| traceLog("refTskLeave", .{ err, pk_rtsk });
     try checkContextTaskUnlock();               //［NGKI1218］［NGKI1219］
     if (tskid == TSK_SELF) {
         p_tcb = p_runtsk.?;                     //［NGKI1248］
@@ -165,5 +165,5 @@ pub fn ref_tsk(tskid: ID, pk_rtsk: *T_RTSK) ItronError!void {
         // 起動要求キューイング数の取出し［NGKI1238］
         pk_rtsk.actcnt = p_tcb.flags.actque;
     }
-    log.refTskLeave(null, pk_rtsk);
+    traceLog("refTskLeave", .{ null, pk_rtsk });
 }

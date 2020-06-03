@@ -159,13 +159,13 @@ pub fn make_non_wait(p_tcb: *TCB) void {
     if (!isSuspended(p_tcb.tstat)) {
         // 待ち状態から実行できる状態への遷移
         p_tcb.tstat = TS_RUNNABLE;
-        log.taskStateChange(p_tcb);
+        traceLog("taskStateChange", .{ p_tcb });
         make_runnable(p_tcb);
     }
     else {
         // 二重待ち状態から強制待ち状態への遷移
         p_tcb.tstat = TS_SUSPENDED;
-        log.taskStateChange(p_tcb);
+        traceLog("taskStateChange", .{ p_tcb });
     }
 }
 
@@ -361,7 +361,7 @@ pub fn wobj_make_wait(p_wobjcb: var, tstat: u8, p_winfo_wobj: var) void {
     make_wait(tstat, &p_winfo_wobj.winfo);
     wobj_queue_insert(@ptrCast(*WOBJCB, p_wobjcb));
     p_winfo_wobj.p_wobjcb = p_wobjcb;
-    log.taskStateChange(p_runtsk.?);
+    traceLog("taskStateChange", .{ p_runtsk.? });
 }
 
 pub fn wobj_make_wait_tmout(p_wobjcb: var, tstat: u8, p_winfo_wobj: var,
@@ -369,14 +369,14 @@ pub fn wobj_make_wait_tmout(p_wobjcb: var, tstat: u8, p_winfo_wobj: var,
     make_wait_tmout(tstat, &p_winfo_wobj.winfo, p_tmevtb, tmout);
     wobj_queue_insert(@ptrCast(*WOBJCB, p_wobjcb));
     p_winfo_wobj.p_wobjcb = p_wobjcb;
-    log.taskStateChange(p_runtsk.?);
+    traceLog("taskStateChange", .{ p_runtsk.? });
 }
 
 pub fn wobj_make_rwait(p_wobjcb: var, tstat: u8, p_winfo_wobj: var) void {
     make_wait(tstat, &p_winfo_wobj.winfo);
     p_wobjcb.rwait_queue.insertPrev(&p_runtsk.?.task_queue);
     p_winfo_wobj.p_wobjcb = p_wobjcb;
-    log.taskStateChange(p_runtsk.?);
+    traceLog("taskStateChange", .{ p_runtsk.? });
 }
 
 pub fn wobj_make_rwait_tmout(p_wobjcb: var, tstat: u8, p_winfo_wobj: var,
@@ -384,7 +384,7 @@ pub fn wobj_make_rwait_tmout(p_wobjcb: var, tstat: u8, p_winfo_wobj: var,
     make_wait_tmout(tstat, &p_winfo_wobj.winfo, p_tmevtb, tmout);
     p_wobjcb.rwait_queue.insertPrev(&p_runtsk.?.task_queue);
     p_winfo_wobj.p_wobjcb = p_wobjcb;
-    log.taskStateChange(p_runtsk.?);
+    traceLog("taskStateChange", .{ p_runtsk.? });
 }
 
 ///

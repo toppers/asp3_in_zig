@@ -53,8 +53,8 @@ usingnamespace check;
 pub fn rot_rdq(tskpri: PRI) ItronError!void {
     var prio: TaskPrio = undefined;
 
-    log.rotRdqEnter(tskpri);
-    errdefer |err| log.rotRdqLeave(err);
+    traceLog("rotRdqEnter", .{ tskpri });
+    errdefer |err| traceLog("rotRdqLeave", .{ err });
     try checkContextUnlock();                   //［NGKI2684］
     if (tskpri == TPRI_SELF and !target_impl.senseContext()) {
         prio = p_runtsk.?.bprio;                //［NGKI2689］
@@ -70,15 +70,15 @@ pub fn rot_rdq(tskpri: PRI) ItronError!void {
         rotate_ready_queue(prio);
         requestTaskDispatch();
     }
-    log.rotRdqLeave(null);
+    traceLog("rotRdqLeave", .{ null });
 }
 
 ///
 ///  実行状態のタスクIDの参照［NGKI3550］
 ///
 pub fn get_tid(p_tskid: *ID) ItronError!void {
-    log.getTidEnter(p_tskid);
-    errdefer |err| log.getTidLeave(err, p_tskid);
+    traceLog("getTidEnter", .{ p_tskid });
+    errdefer |err| traceLog("getTidLeave", .{ err, p_tskid });
     try checkContextUnlock();                   //［NGKI2707］
 
     if (p_runtsk) |p_tcb| {
@@ -87,7 +87,7 @@ pub fn get_tid(p_tskid: *ID) ItronError!void {
     else {
         p_tskid.* = TSK_NONE;                   //［NGKI2710］
     }
-    log.getTidLeave(null, p_tskid);
+    traceLog("getTidLeave", .{ null, p_tskid });
 }
 
 ///
@@ -97,8 +97,8 @@ pub fn get_lod(tskpri: PRI, p_load: *c_uint) ItronError!void {
     var prio: TaskPrio = undefined;
     var load: c_uint = 0;
 
-    log.getLodEnter(tskpri, p_load);
-    errdefer |err| log.getLodLeave(err, p_load);
+    traceLog("getLodEnter", .{ tskpri, p_load });
+    errdefer |err| traceLog("getLodLeave", .{ err, p_load });
     try checkContextTaskUnlock();               //［NGKI3624］［NGKI3625］
     if (tskpri == TPRI_SELF) {
         prio = p_runtsk.?.bprio;                //［NGKI3631］
@@ -118,7 +118,7 @@ pub fn get_lod(tskpri: PRI, p_load: *c_uint) ItronError!void {
         }
         p_load.* = load;
     }
-    log.getLodLeave(null, p_load);
+    traceLog("getLodLeave", .{ null, p_load });
 }
 
 ///
@@ -127,8 +127,8 @@ pub fn get_lod(tskpri: PRI, p_load: *c_uint) ItronError!void {
 pub fn get_nth(tskpri: PRI, nth: c_uint, p_tskid: *ID) ItronError!void {
     var prio: TaskPrio = undefined;
 
-    log.getNthEnter(tskpri, nth, p_tskid);
-    errdefer |err| log.getNthLeave(err, p_tskid);
+    traceLog("getNthEnter", .{ tskpri, nth, p_tskid });
+    errdefer |err| traceLog("getNthLeave", .{ err, p_tskid });
     try checkContextTaskUnlock();               //［NGKI3642］［NGKI3643］
     if (tskpri == TPRI_SELF) {
         prio = p_runtsk.?.bprio;                //［NGKI3650］
@@ -155,18 +155,18 @@ pub fn get_nth(tskpri: PRI, nth: c_uint, p_tskid: *ID) ItronError!void {
             p_tskid.* = TSK_NONE;
         }
     }
-    log.getNthLeave(null, p_tskid);
+    traceLog("getNthLeave", .{ null, p_tskid });
 }
 
 ///
 ///  CPUロック状態への遷移［NGKI3538］
 ///
 pub fn loc_cpu() ItronError!void {
-    log.locCpuEnter();
+    traceLog("locCpuEnter", .{});
     if (!target_impl.senseLock()) {             //［NGKI2731］
         target_impl.lockCpu();                  //［NGKI2730］
     }
-    log.locCpuLeave(null);
+    traceLog("locCpuLeave", .{ null });
 }
 
 ///
@@ -177,19 +177,19 @@ pub fn loc_cpu() ItronError!void {
 ///  必要はない．
 ///
 pub fn unl_cpu() ItronError!void {
-    log.unlCpuEnter();
+    traceLog("unlCpuEnter", .{});
     if (target_impl.senseLock()) {              //［NGKI2738］
         target_impl.unlockCpu();                //［NGKI2737］
     }
-    log.unlCpuLeave(null);
+    traceLog("unlCpuLeave", .{ null });
 }
 
 ///
 ///  ディスパッチの禁止［NGKI2740］
 ///
 pub fn dis_dsp() ItronError!void {
-    log.disDspEnter();
-    errdefer |err| log.disDspLeave(err);
+    traceLog("disDspEnter", .{});
+    errdefer |err| traceLog("disDspLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI2741］［NGKI2742］
     {
         target_impl.lockCpu();
@@ -198,15 +198,15 @@ pub fn dis_dsp() ItronError!void {
         enadsp = false;
         dspflg = false;
     }
-    log.disDspLeave(null);
+    traceLog("disDspLeave", .{ null });
 }
 
 ///
 ///  ディスパッチの許可［NGKI2746］
 ///
 pub fn ena_dsp() ItronError!void {
-    log.enaDspEnter();
-    errdefer |err| log.enaDspLeave(err);
+    traceLog("enaDspEnter", .{});
+    errdefer |err| traceLog("enaDspLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI2747］［NGKI2748］
     {
         target_impl.lockCpu();
@@ -229,16 +229,16 @@ pub fn ena_dsp() ItronError!void {
             }
         }
     }
-    log.enaDspLeave(null);
+    traceLog("enaDspLeave", .{ null });
 }
 
 ///
 ///  コンテキストの参照［NGKI2752］
 ///
 pub fn sns_ctx() bool {
-    log.snsCtxEnter();
+    traceLog("snsCtxEnter", .{});
     var state = target_impl.senseContext();
-    log.snsCtxLeave(state);
+    traceLog("snsCtxLeave", .{ state });
     return state;
 }
 
@@ -246,9 +246,9 @@ pub fn sns_ctx() bool {
 ///  CPUロック状態の参照［NGKI2754］
 ///
 pub fn sns_loc() bool {
-    log.snsLocEnter();
+    traceLog("snsLocEnter", .{});
     var state = target_impl.senseLock();
-    log.snsLocLeave(state);
+    traceLog("snsLocLeave", .{ state });
     return state;
 }
 
@@ -256,9 +256,9 @@ pub fn sns_loc() bool {
 ///  ディスパッチ禁止状態の参照［NGKI2756］
 ///
 pub fn sns_dsp() bool {
-    log.snsDspEnter();
+    traceLog("snsDspEnter", .{});
     var state = !enadsp;
-    log.snsDspLeave(state);
+    traceLog("snsDspLeave", .{ state });
     return state;
 }
 
@@ -266,10 +266,10 @@ pub fn sns_dsp() bool {
 ///  ディスパッチ保留状態の参照［NGKI2758］
 ///
 pub fn sns_dpn() bool {
-    log.snsDpnEnter();
+    traceLog("snsDpnEnter", .{});
     var state = target_impl.senseContext() or target_impl.senseLock()
                                            or !dspflg;
-    log.snsDpnLeave(state);
+    traceLog("snsDpnLeave", .{ state });
     return state;
 }
 
@@ -277,8 +277,8 @@ pub fn sns_dpn() bool {
 ///  カーネル非動作状態の参照［NGKI2760］
 ///
 pub fn sns_ker() bool {
-    log.snsKerEnter();
+    traceLog("snsKerEnter", .{});
     var state = !startup.kerflg;
-    log.snsKerLeave(state);
+    traceLog("snsKerLeave", .{ state });
     return state;
 }

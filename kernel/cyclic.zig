@@ -136,8 +136,8 @@ pub fn initialize_cyclic() void {
 ///  周期通知の動作開始
 ///
 pub fn sta_cyc(cycid: ID) ItronError!void {
-    log.staCycEnter(cycid);
-    errdefer |err| log.staCycLeave(err);
+    traceLog("staCycEnter", .{ cycid });
+    errdefer |err| traceLog("staCycLeave", .{ err });
     try checkContextTaskUnlock();
     const p_cyccb = try checkAndGetCycCB(cycid);
     {
@@ -154,15 +154,15 @@ pub fn sta_cyc(cycid: ID) ItronError!void {
         // 初回の起動のためのタイムイベントを登録する［ASPD1036］．
         tmevtb_enqueue_reltim(&p_cyccb.tmevtb, p_cyccb.p_cycinib.cycphs);
     }
-    log.staCycLeave(null);
+    traceLog("staCycLeave", .{ null });
 }
 
 ///
 /// 周期通知の動作停止
 ///
 pub fn stp_cyc(cycid: ID) ItronError!void {
-    log.stpCycEnter(cycid);
-    errdefer |err| log.stpCycLeave(err);
+    traceLog("stpCycEnter", .{ cycid });
+    errdefer |err| traceLog("stpCycLeave", .{ err });
     try checkContextTaskUnlock();
     const p_cyccb = try checkAndGetCycCB(cycid);
     {
@@ -174,15 +174,15 @@ pub fn stp_cyc(cycid: ID) ItronError!void {
             tmevtb_dequeue(&p_cyccb.tmevtb);
         }
     }
-    log.stpCycLeave(null);
+    traceLog("stpCycLeave", .{ null });
 }
 
 ///
 ///  周期通知の状態参照
 ///
 pub fn ref_cyc(cycid: ID, pk_rcyc: *T_RCYC) ItronError!void {
-    log.refCycEnter(cycid, pk_rcyc);
-    errdefer |err| log.refCycLeave(err, pk_rcyc);
+    traceLog("refCycEnter", .{ cycid, pk_rcyc });
+    errdefer |err| traceLog("refCycLeave", .{ err, pk_rcyc });
     try checkContextTaskUnlock();
     const p_cyccb = try checkAndGetCycCB(cycid);
     {
@@ -197,7 +197,7 @@ pub fn ref_cyc(cycid: ID, pk_rcyc: *T_RCYC) ItronError!void {
             pk_rcyc.cycstat = TCYC_STP;
         }
     }
-    log.refCycLeave(null, pk_rcyc);
+    traceLog("refCycLeave", .{ null, pk_rcyc });
 }
 
 ///
@@ -213,9 +213,9 @@ fn callCyclic(arg: usize) void {
     // 通知ハンドラを，CPUロック解除状態で呼び出す．
     target_impl.unlockCpu();
 
-    log.cyclicEnter(p_cyccb);
+    traceLog("cyclicEnter", .{ p_cyccb });
     p_cyccb.p_cycinib.nfyhdr(p_cyccb.p_cycinib.exinf);
-    log.cyclicLeave(p_cyccb);
+    traceLog("cyclicLeave", .{ p_cyccb });
 
     if (!target_impl.senseLock()) {
         target_impl.lockCpu();

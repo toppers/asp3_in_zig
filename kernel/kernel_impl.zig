@@ -62,11 +62,6 @@ pub usingnamespace @import("../include/kernel.zig");
 pub usingnamespace @import("../include/t_syslog.zig");
 
 ///
-///  トレースログに関する設定
-///
-pub const log = @import("trace_log.zig");
-
-///
 ///  ターゲット依存情報の定義
 ///
 pub const target_impl = @import("../target/" ++ option.TARGET
@@ -170,6 +165,17 @@ pub const TNUM_INTPRI = TMAX_INTPRI - TMIN_INTPRI + 1;
 ///  通知ハンドラの型定義
 ///
 pub const NFYHDR = TMEHDR;
+
+///
+///  トレースログの出力
+///
+pub fn traceLog(comptime log_type: []const u8, args: var) void {
+    if (@hasDecl(option.log, log_type)) {
+        @field(option.log, log_type)(args);
+    }
+}
+// 暫定
+pub const log = @import("trace_log.zig");
 
 ///
 ///  アラインメントも含めてポインタをキャスト

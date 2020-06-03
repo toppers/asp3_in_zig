@@ -253,8 +253,8 @@ pub fn initialize_interrupt() void {
 ///  割込みの禁止［NGKI3555］
 ///
 pub fn dis_int(intno: INTNO) ItronError!void {
-    log.disIntEnter(intno);
-    errdefer |err| log.disIntLeave(err);
+    traceLog("disIntEnter", .{ intno });
+    errdefer |err| traceLog("disIntLeave", .{ err });
     comptime try checkNotSupported(TOPPERS_SUPPORT_DIS_INT);    //［NGKI3093］
     try checkParameter(validIntnoDisInt(intno));    //［NGKI3083］［NGKI3087］
     {
@@ -275,15 +275,15 @@ pub fn dis_int(intno: INTNO) ItronError!void {
             return ItronError.ObjectStateError;
         }
     }
-    log.disIntLeave(null);
+    traceLog("disIntLeave", .{ null });
 }
 
 ///
 ///  割込みの許可［NGKI3556］
 ///
 pub fn ena_int(intno: INTNO) ItronError!void {
-    log.enaIntEnter(intno);
-    errdefer |err| log.enaIntLeave(err);
+    traceLog("enaIntEnter", .{ intno });
+    errdefer |err| traceLog("enaIntLeave", .{ err });
     comptime try checkNotSupported(TOPPERS_SUPPORT_DIS_INT);    //［NGKI3106］
     try checkParameter(validIntnoDisInt(intno));    //［NGKI3096］［NGKI3100］
                                                 
@@ -305,15 +305,15 @@ pub fn ena_int(intno: INTNO) ItronError!void {
             return ItronError.ObjectStateError;
         }
     }
-    log.enaIntLeave(null);
+    traceLog("enaIntLeave", .{ null });
 }
 
 ///
 ///  割込み要求のクリア［NGKI3920］
 ///
 pub fn clr_int(intno: INTNO) ItronError!void {
-    log.clrIntEnter(intno);
-    errdefer |err| log.clrIntLeave(err);
+    traceLog("clrIntEnter", .{ intno });
+    errdefer |err| traceLog("clrIntLeave", .{ err });
     comptime try checkNotSupported(TOPPERS_SUPPORT_CLR_INT);    //［NGKI3927］
     try checkParameter(validIntnoClrInt(intno));    //［NGKI3921］［NGKI3930］
                                                 
@@ -336,15 +336,15 @@ pub fn clr_int(intno: INTNO) ItronError!void {
             return ItronError.ObjectStateError;
         }
     }
-    log.clrIntLeave(null);
+    traceLog("clrIntLeave", .{ null });
 }
 
 ///
 ///  割込みの要求［NGKI3932］
 ///
 pub fn ras_int(intno: INTNO) ItronError!void {
-    log.rasIntEnter(intno);
-    errdefer |err| log.rasIntLeave(err);
+    traceLog("rasIntEnter", .{ intno });
+    errdefer |err| traceLog("rasIntLeave", .{ err });
     comptime try checkNotSupported(TOPPERS_SUPPORT_RAS_INT);    //［NGKI3939］
     try checkParameter(validIntnoRasInt(intno));    //［NGKI3933］［NGKI3942］
                                                 
@@ -367,15 +367,15 @@ pub fn ras_int(intno: INTNO) ItronError!void {
             return ItronError.ObjectStateError;
         }
     }
-    log.rasIntLeave(null);
+    traceLog("rasIntLeave", .{ null });
 }
 
 ///
 ///  割込み要求のチェック［NGKI3944］
 ///
 pub fn prb_int(intno: INTNO) ItronError!bool {
-    log.prbIntEnter(intno);
-    errdefer |err| log.prbIntLeave(err);
+    traceLog("prbIntEnter", .{ intno });
+    errdefer |err| traceLog("prbIntLeave", .{ err });
     comptime try checkNotSupported(TOPPERS_SUPPORT_PRB_INT);    //［NGKI3951］
     try checkParameter(validIntnoPrbInt(intno));    //［NGKI3945］［NGKI3952］
     {
@@ -396,15 +396,15 @@ pub fn prb_int(intno: INTNO) ItronError!bool {
             return ItronError.ObjectStateError;
         }
     }
-    log.prbIntLeave(null);
+    traceLog("prbIntLeave", .{ null });
 }
 
 ///
 ///  割込み優先度マスクの変更［NGKI3107］
 ///
 pub fn chg_ipm(intpri: PRI) ItronError!void {
-    log.chgIpmEnter(intpri);
-    errdefer |err| log.chgIpmLeave(err);
+    traceLog("chgIpmEnter", .{ intpri });
+    errdefer |err| traceLog("chgIpmLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI3108］［NGKI3109］
     try checkParameter(validIntPriChgIpm(intpri));
                                                 //［NGKI3113］［NGKI3114］
@@ -432,15 +432,15 @@ pub fn chg_ipm(intpri: PRI) ItronError!void {
             dspflg = false;
         }
     }
-    log.chgIpmLeave(null);
+    traceLog("chgIpmLeave", .{ null });
 }
 
 ///
 ///  割込み優先度マスクの参照［NGKI3115］
 ///
 pub fn get_ipm(p_intpri: *PRI) ItronError!void {
-    log.getIpmEnter(p_intpri);
-    errdefer |err| log.getIpmLeave(err, p_intpri);
+    traceLog("getIpmEnter", .{ p_intpri });
+    errdefer |err| traceLog("getIpmLeave", .{ err, p_intpri });
     try checkContextTaskUnlock();               //［NGKI3116］［NGKI3117］
     {
         target_impl.lockCpu();
@@ -448,7 +448,7 @@ pub fn get_ipm(p_intpri: *PRI) ItronError!void {
 
         p_intpri.* = target_impl.getIpm();      //［NGKI3120］
     }
-    log.getIpmLeave(null, p_intpri);
+    traceLog("getIpmLeave", .{ null, p_intpri });
 }
 
 ///
@@ -605,9 +605,9 @@ fn GenInterruptHandler(comptime isrcfg_table: []ISRCFG) type {
                         _ = c_api.unl_cpu();
                     }
                 }
-                log.isrEnter(isrcfg.isrid);
+                traceLog("isrEnter", .{ isrcfg.isrid });
                 isrcfg.cisr.isr(isrcfg.cisr.exinf);
-                log.isrLeave(isrcfg.isrid);
+                traceLog("isrLeave", .{ isrcfg.isrid });
             }
         }
     };

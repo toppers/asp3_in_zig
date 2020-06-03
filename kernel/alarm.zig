@@ -121,8 +121,8 @@ pub fn initialize_alarm() void {
 ///  アラーム通知の動作開始
 ///
 pub fn sta_alm(almid: ID, almtim: RELTIM) ItronError!void {
-    log.staAlmEnter(almid, almtim);
-    errdefer |err| log.staAlmLeave(err);
+    traceLog("staAlmEnter", .{ almid, almtim });
+    errdefer |err| traceLog("staAlmLeave", .{ err });
     try checkContextUnlock();
     const p_almcb = try checkAndGetAlmCB(almid);
     try checkParameter(validRelativeTime(almtim));
@@ -138,15 +138,15 @@ pub fn sta_alm(almid: ID, almtim: RELTIM) ItronError!void {
         }
         tmevtb_enqueue_reltim(&p_almcb.tmevtb, almtim);
     }
-    log.staAlmLeave(null);
+    traceLog("staAlmLeave", .{ null });
 }
 
 ///
 ///  アラーム通知の動作停止
 ///
 pub fn stp_alm(almid: ID) ItronError!void {
-    log.stpAlmEnter(almid);
-    errdefer |err| log.stpAlmLeave(err);
+    traceLog("stpAlmEnter", .{ almid });
+    errdefer |err| traceLog("stpAlmLeave", .{ err });
     try checkContextUnlock();
     const p_almcb = try checkAndGetAlmCB(almid);
     {
@@ -158,15 +158,15 @@ pub fn stp_alm(almid: ID) ItronError!void {
             tmevtb_dequeue(&p_almcb.tmevtb);
         }
     }
-    log.stpAlmLeave(null);
+    traceLog("stpAlmLeave", .{ null });
 }
 
 ///
 ///  アラーム通知の状態参照
 ///
 pub fn ref_alm(almid: ID, pk_ralm: *T_RALM) ItronError!void {
-    log.refAlmEnter(almid, pk_ralm);
-    errdefer |err| log.refAlmLeave(err, pk_ralm);
+    traceLog("refAlmEnter", .{ almid, pk_ralm });
+    errdefer |err| traceLog("refAlmLeave", .{ err, pk_ralm });
     try checkContextTaskUnlock();
     const p_almcb = try checkAndGetAlmCB(almid);
     {
@@ -181,7 +181,7 @@ pub fn ref_alm(almid: ID, pk_ralm: *T_RALM) ItronError!void {
             pk_ralm.almstat = TALM_STP;
         }
     }
-    log.refAlmLeave(null, pk_ralm);
+    traceLog("refAlmLeave", .{ null, pk_ralm });
 }
 
 ///
@@ -196,9 +196,9 @@ fn callAlarm(arg: usize) void {
     // 通知ハンドラを，CPUロック解除状態で呼び出す．
     target_impl.unlockCpu();
 
-    log.alarmEnter(p_almcb);
+    traceLog("alarmEnter", .{ p_almcb });
     p_almcb.p_alminib.nfyhdr(p_almcb.p_alminib.exinf);
-    log.alarmLeave(p_almcb);
+    traceLog("alarmLeave", .{ p_almcb });
 
     if (!target_impl.senseLock()) {
         target_impl.lockCpu();

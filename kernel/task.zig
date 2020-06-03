@@ -337,19 +337,19 @@ pub const ExternTskCfg = struct {
     ///
     ///  タスク初期化ブロックのエリア
     ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
+    // zigの制限の回避（配列のサイズを大きい値にしている）
     pub extern const _kernel_tinib_table: [100]TINIB;
 
     ///
     ///  タスク生成順序テーブル
     ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
+    // zigの制限の回避（配列のサイズを大きい値にしている）
     pub extern const _kernel_torder_table: [100]ID;
 
     ///
     ///  TCBのエリア
     ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
+    // zigの制限の回避（配列のサイズを大きい値にしている）
     pub extern var _kernel_tcb_table: [100]TCB;
 };
 
@@ -511,7 +511,7 @@ fn make_dormant(p_tcb: *TCB) void {
     if (TOPPERS_SUPPORT_OVRHDR) {
         p_tcb.flags.staovr = false;
     }
-    log.taskStateChange(p_tcb);
+    traceLog("taskStateChange", .{ p_tcb });
 }
 
 ///
@@ -522,7 +522,7 @@ fn make_dormant(p_tcb: *TCB) void {
 pub fn make_active(p_tcb: *TCB) void {
     target_impl.activateContext(p_tcb);
     p_tcb.tstat = TS_RUNNABLE;
-    log.taskStateChange(p_tcb);
+    traceLog("taskStateChange", .{ p_tcb });
     make_runnable(p_tcb);
 }
 

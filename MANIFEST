@@ -56,7 +56,6 @@ kernel/task_sync.zig
 kernel/task_term.zig
 kernel/time_event.zig
 kernel/time_manage.zig
-kernel/trace_log.zig
 kernel/wait.zig
 
 tecs_kernel/init_tecs.c

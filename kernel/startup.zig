@@ -183,7 +183,7 @@ pub fn sta_ker() noreturn {
 
     // カーネル動作の開始
     kerflg = true;
-    log.kernelEnter();
+    traceLog("kernelEnter", .{});
     target_impl.startDispatch();
 }
 
@@ -193,13 +193,13 @@ pub fn sta_ker() noreturn {
 pub fn ext_ker() noreturn {
     var silLock = sil.PRE_LOC();
 
-    log.extKerEnter();
+    traceLog("extKerEnter", .{});
 
     // 割込みロック状態に移行
     sil.LOC_INT(&silLock);
 
     // カーネル動作の終了
-    log.kernelLeave();
+    traceLog("kernelLeave", .{});
     kerflg = false;
 
     // カーネルの終了処理の呼出し

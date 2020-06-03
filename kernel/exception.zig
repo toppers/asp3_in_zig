@@ -117,10 +117,10 @@ pub fn initialize_exception() void {
 ///  した時のenadspを保存しておく必要はない．
 ///
 pub fn xsns_dpn(p_excinf: *c_void) bool {
-    log.xSnsDpnEnter(p_excinf);
+    traceLog("xSnsDpnEnter", .{ p_excinf });
     var state = !(startup.kerflg and target_impl.exc_sense_intmask(p_excinf)
                       and enadsp and p_runtsk != null);
-    log.xSnsDpnLeave(state);
+    traceLog("xSnsDpnLeave", .{ state });
     return state;
 }
 

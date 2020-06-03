@@ -229,8 +229,8 @@ fn getMpfBlock(p_mpfcb: *MPFCB, p_blk: *[*]u8) void {
 ///  固定長メモリブロックの獲得
 ///
 pub fn get_mpf(mpfid: ID, p_blk: **u8) ItronError!void {
-    log.getMpfEnter(mpfid, p_blk);
-    errdefer |err| log.getMpfLeave(err, p_blk);
+    traceLog("getMpfEnter", .{ mpfid, p_blk });
+    errdefer |err| traceLog("getMpfLeave", .{ err, p_blk });
     try checkDispatch();
     const p_mpfcb = try checkAndGetMpfCB(mpfid);
     {
@@ -252,15 +252,15 @@ pub fn get_mpf(mpfid: ID, p_blk: **u8) ItronError!void {
             }
         }
     }
-    log.getMpfLeave(null, p_blk);
+    traceLog("getMpfLeave", .{ null, p_blk });
 }
 
 ///
 ///  固定長メモリブロックの獲得（ポーリング）
 ///
 pub fn pget_mpf(mpfid: ID, p_blk: **u8) ItronError!void {
-    log.pGetMpfEnter(mpfid, p_blk);
-    errdefer |err| log.pGetMpfLeave(err, p_blk);
+    traceLog("pGetMpfEnter", .{ mpfid, p_blk });
+    errdefer |err| traceLog("pGetMpfLeave", .{ err, p_blk });
     try checkContextTaskUnlock();
     const p_mpfcb = try checkAndGetMpfCB(mpfid);
     {
@@ -274,15 +274,15 @@ pub fn pget_mpf(mpfid: ID, p_blk: **u8) ItronError!void {
             return ItronError.TimeoutError;
         }
     }
-    log.pGetMpfLeave(null, p_blk);
+    traceLog("pGetMpfLeave", .{ null, p_blk });
 }
 
 ///
 ///  固定長メモリブロックの獲得（タイムアウトあり）
 ///
 pub fn tget_mpf(mpfid: ID, p_blk: **u8, tmout: TMO) ItronError!void {
-    log.tGetMpfEnter(mpfid, p_blk, tmout);
-    errdefer |err| log.tGetMpfLeave(err, p_blk);
+    traceLog("tGetMpfEnter", .{ mpfid, p_blk, tmout });
+    errdefer |err| traceLog("tGetMpfLeave", .{ err, p_blk });
     try checkDispatch();
     const p_mpfcb = try checkAndGetMpfCB(mpfid);
     try checkParameter(validTimeout(tmout));
@@ -310,15 +310,15 @@ pub fn tget_mpf(mpfid: ID, p_blk: **u8, tmout: TMO) ItronError!void {
             }
         }
     }
-    log.tGetMpfLeave(null, p_blk);
+    traceLog("tGetMpfLeave", .{ null, p_blk });
 }
 
 ///
 ///  固定長メモリブロックの返却
 ///
 pub fn rel_mpf(mpfid: ID, blk: *u8) ItronError!void {
-    log.relMpfEnter(mpfid, blk);
-    errdefer |err| log.relMpfLeave(err);
+    traceLog("relMpfEnter", .{ mpfid, blk });
+    errdefer |err| traceLog("relMpfLeave", .{ err });
     try checkContextTaskUnlock();
     const p_mpfcb = try checkAndGetMpfCB(mpfid);
     try checkParameter(@ptrToInt(p_mpfcb.p_wobjinib.mpf) <= @ptrToInt(blk));
@@ -343,15 +343,15 @@ pub fn rel_mpf(mpfid: ID, blk: *u8) ItronError!void {
             p_mpfcb.freelist = blkidx;
         }
     }
-    log.relMpfLeave(null);
+    traceLog("relMpfLeave", .{ null });
 }
 
 ///
 ///  固定長メモリプールの再初期化
 ///
 pub fn ini_mpf(mpfid: ID) ItronError!void {
-    log.iniMpfEnter(mpfid);
-    errdefer |err| log.iniMpfLeave(err);
+    traceLog("iniMpfEnter", .{ mpfid });
+    errdefer |err| traceLog("iniMpfLeave", .{ err });
     try checkContextTaskUnlock();
     const p_mpfcb = try checkAndGetMpfCB(mpfid);
     {
@@ -364,15 +364,15 @@ pub fn ini_mpf(mpfid: ID) ItronError!void {
         p_mpfcb.freelist = INDEX_NULL;
         taskDispatch();
     }
-    log.iniMpfLeave(null);
+    traceLog("iniMpfLeave", .{ null });
 }
 
 ///
 ///  固定長メモリプールの状態参照
 ///
 pub fn ref_mpf(mpfid: ID, pk_rmpf: *T_RMPF) ItronError!void {
-    log.refMpfEnter(mpfid, pk_rmpf);
-    errdefer |err| log.refMpfLeave(err, pk_rmpf);
+    traceLog("refMpfEnter", .{ mpfid, pk_rmpf });
+    errdefer |err| traceLog("refMpfLeave", .{ err, pk_rmpf });
     try checkContextTaskUnlock();
     const p_mpfcb = try checkAndGetMpfCB(mpfid);
     {
@@ -382,7 +382,7 @@ pub fn ref_mpf(mpfid: ID, pk_rmpf: *T_RMPF) ItronError!void {
         pk_rmpf.wtskid = wait_tskid(&p_mpfcb.wait_queue);
         pk_rmpf.fblkcnt = p_mpfcb.fblkcnt;
     }
-    log.refMpfLeave(null, pk_rmpf);
+    traceLog("refMpfLeave", .{ null, pk_rmpf });
 }
 
 ///

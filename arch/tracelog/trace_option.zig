@@ -47,11 +47,11 @@ usingnamespace @import("../../kernel/kernel_impl.zig");
 ///
 ///  トレースログ方法の設定
 ///
-pub fn taskStateChange(p_tcb: *task.TCB) void {
-    trace_write(LOG_TYPE_TSKSTAT, .{ p_tcb, p_tcb.tstat });
+pub fn taskStateChange(args: var) void {
+    traceWrite(LOG_TYPE_TSKSTAT, .{ args.@"0", args.@"0".tstat });
 }
-pub fn dispatchLeave(p_tcb: *task.TCB) void {
-    trace_write(LOG_TYPE_DSP|LOG_LEAVE, .{ p_tcb });
+pub fn dispatchLeave(args: var) void {
+    traceWrite(LOG_TYPE_DSP|LOG_LEAVE, .{ args.@"0" });
 }
 
 ///
@@ -97,7 +97,7 @@ fn logPar(arg : var) usize {
 ///
 ///  トレースログの書込み
 ///
-fn trace_write(logtype: c_uint, args: var) void {
+fn traceWrite(logtype: c_uint, args: var) void {
     var tracebuf: TRACE = undefined;
 
     tracebuf.logtype = logtype;
@@ -116,21 +116,21 @@ fn trace_write(logtype: c_uint, args: var) void {
 ///
 pub const TraceExportDefs = struct {
     export fn _kernel_log_dsp_enter(p_tcb: *task.TCB) void {
-        trace_write(LOG_TYPE_DSP|LOG_ENTER, .{ p_tcb });
+        traceWrite(LOG_TYPE_DSP|LOG_ENTER, .{ p_tcb });
     }
     export fn _kernel_log_dsp_leave(p_tcb: *task.TCB) void {
-        trace_write(LOG_TYPE_DSP|LOG_LEAVE, .{ p_tcb });
+        traceWrite(LOG_TYPE_DSP|LOG_LEAVE, .{ p_tcb });
     }
     export fn _kernel_log_inh_enter(inhno: INHNO) void {
-        trace_write(LOG_TYPE_INH|LOG_ENTER, .{ inhno });
+        traceWrite(LOG_TYPE_INH|LOG_ENTER, .{ inhno });
     }
     export fn _kernel_log_inh_leave(inhno: INHNO) void {
-        trace_write(LOG_TYPE_INH|LOG_LEAVE, .{ inhno });
+        traceWrite(LOG_TYPE_INH|LOG_LEAVE, .{ inhno });
     }
     export fn _kernel_log_exc_enter(excno: EXCNO) void {
-        trace_write(LOG_TYPE_EXC|LOG_ENTER, .{ excno });
+        traceWrite(LOG_TYPE_EXC|LOG_ENTER, .{ excno });
     }
     export fn _kernel_log_exc_leave(excno: EXCNO) void {
-        trace_write(LOG_TYPE_EXC|LOG_LEAVE, .{ excno });
+        traceWrite(LOG_TYPE_EXC|LOG_LEAVE, .{ excno });
     }
 };

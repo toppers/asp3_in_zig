@@ -55,8 +55,8 @@ usingnamespace check;
 pub fn slp_tsk() ItronError!void {
     var winfo: WINFO = undefined;
 
-    log.slpTskEnter();
-    errdefer |err| log.slpTskLeave(err);
+    traceLog("slpTskEnter", .{});
+    errdefer |err| traceLog("slpTskLeave", .{ err });
     try checkDispatch();                        //［NGKI1254］
     {
         target_impl.lockCpuDsp();
@@ -71,14 +71,14 @@ pub fn slp_tsk() ItronError!void {
         }
         else {
             make_wait(TS_WAITING_SLP, &winfo);  //［NGKI1260］
-            log.taskStateChange(p_selftsk);
+            traceLog("taskStateChange", .{ p_selftsk });
             target_impl.dispatch();
             if (winfo.werror) |werror| {
                 return werror;
             }
         }
     }
-    log.slpTskLeave(null);
+    traceLog("slpTskLeave", .{ null });
 }
 
 ///
@@ -88,8 +88,8 @@ pub fn tslp_tsk(tmout: TMO) ItronError!void {
     var winfo: WINFO = undefined;
     var tmevtb: TMEVTB = undefined;
 
-    log.tSlpTskEnter(tmout);
-    errdefer |err| log.tSlpTskLeave(err);
+    traceLog("tSlpTskEnter", .{ tmout });
+    errdefer |err| traceLog("tSlpTskLeave", .{ err });
     try checkDispatch();                        //［NGKI1254］
     try checkParameter(validTimeout(tmout));    //［NGKI1256］
     {
@@ -108,14 +108,14 @@ pub fn tslp_tsk(tmout: TMO) ItronError!void {
         }
         else {                                  //［NGKI1260］
             make_wait_tmout(TS_WAITING_SLP, &winfo, &tmevtb, tmout);
-            log.taskStateChange(p_selftsk);
+            traceLog("taskStateChange", .{ p_selftsk });
             target_impl.dispatch();
             if (winfo.werror) |werror| {
                 return werror;
             }
         }
     }
-    log.tSlpTskLeave(null);
+    traceLog("tSlpTskLeave", .{ null });
 }
 
 ///
@@ -124,8 +124,8 @@ pub fn tslp_tsk(tmout: TMO) ItronError!void {
 pub fn wup_tsk(tskid: ID) ItronError!void {
     var p_tcb: *TCB = undefined;
 
-    log.wupTskEnter(tskid);
-    errdefer |err| log.wupTskLeave(err);
+    traceLog("wupTskEnter", .{ tskid });
+    errdefer |err| traceLog("wupTskLeave", .{ err });
     try checkContextUnlock();                   //［NGKI1265］
     if (tskid == TSK_SELF and !target_impl.senseContext()) {
         p_tcb = p_runtsk.?;                     //［NGKI1275］
@@ -151,7 +151,7 @@ pub fn wup_tsk(tskid: ID) ItronError!void {
             return ItronError.QueueingOverflow; //［NGKI1274］
         }
     }
-    log.wupTskLeave(null);
+    traceLog("wupTskLeave", .{ null });
 }
 
 ///
@@ -161,8 +161,8 @@ pub fn can_wup(tskid: ID) ItronError!c_uint {
     var p_tcb: *TCB = undefined;
     var retval: c_uint = undefined;
 
-    log.canWupEnter(tskid);
-    errdefer |err| log.canWupLeave(err);
+    traceLog("canWupEnter", .{ tskid });
+    errdefer |err| traceLog("canWupLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI1277］［NGKI1278］
     if (tskid == TSK_SELF) {
         p_tcb = p_runtsk.?;                     //［NGKI1285］
@@ -182,7 +182,7 @@ pub fn can_wup(tskid: ID) ItronError!c_uint {
             p_tcb.flags.wupque = 0;             //［NGKI1284］
         }
     }
-    log.canWupLeave(retval);
+    traceLog("canWupLeave", .{ retval });
     return retval;
 }
 
@@ -192,8 +192,8 @@ pub fn can_wup(tskid: ID) ItronError!c_uint {
 pub fn rel_wai(tskid: ID) ItronError!void {
     var p_tcb: *TCB = undefined;
 
-    log.relWaiEnter(tskid);
-    errdefer |err| log.relWaiLeave(err);
+    traceLog("relWaiEnter", .{ tskid });
+    errdefer |err| traceLog("relWaiLeave", .{ err });
     try checkContextUnlock();                   //［NGKI1290］
     p_tcb = try checkAndGetTCB(tskid);          //［NGKI1292］
     {
@@ -211,7 +211,7 @@ pub fn rel_wai(tskid: ID) ItronError!void {
             requestTaskDispatch();
         }
     }
-    log.relWaiLeave(null);
+    traceLog("relWaiLeave", .{ null });
 }
 
 ///
@@ -220,8 +220,8 @@ pub fn rel_wai(tskid: ID) ItronError!void {
 pub fn sus_tsk(tskid: ID) ItronError!void {
     var p_tcb: *TCB = undefined;
 
-    log.susTskEnter(tskid);
-    errdefer |err| log.susTskLeave(err);
+    traceLog("susTskEnter", .{ tskid });
+    errdefer |err| traceLog("susTskLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI1299］［NGKI1300］
     if (tskid == TSK_SELF) {
         p_tcb = p_runtsk.?;                     //［NGKI1310］
@@ -245,7 +245,7 @@ pub fn sus_tsk(tskid: ID) ItronError!void {
         else if (isRunnable(p_tcb.tstat)) {
             // 実行できる状態から強制待ち状態への遷移［NGKI1307］
             p_tcb.tstat = TS_SUSPENDED;
-            log.taskStateChange(p_tcb);
+            traceLog("taskStateChange", .{ p_tcb });
             make_non_runnable(p_tcb);
             taskDispatch();
         }
@@ -255,10 +255,10 @@ pub fn sus_tsk(tskid: ID) ItronError!void {
         else {
             // 待ち状態から二重待ち状態への遷移［NGKI1308］
             p_tcb.tstat |= @as(u8, TS_SUSPENDED);
-            log.taskStateChange(p_tcb);
+            traceLog("taskStateChange", .{ p_tcb });
         }
     }
-    log.susTskLeave(null);
+    traceLog("susTskLeave", .{ null });
 }
 
 ///
@@ -267,8 +267,8 @@ pub fn sus_tsk(tskid: ID) ItronError!void {
 pub fn rsm_tsk(tskid: ID) ItronError!void {
     var p_tcb: *TCB = undefined;
 
-    log.rsmTskEnter(tskid);
-    errdefer |err| log.rsmTskLeave(err);
+    traceLog("rsmTskEnter", .{ tskid });
+    errdefer |err| traceLog("rsmTskLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI1313］［NGKI1314］
     p_tcb = try checkAndGetTCB(tskid);          //［NGKI1316］
     {
@@ -282,17 +282,17 @@ pub fn rsm_tsk(tskid: ID) ItronError!void {
             // 強制待ちからの再開［NGKI1320］
             if (!isWaiting(p_tcb.tstat)) {
                 p_tcb.tstat = TS_RUNNABLE;
-                log.taskStateChange(p_tcb);
+                traceLog("taskStateChange", .{ p_tcb });
                 make_runnable(p_tcb);
                 taskDispatch();
             }
             else {
                 p_tcb.tstat &= ~@as(u8, TS_SUSPENDED);
-                log.taskStateChange(p_tcb);
+                traceLog("taskStateChange", .{ p_tcb });
             }
         }
     }
-    log.rsmTskLeave(null);
+    traceLog("rsmTskLeave", .{ null });
 }
 
 ///
@@ -302,8 +302,8 @@ pub fn dly_tsk(dlytim: RELTIM) ItronError!void {
     var winfo: WINFO = undefined;
     var tmevtb: TMEVTB = undefined;
 
-    log.dlyTskEnter(dlytim);
-    errdefer |err| log.dlyTskLeave(err);
+    traceLog("dlyTskEnter", .{ dlytim });
+    errdefer |err| traceLog("dlyTskLeave", .{ err });
     try checkDispatch();                            //［NGKI1349］
     try checkParameter(validRelativeTime(dlytim));  //［NGKI1351］
     {
@@ -322,12 +322,12 @@ pub fn dly_tsk(dlytim: RELTIM) ItronError!void {
             tmevtb.callback = wait_tmout_ok;
             tmevtb.arg = @ptrToInt(p_runtsk);
             tmevtb_enqueue_reltim(&tmevtb, dlytim);
-            log.taskStateChange(p_selftsk);
+            traceLog("taskStateChange", .{ p_selftsk });
             target_impl.dispatch();
             if (winfo.werror) |werror| {
                 return werror;
             }
         }
     }
-    log.dlyTskLeave(null);
+    traceLog("dlyTskLeave", .{ null });
 }

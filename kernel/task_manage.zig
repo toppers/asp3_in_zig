@@ -53,8 +53,8 @@ usingnamespace check;
 pub fn act_tsk(tskid: ID) ItronError!void {
     var p_tcb: *TCB = undefined;
 
-    log.actTskEnter(tskid);
-    errdefer |err| log.actTskLeave(err);
+    traceLog("actTskEnter", .{ tskid });
+    errdefer |err| traceLog("actTskLeave", .{ err });
     try checkContextUnlock();                   //［NGKI1114］
     if (tskid == TSK_SELF and !target_impl.senseContext()) {
         p_tcb = p_runtsk.?;                     //［NGKI1121］
@@ -78,7 +78,7 @@ pub fn act_tsk(tskid: ID) ItronError!void {
             p_tcb.flags.actque += 1;            //［NGKI3527］
         }
     }
-    log.actTskLeave(null);
+    traceLog("actTskLeave", .{ null });
 }
 
 ///
@@ -88,8 +88,8 @@ pub fn can_act(tskid: ID) ItronError!c_uint {
     var p_tcb: *TCB = undefined;
     var retval: c_uint = undefined;
 
-    log.canActEnter(tskid);
-    errdefer |err| log.canActLeave(err);
+    traceLog("canActEnter", .{ tskid });
+    errdefer |err| traceLog("canActLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI1139］［NGKI1140］
     if (tskid == TSK_SELF) {
         p_tcb = p_runtsk.?;                     //［NGKI1146］
@@ -104,7 +104,7 @@ pub fn can_act(tskid: ID) ItronError!c_uint {
         retval = p_tcb.flags.actque;            //［NGKI1144］
         p_tcb.flags.actque = 0;                 //［NGKI1144］
     }
-    log.canActLeave(retval);
+    traceLog("canActLeave", .{ retval });
     return retval;
 }
 
@@ -114,8 +114,8 @@ pub fn can_act(tskid: ID) ItronError!c_uint {
 pub fn get_tst(tskid: ID, p_tskstat: *STAT) ItronError!void {
     var p_tcb: *TCB = undefined;
 
-    log.getTstEnter(tskid, p_tskstat);
-    errdefer |err| log.getTstLeave(err, p_tskstat);
+    traceLog("getTstEnter", .{ tskid, p_tskstat });
+    errdefer |err| traceLog("getTstLeave", .{ err, p_tskstat });
     try checkContextTaskUnlock();               //［NGKI3614］［NGKI3615］
     if (tskid == TSK_SELF) {
         p_tcb = p_runtsk.?;                     //［NGKI3621］
@@ -148,7 +148,7 @@ pub fn get_tst(tskid: ID, p_tskstat: *STAT) ItronError!void {
             p_tskstat.* = TTS_RDY;
         }
     }
-    log.getTstLeave(null, p_tskstat);
+    traceLog("getTstLeave", .{ null, p_tskstat });
 }
 
 ///
@@ -158,8 +158,8 @@ pub fn chg_pri(tskid: ID, tskpri: PRI) ItronError!void {
     var p_tcb: *TCB = undefined;
     var newbprio: TaskPrio = undefined;
     
-    log.chgPriEnter(tskid, tskpri);
-    errdefer |err| log.chgPriLeave(err);
+    traceLog("chgPriEnter", .{ tskid, tskpri });
+    errdefer |err| traceLog("chgPriLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI1184］［NGKI1185］
     if (tskid == TSK_SELF) {
         p_tcb = p_runtsk.?;                     //［NGKI1198］
@@ -193,7 +193,7 @@ pub fn chg_pri(tskid: ID, tskpri: PRI) ItronError!void {
             }                                   //［NGKI1197］
         }
     }
-    log.chgPriLeave(null);
+    traceLog("chgPriLeave", .{ null });
 }
 
 ///
@@ -202,8 +202,8 @@ pub fn chg_pri(tskid: ID, tskpri: PRI) ItronError!void {
 pub fn get_pri(tskid: ID, p_tskpri: *PRI) ItronError!void {
     var p_tcb: *TCB = undefined;
 
-    log.getPriEnter(tskid, p_tskpri);
-    errdefer |err| log.getPriLeave(err, p_tskpri);
+    traceLog("getPriEnter", .{ tskid, p_tskpri });
+    errdefer |err| traceLog("getPriLeave", .{ err, p_tskpri });
     try checkContextTaskUnlock();               //［NGKI1203］［NGKI1204］
     if (tskid == TSK_SELF) {
         p_tcb = p_runtsk.?;                     //［NGKI1211］
@@ -222,15 +222,15 @@ pub fn get_pri(tskid: ID, p_tskpri: *PRI) ItronError!void {
             p_tskpri.* = externalTaskPrio(p_tcb.prio);
         }
     }
-    log.getPriLeave(null, p_tskpri);
+    traceLog("getPriLeave", .{ null, p_tskpri });
 }
 
 /// 自タスクの拡張情報の参照
 pub fn get_inf(p_exinf: *EXINF) ItronError!void {
-    log.getInfEnter(p_exinf);
-    errdefer |err| log.getInfLeave(err, p_exinf);
+    traceLog("getInfEnter", .{ p_exinf });
+    errdefer |err| traceLog("getInfLeave", .{ err, p_exinf });
     try checkContextTaskUnlock();               //［NGKI1213］［NGKI1214］
 
     p_exinf.* = p_runtsk.?.p_tinib.exinf;       //［NGKI1216］
-    log.getInfLeave(null, p_exinf);
+    traceLog("getInfLeave", .{ null, p_exinf });
 }

@@ -201,8 +201,8 @@ fn check_flg_cond(p_flgcb: *FLGCB, waiptn: FLGPTN,
 ///  イベントフラグのセット
 ///
 pub fn set_flg(flgid: ID, setptn: FLGPTN) ItronError!void {
-    log.setFlgEnter(flgid, setptn);
-    errdefer |err| log.setFlgLeave(err);
+    traceLog("setFlgEnter", .{ flgid, setptn });
+    errdefer |err| traceLog("setFlgLeave", .{ err });
     try checkContextUnlock();
     const p_flgcb = try checkAndGetFlgCB(flgid);
     {
@@ -226,15 +226,15 @@ pub fn set_flg(flgid: ID, setptn: FLGPTN) ItronError!void {
         }
         requestTaskDispatch();
     }
-    log.setFlgLeave(null);
+    traceLog("setFlgLeave", .{ null });
 }
 
 ///
 ///  イベントフラグのクリア
 ///
 pub fn clr_flg(flgid: ID, clrptn: FLGPTN) ItronError!void {
-    log.clrFlgEnter(flgid, clrptn);
-    errdefer |err| log.clrFlgLeave(err);
+    traceLog("clrFlgEnter", .{ flgid, clrptn });
+    errdefer |err| traceLog("clrFlgLeave", .{ err });
     try checkContextTaskUnlock();
     const p_flgcb = try checkAndGetFlgCB(flgid);
     {
@@ -243,7 +243,7 @@ pub fn clr_flg(flgid: ID, clrptn: FLGPTN) ItronError!void {
 
         p_flgcb.flgptn &= clrptn;
     }
-    log.clrFlgLeave(null);
+    traceLog("clrFlgLeave", .{ null });
 }
 
 ///
@@ -251,8 +251,8 @@ pub fn clr_flg(flgid: ID, clrptn: FLGPTN) ItronError!void {
 ///
 pub fn wai_flg(flgid: ID, waiptn: FLGPTN,
                wfmode: MODE, p_flgptn: *FLGPTN) ItronError!void {
-    log.waiFlgEnter(flgid, waiptn, wfmode, p_flgptn);
-    errdefer |err| log.waiFlgLeave(err, p_flgptn);
+    traceLog("waiFlgEnter", .{ flgid, waiptn, wfmode, p_flgptn });
+    errdefer |err| traceLog("waiFlgLeave", .{ err, p_flgptn });
     try checkDispatch();
     const p_flgcb = try checkAndGetFlgCB(flgid);
     try checkParameter(waiptn != 0);
@@ -280,7 +280,7 @@ pub fn wai_flg(flgid: ID, waiptn: FLGPTN,
             p_flgptn.* = winfo_flg.waiptn;
         }
     }
-    log.waiFlgLeave(null, p_flgptn);
+    traceLog("waiFlgLeave", .{ null, p_flgptn });
 }
 
 ///
@@ -288,8 +288,8 @@ pub fn wai_flg(flgid: ID, waiptn: FLGPTN,
 ///
 pub fn pol_flg(flgid: ID, waiptn: FLGPTN,
                wfmode: MODE, p_flgptn: *FLGPTN) ItronError!void {
-    log.polFlgEnter(flgid, waiptn, wfmode, p_flgptn);
-    errdefer |err| log.polFlgLeave(err, p_flgptn);
+    traceLog("polFlgEnter", .{ flgid, waiptn, wfmode, p_flgptn });
+    errdefer |err| traceLog("polFlgLeave", .{ err, p_flgptn });
     try checkContextTaskUnlock();
     const p_flgcb = try checkAndGetFlgCB(flgid);
     try checkParameter(waiptn != 0);
@@ -306,7 +306,7 @@ pub fn pol_flg(flgid: ID, waiptn: FLGPTN,
             return ItronError.TimeoutError;
         }
     }
-    log.polFlgLeave(null, p_flgptn);
+    traceLog("polFlgLeave", .{ null, p_flgptn });
 }
 
 ///
@@ -314,8 +314,8 @@ pub fn pol_flg(flgid: ID, waiptn: FLGPTN,
 ///
 pub fn twai_flg(flgid: ID, waiptn: FLGPTN, wfmode: MODE,
                 p_flgptn: *FLGPTN, tmout: TMO) ItronError!void {
-    log.tWaiFlgEnter(flgid, waiptn, wfmode, p_flgptn, tmout);
-    errdefer |err| log.tWaiFlgLeave(err, p_flgptn);
+    traceLog("tWaiFlgEnter", .{ flgid, waiptn, wfmode, p_flgptn, tmout });
+    errdefer |err| traceLog("tWaiFlgLeave", .{ err, p_flgptn });
     try checkDispatch();
     const p_flgcb = try checkAndGetFlgCB(flgid);
     try checkParameter(waiptn != 0);
@@ -351,15 +351,15 @@ pub fn twai_flg(flgid: ID, waiptn: FLGPTN, wfmode: MODE,
             p_flgptn.* = winfo_flg.waiptn;
         }
     }
-    log.tWaiFlgLeave(null, p_flgptn);
+    traceLog("tWaiFlgLeave", .{ null, p_flgptn });
 }
 
 ///
 ///  イベントフラグの再初期化
 ///
 pub fn ini_flg(flgid: ID) ItronError!void {
-    log.iniFlgEnter(flgid);
-    errdefer |err| log.iniFlgLeave(err);
+    traceLog("iniFlgEnter", .{ flgid });
+    errdefer |err| traceLog("iniFlgLeave", .{ err });
     try checkContextTaskUnlock();
     const p_flgcb = try checkAndGetFlgCB(flgid);
     {
@@ -370,15 +370,15 @@ pub fn ini_flg(flgid: ID) ItronError!void {
         p_flgcb.flgptn = p_flgcb.p_wobjinib.iflgptn;
         taskDispatch();
     }
-    log.iniFlgLeave(null);
+    traceLog("iniFlgLeave", .{ null });
 }
 
 ///
 /// イベントフラグの状態参照
 ///
 pub fn ref_flg(flgid: ID, pk_rflg: *T_RFLG) ItronError!void {
-    log.refFlgEnter(flgid, pk_rflg);
-    errdefer |err| log.refFlgLeave(err, pk_rflg);
+    traceLog("refFlgEnter", .{ flgid, pk_rflg });
+    errdefer |err| traceLog("refFlgLeave", .{ err, pk_rflg });
     try checkContextTaskUnlock();
     const p_flgcb = try checkAndGetFlgCB(flgid);
     {
@@ -388,7 +388,7 @@ pub fn ref_flg(flgid: ID, pk_rflg: *T_RFLG) ItronError!void {
         pk_rflg.wtskid = wait_tskid(&p_flgcb.wait_queue);
         pk_rflg.flgptn = p_flgcb.flgptn;
     }
-    log.refFlgLeave(null, pk_rflg);
+    traceLog("refFlgLeave", .{ null, pk_rflg });
 }
 
 ///

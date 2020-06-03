@@ -307,8 +307,8 @@ fn receiveData(p_dtqcb: *DTQCB, p_data: *usize) bool {
 ///  データキューへの送信
 ///
 pub fn snd_dtq(dtqid: ID, data: usize) ItronError!void {
-    log.sndDtqEnter(dtqid, data);
-    errdefer |err| log.sndDtqLeave(err);
+    traceLog("sndDtqEnter", .{ dtqid, data });
+    errdefer |err| traceLog("sndDtqLeave", .{ err });
     try checkDispatch();
     const p_dtqcb = try checkAndGetDtqCB(dtqid);
     {
@@ -331,15 +331,15 @@ pub fn snd_dtq(dtqid: ID, data: usize) ItronError!void {
             }
         }
     }
-    log.sndDtqLeave(null);
+    traceLog("sndDtqLeave", .{ null });
 }
 
 ///
 ///  データキューへの送信（ポーリング）
 ///
 pub fn psnd_dtq(dtqid: ID, data: usize) ItronError!void {
-    log.pSndDtqEnter(dtqid, data);
-    errdefer |err| log.pSndDtqLeave(err);
+    traceLog("pSndDtqEnter", .{ dtqid, data });
+    errdefer |err| traceLog("pSndDtqLeave", .{ err });
     try checkContextUnlock();
     const p_dtqcb = try checkAndGetDtqCB(dtqid);
     {
@@ -353,15 +353,15 @@ pub fn psnd_dtq(dtqid: ID, data: usize) ItronError!void {
             return ItronError.TimeoutError;
         }
     }
-    log.pSndDtqLeave(null);
+    traceLog("pSndDtqLeave", .{ null });
 }
 
 ///
 ///  データキューへの送信（タイムアウトあり）
 ///
 pub fn tsnd_dtq(dtqid: ID, data: usize, tmout: TMO) ItronError!void {
-    log.tSndDtqEnter(dtqid, data, tmout);
-    errdefer |err| log.tSndDtqLeave(err);
+    traceLog("tSndDtqEnter", .{ dtqid, data, tmout });
+    errdefer |err| traceLog("tSndDtqLeave", .{ err });
     try checkDispatch();
     const p_dtqcb = try checkAndGetDtqCB(dtqid);
     try checkParameter(validTimeout(tmout));
@@ -390,15 +390,15 @@ pub fn tsnd_dtq(dtqid: ID, data: usize, tmout: TMO) ItronError!void {
             }
         }
     }
-    log.tSndDtqLeave(null);
+    traceLog("tSndDtqLeave", .{ null });
 }
 
 ///
 ///  データキューへの強制送信
 ///
 pub fn fsnd_dtq(dtqid: ID, data: usize) ItronError!void {
-    log.fSndDtqEnter(dtqid, data);
-    errdefer |err| log.fSndDtqLeave(err);
+    traceLog("fSndDtqEnter", .{ dtqid, data });
+    errdefer |err| traceLog("fSndDtqLeave", .{ err });
     try checkContextUnlock();
     const p_dtqcb = try checkAndGetDtqCB(dtqid);
     try checkIllegalUse(p_dtqcb.p_wobjinib.dtqcnt > 0);
@@ -409,15 +409,15 @@ pub fn fsnd_dtq(dtqid: ID, data: usize) ItronError!void {
         forceSendData(p_dtqcb, data);
         requestTaskDispatch();
     }
-    log.fSndDtqLeave(null);
+    traceLog("fSndDtqLeave", .{ null });
 }
 
 ///
 ///  データキューからの受信
 ///
 pub fn rcv_dtq(dtqid: ID, p_data: *usize) ItronError!void {
-    log.rcvDtqEnter(dtqid, p_data);
-    errdefer |err| log.rcvDtqLeave(err, p_data);
+    traceLog("rcvDtqEnter", .{ dtqid, p_data });
+    errdefer |err| traceLog("rcvDtqLeave", .{ err, p_data });
     try checkDispatch();
     const p_dtqcb = try checkAndGetDtqCB(dtqid);
     {
@@ -440,15 +440,15 @@ pub fn rcv_dtq(dtqid: ID, p_data: *usize) ItronError!void {
             p_data.* = winfo_rdtq.data;
         }
     }
-    log.rcvDtqLeave(null, p_data);
+    traceLog("rcvDtqLeave", .{ null, p_data });
 }
 
 ///
 ///  データキューからの受信（ポーリング）
 ///
 pub fn prcv_dtq(dtqid: ID, p_data: *usize) ItronError!void {
-    log.prcvDtqEnter(dtqid, p_data);
-    errdefer |err| log.prcvDtqLeave(err, p_data);
+    traceLog("prcvDtqEnter", .{ dtqid, p_data });
+    errdefer |err| traceLog("prcvDtqLeave", .{ err, p_data });
     try checkContextTaskUnlock();
     const p_dtqcb = try checkAndGetDtqCB(dtqid);
     {
@@ -462,15 +462,15 @@ pub fn prcv_dtq(dtqid: ID, p_data: *usize) ItronError!void {
             return ItronError.TimeoutError;
         }
     }
-    log.prcvDtqLeave(null, p_data);
+    traceLog("prcvDtqLeave", .{ null, p_data });
 }
 
 ///
 ///  データキューからの受信（タイムアウトあり）
 ///
 pub fn trcv_dtq(dtqid: ID, p_data: *usize, tmout: TMO) ItronError!void {
-    log.tRcvDtqEnter(dtqid, p_data, tmout);
-    errdefer |err| log.tRcvDtqLeave(err, p_data);
+    traceLog("tRcvDtqEnter", .{ dtqid, p_data, tmout });
+    errdefer |err| traceLog("tRcvDtqLeave", .{ err, p_data });
     try checkDispatch();
     const p_dtqcb = try checkAndGetDtqCB(dtqid);
     try checkParameter(validTimeout(tmout));
@@ -499,15 +499,15 @@ pub fn trcv_dtq(dtqid: ID, p_data: *usize, tmout: TMO) ItronError!void {
             p_data.* = winfo_rdtq.data;
         }
     }
-    log.tRcvDtqLeave(null, p_data);
+    traceLog("tRcvDtqLeave", .{ null, p_data });
 }
 
 ///
 ///  データキューの再初期化
 ///
 pub fn ini_dtq(dtqid: ID) ItronError!void {
-    log.iniDtqEnter(dtqid);
-    errdefer |err| log.iniDtqLeave(err);
+    traceLog("iniDtqEnter", .{ dtqid });
+    errdefer |err| traceLog("iniDtqLeave", .{ err });
     try checkContextTaskUnlock();
     const p_dtqcb = try checkAndGetDtqCB(dtqid);
     {
@@ -521,15 +521,15 @@ pub fn ini_dtq(dtqid: ID) ItronError!void {
         p_dtqcb.tail = 0;
         taskDispatch();
     }
-    log.iniDtqLeave(null);
+    traceLog("iniDtqLeave", .{ null });
 }
 
 ///
 ///  データキューの状態参照
 ///
 pub fn ref_dtq(dtqid: ID, pk_rdtq: *T_RDTQ) ItronError!void {
-    log.refDtqEnter(dtqid, pk_rdtq);
-    errdefer |err| log.refDtqLeave(err, pk_rdtq);
+    traceLog("refDtqEnter", .{ dtqid, pk_rdtq });
+    errdefer |err| traceLog("refDtqLeave", .{ err, pk_rdtq });
     try checkContextTaskUnlock();
     const p_dtqcb = try checkAndGetDtqCB(dtqid);
     {
@@ -540,7 +540,7 @@ pub fn ref_dtq(dtqid: ID, pk_rdtq: *T_RDTQ) ItronError!void {
         pk_rdtq.rtskid = wait_tskid(&p_dtqcb.rwait_queue);
         pk_rdtq.sdtqcnt = p_dtqcb.count;
     }
-    log.refDtqLeave(null, pk_rdtq);
+    traceLog("refDtqLeave", .{ null, pk_rdtq });
 }
 
 ///

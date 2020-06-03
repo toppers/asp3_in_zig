@@ -180,8 +180,8 @@ pub fn initialize_semaphore() void {
 ///  セマフォ資源の返却
 ///
 pub fn sig_sem(semid: ID) ItronError!void {
-    log.sigSemEnter(semid);
-    errdefer |err| log.sigSemLeave(err);
+    traceLog("sigSemEnter", .{ semid });
+    errdefer |err| traceLog("sigSemLeave", .{ err });
     try checkContextUnlock();
     const p_semcb = try checkAndGetSemCB(semid);
     {
@@ -200,15 +200,15 @@ pub fn sig_sem(semid: ID) ItronError!void {
             return ItronError.QueueingOverflow;
         }
     }
-    log.sigSemLeave(null);
+    traceLog("sigSemLeave", .{ null });
 }
 
 ///
 ///  セマフォ資源の獲得
 ///
 pub fn wai_sem(semid: ID) ItronError!void {
-    log.waiSemEnter(semid);
-    errdefer |err| log.waiSemLeave(err);
+    traceLog("waiSemEnter", .{ semid });
+    errdefer |err| traceLog("waiSemLeave", .{ err });
     try checkDispatch();
     const p_semcb = try checkAndGetSemCB(semid);
     {
@@ -230,15 +230,15 @@ pub fn wai_sem(semid: ID) ItronError!void {
             }
         }
     }
-    log.waiSemLeave(null);
+    traceLog("waiSemLeave", .{ null });
 }
 
 ///
 ///  セマフォ資源の獲得（ポーリング）
 ///
 pub fn pol_sem(semid: ID) ItronError!void {
-    log.polSemEnter(semid);
-    errdefer |err| log.polSemLeave(err);
+    traceLog("polSemEnter", .{ semid });
+    errdefer |err| traceLog("polSemLeave", .{ err });
     try checkContextTaskUnlock();
     const p_semcb = try checkAndGetSemCB(semid);
     {
@@ -252,15 +252,15 @@ pub fn pol_sem(semid: ID) ItronError!void {
             return ItronError.TimeoutError;
         }
     }
-    log.polSemLeave(null);
+    traceLog("polSemLeave", .{ null });
 }
 
 ///
 ///  セマフォ資源の獲得（タイムアウトあり）
 ///
 pub fn twai_sem(semid: ID, tmout: TMO) ItronError!void {
-    log.tWaiSemEnter(semid, tmout);
-    errdefer |err| log.tWaiSemLeave(err);
+    traceLog("tWaiSemEnter", .{ semid, tmout });
+    errdefer |err| traceLog("tWaiSemLeave", .{ err });
     try checkDispatch();
     const p_semcb = try checkAndGetSemCB(semid);
     try checkParameter(validTimeout(tmout));
@@ -288,15 +288,15 @@ pub fn twai_sem(semid: ID, tmout: TMO) ItronError!void {
             }
         }
     }
-    log.tWaiSemLeave(null);
+    traceLog("tWaiSemLeave", .{ null });
 }
 
 ///
 ///  セマフォの再初期化
 ///
 pub fn ini_sem(semid: ID) ItronError!void {
-    log.iniSemEnter(semid);
-    errdefer |err| log.iniSemLeave(err);
+    traceLog("iniSemEnter", .{ semid });
+    errdefer |err| traceLog("iniSemLeave", .{ err });
     try checkContextTaskUnlock();
     const p_semcb = try checkAndGetSemCB(semid);
     {
@@ -307,15 +307,15 @@ pub fn ini_sem(semid: ID) ItronError!void {
         p_semcb.semcnt = p_semcb.p_wobjinib.isemcnt;
         taskDispatch();
     }
-    log.iniSemLeave(null);
+    traceLog("iniSemLeave", .{ null });
 }
 
 ///
 ///  セマフォの状態参照
 ///
 pub fn ref_sem(semid: ID, pk_rsem: *T_RSEM) ItronError!void {
-    log.refSemEnter(semid, pk_rsem);
-    errdefer |err| log.refSemLeave(err, pk_rsem);
+    traceLog("refSemEnter", .{ semid, pk_rsem });
+    errdefer |err| traceLog("refSemLeave", .{ err, pk_rsem });
     try checkContextTaskUnlock();
     const p_semcb = try checkAndGetSemCB(semid);
     {
@@ -325,7 +325,7 @@ pub fn ref_sem(semid: ID, pk_rsem: *T_RSEM) ItronError!void {
         pk_rsem.wtskid = wait_tskid(&p_semcb.wait_queue);
         pk_rsem.semcnt = p_semcb.semcnt;
     }
-    log.refSemLeave(null, pk_rsem);
+    traceLog("refSemLeave", .{ null, pk_rsem });
 }
 
 ///

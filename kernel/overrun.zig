@@ -91,8 +91,8 @@ pub fn overrun_stop() void {
 pub fn sta_ovr(tskid: ID, ovrtim: PRCTIM) ItronError!void {
     var p_tcb: *TCB = undefined;
 
-    log.staOvrEnter(tskid, ovrtim);
-    errdefer |err| log.staOvrLeave(err);
+    traceLog("staOvrEnter", .{ tskid, ovrtim });
+    errdefer |err| traceLog("staOvrLeave", .{ err });
     comptime try checkNotSupported(TOPPERS_SUPPORT_OVRHDR);
     try checkContextUnlock();
     try checkObjectState(cfg._kernel_ovrinib.ovrhdr != null);
@@ -116,7 +116,7 @@ pub fn sta_ovr(tskid: ID, ovrtim: PRCTIM) ItronError!void {
         p_tcb.flags.staovr = true;
         p_tcb.leftotm = ovrtim;
     }
-    log.staOvrLeave(null);
+    traceLog("staOvrLeave", .{ null });
 }
 
 ///
@@ -125,8 +125,8 @@ pub fn sta_ovr(tskid: ID, ovrtim: PRCTIM) ItronError!void {
 pub fn stp_ovr(tskid: ID) ItronError!void {
     var p_tcb: *TCB = undefined;
 
-    log.stpOvrEnter(tskid);
-    errdefer |err| log.stpOvrLeave(err);
+    traceLog("stpOvrEnter", .{ tskid });
+    errdefer |err| traceLog("stpOvrLeave", .{ err });
     comptime try checkNotSupported(TOPPERS_SUPPORT_OVRHDR);
     try checkContextUnlock();
     try checkObjectState(cfg._kernel_ovrinib.ovrhdr != null);
@@ -147,7 +147,7 @@ pub fn stp_ovr(tskid: ID) ItronError!void {
         }
         p_tcb.flags.staovr = false;
     }
-    log.stpOvrLeave(null);
+    traceLog("stpOvrLeave", .{ null });
 }
 
 ///
@@ -156,8 +156,8 @@ pub fn stp_ovr(tskid: ID) ItronError!void {
 pub fn ref_ovr(tskid: ID, pk_rovr: *T_ROVR) ItronError!void {
     var p_tcb: *TCB = undefined;
 
-    log.refOvrEnter(tskid, pk_rovr);
-    errdefer |err| log.refOvrLeave(err, pk_rovr);
+    traceLog("refOvrEnter", .{ tskid, pk_rovr });
+    errdefer |err| traceLog("refOvrLeave", .{ err, pk_rovr });
     comptime try checkNotSupported(TOPPERS_SUPPORT_OVRHDR);
     try checkContextTaskUnlock();
     try checkObjectState(cfg._kernel_ovrinib.ovrhdr != null);
@@ -184,7 +184,7 @@ pub fn ref_ovr(tskid: ID, pk_rovr: *T_ROVR) ItronError!void {
             pk_rovr.ovrstat = TOVR_STP;
         }
     }
-    log.refOvrLeave(null, pk_rovr);
+    traceLog("refOvrLeave", .{ null, pk_rovr });
 }
 
 ///
@@ -202,10 +202,10 @@ pub fn call_ovrhdr() void {
             p_runtsk.?.flags.staovr = false;
             target_impl.unlockCpu();
 
-            log.overrunEnter(p_runtsk.?);
+            traceLog("overrunEnter", .{ p_runtsk.? });
             cfg._kernel_ovrinib.ovrhdr.?(getTskIdFromTCB(p_runtsk.?),
                                          p_runtsk.?.p_tinib.exinf);
-            log.overrunLeave(p_runtsk.?);
+            traceLog("overrunLeave", .{ p_runtsk.? });
         }
         else {
             // このルーチンが呼び出される前に，オーバランハンドラの起

@@ -51,8 +51,8 @@ usingnamespace check;
 ///  システム時刻の設定［NGKI3563］
 ///
 pub fn set_tim(systim: SYSTIM) ItronError!void {
-    log.setTimEnter(systim);
-    errdefer |err| log.setTimLeave(err);
+    traceLog("setTimEnter", .{ systim });
+    errdefer |err| traceLog("setTimLeave", .{ err });
     try checkContextTaskUnlock();               //［NGKI3564］［NGKI3565］
     {
         target_impl.lockCpu();
@@ -61,15 +61,15 @@ pub fn set_tim(systim: SYSTIM) ItronError!void {
         update_current_evttim();                    //［ASPD1059］
         systim_offset = systim -% monotonic_evttim; //［ASPD1060］
     }
-    log.setTimLeave(null);
+    traceLog("setTimLeave", .{ null });
 }
 
 ///
 ///  システム時刻の参照［NGKI2349］
 ///
 pub fn get_tim(p_systim: *SYSTIM) ItronError!void {
-    log.getTimEnter(p_systim);
-    errdefer |err| log.getTimLeave(err, p_systim);
+    traceLog("getTimEnter", .{ p_systim });
+    errdefer |err| traceLog("getTimLeave", .{ err, p_systim });
     try checkContextTaskUnlock();               //［NGKI2350］［NGKI2351］
     {
         target_impl.lockCpu();
@@ -78,15 +78,15 @@ pub fn get_tim(p_systim: *SYSTIM) ItronError!void {
         update_current_evttim();                        //［ASPD1057］
         p_systim.* = systim_offset +% monotonic_evttim; //［ASPD1058］
     }
-    log.getTimLeave(null, p_systim);
+    traceLog("getTimLeave", .{ null, p_systim });
 }
 
 ///
 ///  システム時刻の調整［NGKI3581］
 ///
 pub fn adj_tim(adjtim: i32) ItronError!void {
-    log.adjTimEnter(adjtim);
-    errdefer |err| log.adjTimLeave(err);
+    traceLog("adjTimEnter", .{ adjtim });
+    errdefer |err| traceLog("adjTimLeave", .{ err });
     try checkContextUnlock();                   //［NGKI3583］
     try checkParameter(TMIN_ADJTIM <= adjtim and adjtim <= TMAX_ADJTIM);
                                                 //［NGKI3584］
@@ -121,18 +121,18 @@ pub fn adj_tim(adjtim: i32) ItronError!void {
             }
         }
     }
-    log.adjTimLeave(null);
+    traceLog("adjTimLeave", .{ null });
 }
 
 ///
 ///  高分解能タイマの参照［NGKI3569］
 ///
 pub fn fch_hrt() HRTCNT {
-    log.fchHrtEnter();
+    traceLog("fchHrtEnter", .{});
     var silLock = sil.PRE_LOC();
     sil.LOC_INT(&silLock);
     var hrtcnt = target_timer.hrt.get_current();
     sil.UNL_INT(&silLock);
-    log.fchHrtLeave(hrtcnt);
+    traceLog("fchHrtLeave", .{ hrtcnt });
     return hrtcnt;
 }
