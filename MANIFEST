@@ -5,19 +5,13 @@ configure.rb
 MANIFEST
 README.txt
 
+cfg/GenFile.rb
+cfg/SRecord.rb
 cfg/checkConfig.rb
 cfg/genIdDefs.rb
 cfg/genTecsCfg.rb
-doc/zig_design.txt
 
-doc/asp_spec.txt
-doc/configurator.txt
-doc/design.txt
-doc/extension.txt
-doc/migration.txt
-doc/porting.txt
-doc/user.txt
-doc/version.txt
+doc/zig_design.txt
 
 include/itron.h
 include/kernel.h
@@ -158,5 +152,4 @@ sample/sample3_cfg.zig
 INCLUDE cfg/MANIFEST
 INCLUDE test/MANIFEST
 INCLUDE test_cfg/MANIFEST
-INCLUDE extension/MANIFEST
 INCLUDE target/dummy_gcc/MANIFEST
