@@ -1,0 +1,243 @@
+# -*- coding: utf-8 -*-
+#
+#   TOPPERS/ASP Kernel
+#       Toyohashi Open Platform for Embedded Real-Time Systems/
+#       Advanced Standard Profile Kernel
+# 
+#   Copyright (C) 2015 by FUJI SOFT INCORPORATED, JAPAN
+#   Copyright (C) 2015-2019 by Embedded and Real-Time Systems Laboratory
+#               Graduate School of Information Science, Nagoya Univ., JAPAN
+#  
+#   上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
+#   ア（本ソフトウェアを改変したものを含む．以下同じ）を使用・複製・改
+#   変・再配布（以下，利用と呼ぶ）することを無償で許諾する．
+#   (1) 本ソフトウェアをソースコードの形で利用する場合には，上記の著作
+#       権表示，この利用条件および下記の無保証規定が，そのままの形でソー
+#       スコード中に含まれていること．
+#   (2) 本ソフトウェアを，ライブラリ形式など，他のソフトウェア開発に使
+#       用できる形で再配布する場合には，再配布に伴うドキュメント（利用
+#       者マニュアルなど）に，上記の著作権表示，この利用条件および下記
+#       の無保証規定を掲載すること．
+#   (3) 本ソフトウェアを，機器に組み込むなど，他のソフトウェア開発に使
+#       用できない形で再配布する場合には，次のいずれかの条件を満たすこ
+#       と．
+#     (a) 再配布に伴うドキュメント（利用者マニュアルなど）に，上記の著
+#         作権表示，この利用条件および下記の無保証規定を掲載すること．
+#     (b) 再配布の形態を，別に定める方法によって，TOPPERSプロジェクトに
+#         報告すること．
+#   (4) 本ソフトウェアの利用により直接的または間接的に生じるいかなる損
+#       害からも，上記著作権者およびTOPPERSプロジェクトを免責すること．
+#       また，本ソフトウェアのユーザまたはエンドユーザからのいかなる理
+#       由に基づく請求からも，上記著作権者およびTOPPERSプロジェクトを
+#       免責すること．
+#  
+#   本ソフトウェアは，無保証で提供されているものである．上記著作権者お
+#   よびTOPPERSプロジェクトは，本ソフトウェアに関して，特定の使用目的
+#   に対する適合性も含めて，いかなる保証も行わない．また，本ソフトウェ
+#   アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
+#   の責任を負わない．
+# 
+#   $Id: kernel_check.trb 1332 2019-12-01 20:29:57Z ertl-hiro $
+#  
+
+#
+#		コンフィギュレータのパス3の生成スクリプト
+#
+
+#
+#  タスクに関するチェック
+#
+tmax_tskid = PEEK(SYMBOL("_kernel_tmax_tskid"), $sizeof_ID)
+tinib = SYMBOL("_kernel_tinib_table")
+1.upto(tmax_tskid).each do |tskid|
+  task = PEEK(tinib + $offsetof_TINIB_task, $sizeof_TASK)
+
+  # taskがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI1033］
+  if (task & ($CHECK_FUNC_ALIGN - 1)) != 0
+    error("E_PAR: `task' of task id #{tskid} is not aligned.")
+  end
+  if $CHECK_FUNC_NONNULL != 0 && task == 0
+    error("E_PAR: `task' of task id #{tskid} is null.")
+  end
+
+  # stkがターゲット定義の制約に合致しない場合（E_PAR）［NGKI1056］
+  if defined?(GetStackTskinictxb)
+    stk = GetStackTskinictxb(key, params, tinib)
+  else
+    stk = PEEK(tinib + $offsetof_TINIB_stk, $sizeof_ptr_u8)
+  end
+  if (stk & ($CHECK_STACK_ALIGN - 1)) != 0
+    error("E_PAR: `stk' of task id #{tskid} is not aligned.")
+  end
+  if $CHECK_STACK_NONNULL != 0 && stk == 0
+    error("E_PAR: `stk' of task id #{tskid} is null.")
+  end
+
+  tinib += $sizeof_TINIB
+end
+
+#
+#  固定長メモリプールに関するチェック
+#
+tmax_mpfid = PEEK(SYMBOL("_kernel_tmax_mpfid"), $sizeof_ID)
+if tmax_mpfid > 0
+  mpfinib = SYMBOL("_kernel_mpfinib_table")
+  1.upto(tmax_mpfid).each do |mpfid|
+    mpf = PEEK(mpfinib + $offsetof_MPFINIB_mpf, $sizeof_ptr_u8)
+
+    # mpfがターゲット定義の制約に合致しない場合（E_PAR）［NGKI2249］
+    if (mpf & ($CHECK_MPF_ALIGN - 1)) != 0
+      error("E_PAR: `mpf' of fixed-sized memory pool id #{mpfid} " \
+													"is not aligned.")
+    end
+    if $CHECK_MPF_NONNULL != 0 && mpf == 0
+      error("E_PAR: `mpf' of fixed-sized memory pool id #{mpfid} is null.")
+    end
+
+    mpfinib += $sizeof_MPFINIB
+  end
+end
+
+#
+#  周期通知に関するチェック
+#
+tmax_cycid = PEEK(SYMBOL("_kernel_tmax_cycid"), $sizeof_ID)
+if tmax_cycid > 0
+  cycinib = SYMBOL("_kernel_cycinib_table")
+  1.upto(tmax_cycid).each do |cycid|
+    cycatr = PEEK(cycinib + $offsetof_CYCINIB_cycatr, $sizeof_ATR)
+    exinf = PEEK(cycinib + $offsetof_CYCINIB_exinf, $sizeof_EXINF)
+    nfyhdr = PEEK(cycinib + $offsetof_CYCINIB_nfyhdr, $sizeof_NFYHDR)
+
+    # nfyhdrがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3693］
+    if (nfyhdr & ($CHECK_FUNC_ALIGN - 1)) != 0
+      error("E_PAR: `nfyhdr' of cyclic notification id #{cycid} " \
+													"is not aligned.")
+    end
+    if $CHECK_FUNC_NONNULL != 0 && nfyhdr == 0
+      error("E_PAR: `nfyhdr' of cyclic notification id #{cycid} is null.")
+    end
+
+    if (cycatr & 0x10000) != 0
+      # exinfがusize型の変数の番地として正しくない場合（E_PAR）
+      # ［NGKI3699］［NGKI3897］
+      if (exinf & ($CHECK_USIZE_ALIGN - 1)) != 0
+        error("E_PAR: `exinf' of cyclic notification id #{cycid} " \
+													"is not aligned.")
+      end
+      if $CHECK_USIZE_NONNULL != 0 && exinf == 0
+        error("E_PAR: `exinf' of cyclic notification id #{cycid} is null.")
+      end
+    end
+
+    cycinib += $sizeof_CYCINIB
+  end
+end
+
+#
+#  アラーム通知に関するチェック
+#
+tmax_almid = PEEK(SYMBOL("_kernel_tmax_almid"), $sizeof_ID)
+if tmax_almid > 0
+  alminib = SYMBOL("_kernel_alminib_table")
+  1.upto(tmax_almid).each do |almid|
+    almatr = PEEK(alminib + $offsetof_ALMINIB_almatr, $sizeof_ATR)
+    exinf = PEEK(alminib + $offsetof_ALMINIB_exinf, $sizeof_EXINF)
+    nfyhdr = PEEK(alminib + $offsetof_ALMINIB_nfyhdr, $sizeof_NFYHDR)
+
+    # nfyhdrがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3693］
+    if (nfyhdr & ($CHECK_FUNC_ALIGN - 1)) != 0
+      error("E_PAR: `nfyhdr' of almlic notification id #{almid} " \
+													"is not aligned.")
+    end
+    if $CHECK_FUNC_NONNULL != 0 && nfyhdr == 0
+      error("E_PAR: `nfyhdr' of almlic notification id #{almid} is null.")
+    end
+
+    if (almatr & 0x10000) != 0
+      # exinfがusize型の変数の番地として正しくない場合（E_PAR）
+      # ［NGKI3699］［NGKI3897］
+      if (exinf & ($CHECK_USIZE_ALIGN - 1)) != 0
+        error("E_PAR: `exinf' of alarm notification id #{almid} " \
+													"is not aligned.")
+      end
+      if $CHECK_USIZE_NONNULL != 0 && exinf == 0
+        error("E_PAR: `exinf' of alarm notification id #{almid} is null.")
+      end
+    end
+
+    alminib += $sizeof_ALMINIB
+  end
+end
+
+#
+#  オーバランハンドラに関するチェック
+#
+ovrinib = SYMBOL("_kernel_ovrinib", true)
+if ovrinib
+  ovrhdr = PEEK(ovrinib + $offsetof_OVRINIB_ovrhdr, $sizeof_OVRHDR)
+
+  # ovrhdrがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI2613］
+  if (ovrhdr & ($CHECK_FUNC_ALIGN - 1)) != 0
+    error("E_PAR: `ovrhdr' of overrun handler is not aligned.")
+  end
+  if $CHECK_FUNC_NONNULL != 0 && ovrhdr == 0
+    error("E_PAR: `ovrhdr' of overrun handler is null.")
+  end
+end
+
+#
+#  非タスクコンテキスト用のスタック領域に関するチェック
+#
+istk = PEEK(SYMBOL("_kernel_istk"), $sizeof_ptr_u8)
+
+# istkがターゲット定義の制約に合致しない場合（E_PAR）［NGKI3222］
+if (istk & ($CHECK_STACK_ALIGN - 1)) != 0
+  error("E_PAR: `istk' of interrupt-context stack is not aligned.")
+end
+if $CHECK_STACK_NONNULL && istk == 0
+  error("E_PAR: `istk' of interrupt-context stack is null.")
+end
+
+#
+#  初期化ルーチンに関するチェック
+#
+tnum_inirtn = PEEK(SYMBOL("_kernel_tnum_inirtn"), $sizeof_UINT)
+if tnum_inirtn > 0
+  inirtnb = SYMBOL("_kernel_inirtnb_table")
+  1.upto(tnum_inirtn).each do |inino|
+    inirtn = PEEK(inirtnb + $offsetof_INIRTNB_inirtn, $sizeof_INIRTN)
+
+    # inirtnがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3243］
+    if (inirtn & ($CHECK_FUNC_ALIGN - 1)) != 0
+      error("E_PAR: `inirtn' of #{inino}th initialization routine " \
+													"is not aligned.")
+    end
+    if $CHECK_FUNC_NONNULL != 0 && inirtn == 0
+      error("E_PAR: `inirtn' of #{inino}th initialization routine is null.")
+    end
+
+    inirtnb += $sizeof_INIRTNB
+  end
+end
+
+#
+#  終了処理ルーチンに関するチェック
+#
+tnum_terrtn = PEEK(SYMBOL("_kernel_tnum_terrtn"), $sizeof_UINT)
+if tnum_terrtn > 0
+  terrtnb = SYMBOL("_kernel_terrtnb_table")
+  1.upto(tnum_terrtn).each do |terno|
+    terrtn = PEEK(terrtnb + $offsetof_TERRTNB_terrtn, $sizeof_TERRTN)
+
+    # terrtnがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3250］
+    if (terrtn & ($CHECK_FUNC_ALIGN - 1)) != 0
+      error("E_PAR: `terrtn' of #{terno}th termination routine is not aligned.")
+    end
+    if $CHECK_FUNC_NONNULL != 0 && terrtn == 0
+      error("E_PAR: `terrtn' of #{terno}th termination routine is null.")
+    end
+
+    terrtnb += $sizeof_TERRTNB
+  end
+end
