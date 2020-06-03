@@ -174,8 +174,6 @@ pub fn traceLog(comptime log_type: []const u8, args: var) void {
         @field(option.log, log_type)(args);
     }
 }
-// 暫定
-pub const log = @import("trace_log.zig");
 
 ///
 ///  アラインメントも含めてポインタをキャスト
