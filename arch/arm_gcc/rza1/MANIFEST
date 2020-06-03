@@ -1,0 +1,19 @@
+PACKAGE asp3_arch_arm_gcc
+
+MANIFEST
+Makefile.chip
+chip_cfg.zig
+chip_kernel.h
+chip_kernel.zig
+chip_kernel_impl.zig
+chip_stddef.h
+chip_stddef.zig
+chip_sym.def
+chip_timer.zig
+rza1.h
+rza1.zig
+scif.h
+tSCIF.c
+tSCIF.cdl
+tSIOPortRZA1.cdl
+tSIOPortRZA1Main_inline.h

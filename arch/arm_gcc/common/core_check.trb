@@ -1,0 +1,47 @@
+# -*- coding: utf-8 -*-
+# 
+#		パス3の生成スクリプトのコア依存部（ARM用）
+# 
+#  $Id: core_check.trb 1149 2019-01-14 04:24:51Z ertl-hiro $
+#
+
+#
+#  ターゲット非依存部のインクルード
+#
+IncludeTrb("kernel/kernel_check.trb")
+
+#
+#  割込みハンドラテーブルに関するチェック
+#
+inh = SYMBOL("_kernel_inh_table")
+0.upto($TNUM_INHNO - 1).each do |inhno|
+  inthdr = PEEK(inh, $sizeof_INTHDR)
+
+  #	割込みハンドラの先頭番地のチェック［NGKI3056］
+  if (inthdr & ($CHECK_FUNC_ALIGN - 1)) != 0
+    error("E_PAR: `inthdr' of interrupt handler #{inhno} is not aligned.")
+  end
+  if $CHECK_FUNC_NONNULL != 0 && inthdr == 0
+    error("E_PAR: `inthdr' of interrupt handler #{inhno} is null.")
+  end
+
+  inh += $sizeof_INTHDR;
+end
+
+#
+#  CPU例外ハンドラテーブルに関するチェック
+#
+exc = SYMBOL("_kernel_exc_table")
+0.upto($TNUM_EXCNO - 1).each do |excno|
+  exchdr = PEEK(exc, $sizeof_EXCHDR)
+
+  #	割込みハンドラの先頭番地のチェック［NGKI3056］
+  if (exchdr & ($CHECK_FUNC_ALIGN - 1)) != 0
+    error("E_PAR: `exchdr' of exception handler #{excno} is not aligned.")
+  end
+  if $CHECK_FUNC_NONNULL != 0 && exchdr == 0
+    error("E_PAR: `exchdr' of exception handler #{excno} is null.")
+  end
+
+  exc += $sizeof_EXCHDR;
+end

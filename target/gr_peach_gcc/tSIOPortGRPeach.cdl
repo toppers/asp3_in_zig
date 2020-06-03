@@ -1,0 +1,128 @@
+/*
+ *  TOPPERS/ASP Kernel
+ *      Toyohashi Open Platform for Embedded Real-Time Systems/
+ *      Advanced Standard Profile Kernel
+ * 
+ *  Copyright (C) 2015 by Ushio Laboratory
+ *              Graduate School of Engineering Science, Osaka Univ., JAPAN
+ *  Copyright (C) 2015-2018 by Embedded and Real-Time Systems Laboratory
+ *              Graduate School of Information Science, Nagoya Univ., JAPAN
+ * 
+ *  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
+ *  ア（本ソフトウェアを改変したものを含む．以下同じ）を使用・複製・改
+ *  変・再配布（以下，利用と呼ぶ）することを無償で許諾する．
+ *  (1) 本ソフトウェアをソースコードの形で利用する場合には，上記の著作
+ *      権表示，この利用条件および下記の無保証規定が，そのままの形でソー
+ *      スコード中に含まれていること．
+ *  (2) 本ソフトウェアを，ライブラリ形式など，他のソフトウェア開発に使
+ *      用できる形で再配布する場合には，再配布に伴うドキュメント（利用
+ *      者マニュアルなど）に，上記の著作権表示，この利用条件および下記
+ *      の無保証規定を掲載すること．
+ *  (3) 本ソフトウェアを，機器に組み込むなど，他のソフトウェア開発に使
+ *      用できない形で再配布する場合には，次のいずれかの条件を満たすこ
+ *      と．
+ *    (a) 再配布に伴うドキュメント（利用者マニュアルなど）に，上記の著
+ *        作権表示，この利用条件および下記の無保証規定を掲載すること．
+ *    (b) 再配布の形態を，別に定める方法によって，TOPPERSプロジェクトに
+ *        報告すること．
+ *  (4) 本ソフトウェアの利用により直接的または間接的に生じるいかなる損
+ *      害からも，上記著作権者およびTOPPERSプロジェクトを免責すること．
+ *      また，本ソフトウェアのユーザまたはエンドユーザからのいかなる理
+ *      由に基づく請求からも，上記著作権者およびTOPPERSプロジェクトを
+ *      免責すること．
+ * 
+ *  本ソフトウェアは，無保証で提供されているものである．上記著作権者お
+ *  よびTOPPERSプロジェクトは，本ソフトウェアに関して，特定の使用目的
+ *  に対する適合性も含めて，いかなる保証も行わない．また，本ソフトウェ
+ *  アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
+ *  の責任を負わない．
+ * 
+ *  $Id: tSIOPortGRPeach.cdl 1057 2018-11-19 15:32:58Z ertl-hiro $
+ */
+
+/*
+ *		シリアルインタフェースドライバのターゲット依存部（GR-PEACH用）
+ *		のコンポーネント記述
+ */
+
+/*
+ *  GR-PEACHのハードウェア資源の定義
+ */
+import_C("gr_peach.h");
+
+/*
+ *  シリアルインタフェースドライバのチップ依存部（RZ/A1用）
+ */
+import("tSIOPortRZA1.cdl");
+
+/*
+ *  シリアルインタフェースドライバのターゲット依存部のプロトタイプ
+ *
+ *  サンプルプログラムが使うポートが，SIOPortTarget1に固定されているた
+ *  め，ポート1とポート3を入れ換えている．具体的には，SIOPortTarget1は
+ *  SCIFのチャネル2（チャネル番号は0から始まるので，ポート3のこと）に，
+ *  SIOPortTarget3はSCIFのチャネル0につながっている．
+ */
+[prototype]
+cell tSIOPortRZA1 SIOPortTarget1 {
+	/* 属性の設定 */
+	baseAddress       = C_EXP("SCIF2_BASE");
+	rxInterruptNumber = C_EXP("INTNO_SCIF2_RXI");
+	txInterruptNumber = C_EXP("INTNO_SCIF2_TXI");
+};
+
+[prototype]
+cell tSIOPortRZA1 SIOPortTarget2 {
+	/* 属性の設定 */
+	baseAddress       = C_EXP("SCIF1_BASE");
+	rxInterruptNumber = C_EXP("INTNO_SCIF1_RXI");
+	txInterruptNumber = C_EXP("INTNO_SCIF1_TXI");
+};
+
+[prototype]
+cell tSIOPortRZA1 SIOPortTarget3 {
+	/* 属性の設定 */
+	baseAddress       = C_EXP("SCIF0_BASE");
+	rxInterruptNumber = C_EXP("INTNO_SCIF0_RXI");
+	txInterruptNumber = C_EXP("INTNO_SCIF0_TXI");
+};
+
+[prototype]
+cell tSIOPortRZA1 SIOPortTarget4 {
+	/* 属性の設定 */
+	baseAddress       = C_EXP("SCIF3_BASE");
+	rxInterruptNumber = C_EXP("INTNO_SCIF3_RXI");
+	txInterruptNumber = C_EXP("INTNO_SCIF3_TXI");
+};
+
+[prototype]
+cell tSIOPortRZA1 SIOPortTarget5 {
+	/* 属性の設定 */
+	baseAddress       = C_EXP("SCIF4_BASE");
+	rxInterruptNumber = C_EXP("INTNO_SCIF4_RXI");
+	txInterruptNumber = C_EXP("INTNO_SCIF4_TXI");
+};
+
+[prototype]
+cell tSIOPortRZA1 SIOPortTarget6 {
+	/* 属性の設定 */
+	baseAddress       = C_EXP("SCIF5_BASE");
+	rxInterruptNumber = C_EXP("INTNO_SCIF5_RXI");
+	txInterruptNumber = C_EXP("INTNO_SCIF5_TXI");
+};
+
+[prototype]
+cell tSIOPortRZA1 SIOPortTarget7 {
+	/* 属性の設定 */
+	baseAddress       = C_EXP("SCIF6_BASE");
+	rxInterruptNumber = C_EXP("INTNO_SCIF6_RXI");
+	txInterruptNumber = C_EXP("INTNO_SCIF6_TXI");
+};
+
+[prototype]
+cell tSIOPortRZA1 SIOPortTarget8 {
+	/* 属性の設定 */
+	baseAddress       = C_EXP("SCIF7_BASE");
+	rxInterruptNumber = C_EXP("INTNO_SCIF7_RXI");
+	txInterruptNumber = C_EXP("INTNO_SCIF7_TXI");
+};

@@ -1,0 +1,25 @@
+PACKAGE asp3_arch_arm_gcc
+
+E_PACKAGE
+MANIFEST
+Makefile.target
+ct11mpcore.h
+ct11mpcore.ld
+ct11mpcore.zig
+tSIOPortCT11MPCore.cdl
+tSIOPortCT11MPCoreMain_inline.h
+target.cdl
+target_cfg.zig
+target_check.trb
+target_kernel.h
+target_kernel.zig
+target_kernel_impl.zig
+target_option.zig
+target_sil.h
+target_sil.zig
+target_stddef.h
+target_stddef.zig
+target_syssvc.h
+target_test.h
+target_timer.zig
+target_user.txt

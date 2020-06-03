@@ -1,0 +1,20 @@
+PACKAGE asp3_arch_arm_gcc_zynq7000
+VERSION 3.4.0
+
+MANIFEST
+Makefile.chip
+chip_cfg.zig
+chip_kernel.h
+chip_kernel.zig
+chip_kernel_impl.zig
+chip_stddef.h
+chip_stddef.zig
+chip_timer.zig
+tSIOPortZynq7000.cdl
+tSIOPortZynq7000Main_inline.h
+tXUartPs.c
+tXUartPs.cdl
+xuartps.h
+zynq7000.h
+zynq7000.zig
+zynq7000_user.txt

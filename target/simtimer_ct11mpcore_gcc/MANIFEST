@@ -1,0 +1,15 @@
+PACKAGE asp3_arch_arm_gcc
+
+MANIFEST
+Makefile.target
+target.cdl
+target_cfg.zig
+target_kernel.h
+target_kernel.zig
+target_kernel_impl.zig
+target_option.zig
+target_sil.zig
+target_stddef.h
+target_stddef.zig
+target_test.h
+target_timer.zig

@@ -1,0 +1,46 @@
+PACKAGE asp3_arch_arm_gcc
+VERSION 3.5.0
+
+E_PACKAGE
+MANIFEST
+
+doc/arm_design.txt
+doc/arm_porting.txt
+doc/arm_user.txt
+doc/gic_design.txt
+
+common/Makefile.core
+common/arm.h
+common/arm.zig
+common/core_asm.inc
+common/core_check.trb
+common/core_kernel.h
+common/core_kernel.zig
+common/core_kernel_impl.zig
+common/core_option.zig
+common/core_sil.h
+common/core_sil.zig
+common/core_stddef.h
+common/core_syssvc.h
+common/core_test.h
+common/gic_kernel_impl.zig
+common/mpcore.h
+common/mpcore.zig
+common/mpcore_kernel_impl.zig
+common/mpcore_timer.zig
+common/pl310.zig
+common/start.S
+common/tUartPL011.c
+common/tUartPL011.cdl
+common/uart_pl011.h
+
+test/arm_cpuexc1.c
+test/arm_cpuexc1_cfg.zig
+test/arm_fpu1.c
+test/arm_fpu1_cfg.zig
+
+INCLUDE rza1/MANIFEST
+
+INCLUDE ../../target/ct11mpcore_gcc/MANIFEST
+INCLUDE ../../target/simtimer_ct11mpcore_gcc/MANIFEST
+INCLUDE ../../target/gr_peach_gcc/MANIFEST

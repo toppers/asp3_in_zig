@@ -1,0 +1,23 @@
+PACKAGE asp3
+
+MANIFEST
+Makefile.target
+dummy.h
+dummy.zig
+start.c
+tSIOPortDummy.cdl
+tSIOPortDummyMain.c
+target.cdl
+target_cfg.zig
+target_check.trb
+target_kernel.h
+target_kernel.zig
+target_kernel_impl.zig
+target_option.zig
+target_sil.h
+target_sil.zig
+target_stddef.h
+target_stddef.zig
+target_syssvc.h
+target_test.h
+target_timer.zig

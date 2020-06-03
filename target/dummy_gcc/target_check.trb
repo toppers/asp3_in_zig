@@ -1,0 +1,53 @@
+# -*- coding: utf-8 -*-
+#
+#		パス3の生成スクリプトのターゲット依存部（ダミーターゲット用）
+#
+#   $Id: target_check.trb 1320 2019-11-27 14:11:49Z ertl-hiro $
+# 
+
+#
+#  ターゲット非依存部のインクルード
+#
+IncludeTrb("kernel/kernel_check.trb")
+
+#
+#  割込みハンドラテーブルに関するチェック
+#
+tnum_def_inhno = PEEK(SYMBOL("_kernel_tnum_def_inhno"), $sizeof_UINT)
+if tnum_def_inhno > 0
+  inhinib = SYMBOL("_kernel_inhinib_table")
+
+  # 割込みハンドラの先頭番地のチェック［NGKI3056］
+  inhno = PEEK(inhinib + $offsetof_INHINIB_inhno, $sizeof_INHNO)
+  inthdr = PEEK(inhinib + $offsetof_INHINIB_inthdr, $sizeof_INTHDR)
+
+  if (inthdr & ($CHECK_FUNC_ALIGN - 1)) != 0
+    error("E_PAR: `inthdr' of interrupt handler #{inhno} is not aligned.")
+  end
+  if $CHECK_FUNC_NONNULL != 0 && inthdr == 0
+    error("E_PAR: `inthdr' of interrupt handler #{inhno} is null.")
+  end
+
+  inhinib += $sizeof_INHINIB
+end
+
+#
+#  CPU例外ハンドラテーブルに関するチェック
+#
+tnum_def_excno = PEEK(SYMBOL("_kernel_tnum_def_excno"), $sizeof_UINT)
+if tnum_def_excno > 0
+  excinib = SYMBOL("_kernel_excinib_table")
+
+  # 割込みハンドラの先頭番地のチェック［NGKI3056］
+  excno = PEEK(excinib + $offsetof_EXCINIB_excno, $sizeof_EXCNO)
+  exchdr = PEEK(excinib + $offsetof_EXCINIB_exchdr, $sizeof_EXCHDR)
+
+  if (exchdr & ($CHECK_FUNC_ALIGN - 1)) != 0
+    error("E_PAR: `exchdr' of exception handler #{excno} is not aligned.")
+  end
+  if $CHECK_FUNC_NONNULL != 0 && exchdr == 0
+    error("E_PAR: `exchdr' of exception handler #{excno} is null.")
+  end
+
+  excinib += $sizeof_EXCINIB
+end

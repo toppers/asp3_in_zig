@@ -1,0 +1,29 @@
+#
+#		Makefile のチップ依存部（Zynq7000用）
+#
+#  $Id: Makefile.chip 1273 2019-10-03 15:54:52Z ertl-hiro $
+# 
+
+#
+#  チップ依存部ディレクトリ名の定義
+#
+CHIPDIR = $(SRCDIR)/arch/$(CORE)_$(TOOL)/$(CHIP)
+
+#
+#  コンパイルオプション
+#
+INCLUDES := $(INCLUDES) -I$(CHIPDIR)
+COPTS := $(COPTS) -mcpu=cortex-a9 -mfpu=vfpv3-d16
+LDFLAGS := $(LDFLAGS) -mcpu=cortex-a9 -mfpu=vfpv3-d16
+CDEFS := $(CDEFS) -D__TARGET_ARCH_ARM=7
+ZIGOPTS := $(ZIGOPTS) -mcpu cortex_a9   # +soft_floatするとコンパイルできない
+
+#
+#  システムサービスに関する定義
+#
+SYSSVC_DIRS := $(SYSSVC_DIRS) $(CHIPDIR)
+
+#
+#  コア依存部
+#
+include $(SRCDIR)/arch/$(CORE)_$(TOOL)/common/Makefile.core

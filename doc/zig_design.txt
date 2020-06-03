@@ -1,0 +1,483 @@
+
+		TOPPERS/ASP3カーネル in Zig
+		設計メモ
+
+		対応バージョン: Release 3.6.0
+		最終更新: 2020年5月29日
+
+○目次
+
+・ネーミングコンベンション
+・importとネームスペースの整理
+・コンフィギュレータのパス3の置き換え
+
+○ネーミングコンベンション
+
+●方針
+
+zigのネーミングコンベンションの推奨に全面的には従わず，C言語でのネーミ
+ングコンベンションを併用する。具体的には，API名や外部とのインタフェー
+ス関数名は，C言語と同様にする。詳しくは後述する。
+
+●参考：Zigのネーミングコンベンション
+
+・型の名称は，TitleCase とする。
+	- ただし，ネームスペース（フィールドを持たず，インスタンシエートさ
+	  れない型）は，snake_case とする。
+
+・関数（callable）の名称は，
+	- 型を返す場合は，TitleCase とする。
+	- そうでない場合は，camelCase とする。
+
+・それ以外の名称は，snake_case とする。
+
+・英語の普通の書き方で，先頭が大文字になる場合でも，このコンベンション
+　に従う（つまり，大文字にするとは限らない）。
+
+・ファイル名は，型またはネームスペースのコンベンションに従う。
+	- トップレベルにフィールドがある型（普通は使わない）は，TitleCase とする。
+	- そうでない場合は，snake_case とする。
+
+・以上は，あくまでも原則である。
+	- 確立されたコンベンションがあれば，そちらに従えば良い。
+
+●具体的なネーミングコンベンション
+
+・C言語のネーミングコンベンションを用いる
+	- API名
+	- 外部とのインタフェースになる関数
+	- すべて大文字の定数値の名称
+	- すべて大文字の型の名称
+
+・camelCase の場合に，どこを大文字にするか？
+	原則：英単語の最初の文字
+		例）TCB … 全部大文字
+			TIniB
+			SemCB
+			SemIniB
+	例外：オブジェクトの略称は，1つの単語と見なす
+		例）Dtq
+			Pdq
+			Isr
+			Eventflag
+			Pridataq
+	例外：以下の略称は，1つの単語と見なす
+			Winfo
+			Wobj
+
+・オブジェクトの略称は，3文字形と長い形の2種類のみを用いる。
+
+	タスク					tsk		task
+	セマフォ				sem		semaphore
+	イベントフラグ			flg		eventflag
+	データキュー			dtq		dataqueue
+	優先度データキュー		pdq		pridataq
+	ミューテックス			mtx		mutex
+	固定長メモリプール		mpf		mempfix
+	周期通知				cyc		cyclic
+	アラーム通知			alm		alarm
+	割込みサービスルーチン	isr		isr
+	初期化ルーチン			ini		inirtn
+	終了処理ルーチン		ter		terrtn
+
+○import/export/externの使い方とネームスペース
+
+●要求事項
+
+(1) ASP3カーネルと同様に，ターゲット非依存部，ターゲット依存部，さらに
+	ターゲット依存部の共通部に切り分け，異なるターゲットへのポーティン
+	グを容易にする
+
+(2) ルートソース（コンパイラに指定するソースファイル）を除いて，1つの
+	ソースファイルが，複数のリンク単位の生成に使われることを想定する
+	- libkernel.a のルートソースは，kernel/c_api.zig
+	- コンフィギュレーションデータを含むオブジェクトのルートソースは，
+	  ユーザが作成するコンフィギュレーション記述ファイル
+
+
+
+
+●コンフィギュレーションオプション
+
+ビルド条件（コンパイルオプションによる設定や，ターゲット依存部における
+設定）を定義するモジュールとして，コンフィギュレーションオプションモ
+ジュール（include/option.zigおよびそのターゲット依存部。以下，optionモ
+ジュールと呼ぶ）を用意する。optionモジュールは，すべてのソフトウェアモ
+ジュール（カーネル，SIL，システムサービス，アプリケーション）が利用で
+きるものとする。
+
+optionモジュールを利用するモジュールは，以下の記述（pub を付けても良い）
+でネームスペース option に定義を取り込む。
+
+	----------------------------------------
+	const option = @import("../include/option.zig");
+	----------------------------------------
+
+●古い内容
+
+・コンパイルオプションによるマクロ定義が必要な場合には，各ファイルの先
+頭で @cImport({}) して，public でない変数に取り込む。
+
+・ターゲット非依存部で，ターゲット依存部で未定義の可能性があるシンボル
+が必要な場合には，各ファイルの先頭で変数に取り込む。
+
+●整理
+
+ここでは，public な @import と，public でない @import の中で重要なもの
+のみをリストアップする。public でないものは，[]で囲む。ターゲット依存
+部は，ct11mpcore における例である。
+
+option.zig
+  |
+  target
+		target_option.zig
+		  | 
+		  [opt]
+		  |	取り込む定義：依存部向けの定義
+		  |		USE_ARM_FPU，USE_ARM_FPU_D32
+		  |		USE_ARM_PMCNT，USE_ARM_PMCNT_DIV64
+		  | 
+		  [ct11mpcore]
+		  |	取り込む定義：依存部向けの定義
+		  | 
+		  [mpcore]
+			取り込む定義：依存部向けの定義
+
+t_stddef.zig
+  | 
+  [opt]
+  |
+  [target]
+		target_stddef.zig
+	取り込む定義：USE_64BIT_SYSTIM，USE_64BIT_HRTCNT
+		  | 
+		  [option]
+		  		option.zig … 上記参照
+			取り込む定義：abort
+
+sil.zig
+  | 
+  [opt]
+  |
+  [target]
+		target_sil.zig
+		  | 
+		  core_sil.zig 
+	取り込む定義：
+		PRE_LOC，LOC_INT，UNL_INT，dly_nse
+		☆以下は例外：ファイルの先頭で取り込まない
+		reb_mem，wrb_mem，…
+
+kernel.zig
+  | 
+  [opt]
+  |
+  t_stddef.zig … 上記参照
+  |
+  [target]
+		target_kernel.zig
+		  |
+		  core_kernel.zig
+		  |	取り込む定義：
+		  |		core_publishに含まれるシンボル（コア独自のシンボル）
+          |
+		  publish
+	取り込む定義：
+		target.publishに含まれるシンボル（ターゲット独自のシンボル）
+		TOPPERS_SUPPORT_DIS_INT，TOPPERS_SUPPORT_ENA_INT
+		TOPPERS_SUPPORT_CLR_INT，TOPPERS_SUPPORT_PRB_INT
+		TOPPERS_SUPPORT_OVRHDR
+		☆以下は例外：ファイルの先頭で取り込まない
+		STK_T，MPF_T
+		TMIN_INTPRI，TMAX_INTPRI（例外ではない）
+		TCYC_HRTCNT，TSTEP_HRTCNT（TSTEP_HRTCNTは例外ではない）
+
+kernel_impl.zig
+  |
+  c                     C言語の定義の取り込み
+  | 
+  [opt]					コンパイルオプションによるマクロ定義の取り込み
+  |
+  kernel.zig … 上記参照	アプリケーションと共通の定義ファイル
+  |
+  t_syslog.zig			システムログ機能
+  |
+  +---log				トレースログに関する設定
+  |		trace_log.zig
+  |
+  +---target_impl		ターゲット依存部
+  |		target_kernel_impl.zig … 下記参照
+  |
+  +---target_timer		タイマドライバ
+  |		target_timer.zig … 下記参照
+  |
+  +---sil
+  |		sil.zig … 上記参照
+  |
+  +---queue
+  |		queue.zig
+  |
+  +---prio_bitmap
+   		prio_bitmap.zig
+
+c_api.zig
+  |
+  [kernel_impl.zig] … 上記参照
+  |
+  [カーネルの各実装ファイル]
+
+【CT11MPCoreターゲット依存部】
+
+target_kernel_impl.zig
+  |
+  [kernel_impl.zig] … 上記参照
+  | 
+  [option]
+  |		option.zig … 上記参照
+  |	取り込む定義：
+  |		USE_ARM_FPU
+  |		MPCORE_PMR_BASE
+  |		abort
+  | 
+  mpcore_kernel_impl.zig
+		  |
+		  [kernel_impl.zig] … 上記参照
+		  |
+		  core_kernel_impl.zig … 以下略
+		  |
+		  gic_kernel_impl.zig … 以下略
+
+target_timer.zig
+  |
+  [kernel_impl.zig] … 上記参照
+  [overrun.zig]
+  | 
+  [option]
+  |		option.zig … 上記参照
+  |	取り込む定義：
+  |		TOPPERS_USE_QEMU
+  |		MPCORE_TMR_PS_VALUE，MPCORE_WDG_PS_VALUE
+  |		EB_TIMER0_BASE，EB_IRQNO_TIMER01
+  |
+  [mpcore_timer.zig]
+
+【GR-PEACHターゲット依存部】
+
+target_timer.zig
+  |
+  chip_timer.zig
+		  |
+		  [kernel_impl.zig] … 上記参照
+		  [time_event.zig]
+		  [overrun.zig]
+	
+【ターゲット依存部でpub/exportにすべきもの】
+
+・target_kernel_impl.zig
+	ターゲット非依存部が使用するもの
+	- senseContext
+	- lockCpu
+	- lockCpuDsp
+	- unlockCpu
+	- unlockCpuDsp
+	- senseLock
+	- delayForInterrupt
+	- dispatch
+	- requestDispatchRetint
+	- startDispatch
+	- exitAndDispatch
+	- activateContext
+	- initialize_interrupt（標準的な実装を使用しない場合）
+	- define_inh（標準的な実装を使用する場合）
+	- config_int（標準的な実装を使用する場合）
+	- initialize_exception（標準的な実装を使用しない場合）
+	- define_exc（標準的な実装を使用する場合）
+	- exc_sense_intmask
+	- initialize
+	- call_exit_kernel
+	- exit
+	- validIntno
+	- checkIntnoCfg
+	- validInterruptPriChgipm（オプション）
+	- setIpm
+	- getIpm
+	- validIntnoDisint（オプション）
+	- disableInt
+	- enableInt
+	- validIntnoClrint（オプション）
+	- checkIntnoClear
+	- clearInt
+	- validIntnoRasint（オプション）
+	- checkIntnoRaise
+	- raiseInt
+	- validIntnoPrbint（オプション）
+	- probeInt
+	- TSKCTXB
+	- TSKINICTXB
+
+	カーネルの自己診断が使用するもの
+	- onStack（オプション）
+	- validTSKCTXB（オプション）
+
+	コンフィギュレーション記述向け（今は未使用）
+	- INHNO_TIMER
+	- INTNO_TIMER
+	- INTPRI_TIMER
+	- INTATR_TIMER
+	- INHNO_OVRTIMER（TOPPERS_SUPPORT_OVRHDRの場合）
+	- INTNO_OVRTIMER（TOPPERS_SUPPORT_OVRHDRの場合）
+	- INTPRI_OVRTIMER（TOPPERS_SUPPORT_OVRHDRの場合）
+	- INTATR_OVRTIMER（TOPPERS_SUPPORT_OVRHDRの場合）
+
+	タイマドライバシミュレータ用
+	- SIMTIM_INIT_CURRENT
+	- SIMTIM_OVERHEAD_HRTINT
+	- SIMTIM_OVERHEAD_OVRINT
+
+・option.zig
+　☆カーネル内（タイマドライバを含む）のみで使う定義については，option
+	ではなく，カーネルのターゲット依存部（target_impl）から取り込む
+	⇒ target_impl内で2重定義になる恐れがある
+
+	ARM依存部向け
+	- TOPPERS_OMIT_TECS
+	- USE_ARM_MMU
+	- USE_ARM_SSECTION（USE_ARM_MMUの場合にのみ）
+	- USE_ARM_FPU
+	- USE_ARM_FPU_D32
+	- USE_ARM_PMCNT
+	- USE_ARM_PMCNT_DIV64
+	- TNUM_INHNO
+	- TNUM_INTNO
+	☆以下は，target_implから取り込む
+	- arm_memory_area（USE_ARM_MMUの場合にのみ）
+	- CUSTOM_IDLE（オプション）
+	- USE_INTINIB_TABLE（オプション）
+	- USE_INTCFG_TABLE（オプション）
+	- irc_begin_int，irc_end_int
+	- irc_get_intpri，irc_begin_exc，irc_end_exc
+
+	MPCore依存部向け
+	- MPCORE_PMR_BASE
+
+	MPCoreタイマドライバ向け
+	☆以下は，target_implから取り込む
+	- ARM_CA9_GTC_ERRATA（オプション）
+
+	GIC依存部向け
+	- GIC_TNUM_INTNO
+	- GICC_BASE
+	- GICD_BASE
+	- GIC_SUPPORT_DISABLE_SGI（オプション）
+	- GIC_ARM11MPCORE（オプション）
+	☆以下は，target_implから取り込む
+	- GIC_PL390_ERRATA（オプション）
+
+	PL310操作ライブラリ向け
+	- PL310_BASE
+
+	RZ/A1依存部向け
+	- TOPPERS_RZA1H（オプション）
+	- TOPPERS_RZA1L（オプション）
+	- RZA1_CLK_P0
+	- RZA1_CLK_P1
+
+	Zynq7000用タイマドライバ向け
+	- MPCORE_GTC_PS_VALUE
+	- MPCORE_GTC_FREQ
+	- MPCORE_WDG_PS_VALUE
+	- MPCORE_WDG_FREQ
+
+	CT11MPCore用タイマドライバ向け
+	- MPCORE_TMR_PS_VALUE
+	- MPCORE_WDG_PS_VALUE
+	- EB_TIMER0_BASE
+	- EB_IRQNO_TIMER01
+
+・target_timer.zig 
+	ターゲット非依存部が使用するもの
+	- HRTCNT_BOUND（オプション）
+	- hrt_get_current
+	- hrt_set_event
+	- hrt_clear_event（HRTCNT_BOUNDがnullの場合にのみ）
+	- hrt_raise_event
+	- ovrtimer_start（TOPPERS_SUPPORT_OVRHDRの場合）
+	- ovrtimer_stop（TOPPERS_SUPPORT_OVRHDRの場合）
+	- ovrtimer_get_current（TOPPERS_SUPPORT_OVRHDRの場合）
+
+	target_timer.cfg が必要とするもの
+	- _kernel_target_hrt_initialize
+	- _kernel_target_hrt_terminate
+	- _kernel_target_hrt_handler
+	- _kernel_target_ovrtimer_initialize（TOPPERS_SUPPORT_OVRHDRの場合）
+	- _kernel_target_ovrtimer_terminate（TOPPERS_SUPPORT_OVRHDRの場合）
+	- _kernel_target_ovrtimer_handler（TOPPERS_SUPPORT_OVRHDRの場合）
+
+	システムログ機能が必要とするもの
+	- _kernel_target_hrt_get_current
+
+○コンフィギュレータのパス3の置き換え
+
+ASP3カーネルにおいて，コンフィギュレータのパス3で行っているチェックは，
+次の2種類である。
+
+(a) ポインタのアラインメントチェックと非NULLチェック
+(b) 通知におけるオブジェクトIDの範囲チェック
+
+HRP3カーネルにおいては，上記に加えて，次のチェックも行う。
+
+(c) 通知におけるオブジェクトのアクセス権のチェック
+(d) カーネルの管理領域がユーザドメインからアクセスできるメモリ領域に置
+	かれていないかのチェック
+
+ASP3 in Zigにおいては，(b)は静的APIの処理においてチェックすることが可
+能である（未実装）。また，(c)についても同様と思われる。それに対して，
+(a)と(d)は，全体をリンクするまでチェックすることができない。(a)は，考
+え方によっては，Zigの言語処理系（実際にはリンカ）が実施してもよい種類
+のものであるが，(d)はカーネルの問題である。
+
+以下では，(a)のチェック方法について検討する。
+
+(a)のチェックを行う汎用的な方法として，チェック処理に対して，チェック
+したいポインタが置かれた番地，そのアラインメント単位，その非NULLチェッ
+クを行うかどうかの情報を渡す方法が考えられる。この情報を，特定のセクショ
+ン（.TOPPERS.check）に入れて渡すことを考える。
+
+チェックしたいポインタが置かれた番地を export しようとしたところ，言語
+処理系が次のエラーを出した。未実装機能と思われる。
+
+TODO export const value of type *const fn(?*c_void) callconv(.C) void
+
+----------------------------------------
+やってみたこと：
+
+///
+///
+///
+fn exportCheckSymbol(comptime target: var, comptime name: []const u8) void {
+    _ = struct {
+        var placeholder = target;
+        comptime { @export(placeholder, .{ .name = "check." ++ name,
+                                           .section = ".TOPPERS.check", }); }
+    }.placeholder;
+}
+
+    for (Exports._kernel_inirtnb_table[0 .. Exports._kernel_tnum_inirtn]) |p_inirtnb| {
+        exportCheckSymbol(&p_inirtnb, "xxx");
+    }
+----------------------------------------
+
+そこで，kernel_check.trbのやっている方法に戻って考える。
+
+例えば，taskがプログラムの先頭番地として正しくない場合のチェックでは，
+次の情報を必要とする。
+
+	- _kernel_tinib_table の番地		aspから取得
+	- タスクの数						aspから取得
+	- TINIB のサイズ					コンフィギュレーションから取得
+	- TINIB 中での task のオフセット	コンフィギュレーションから取得
+	- task のサイズ						コンフィギュレーションから取得
+	- CHECK_FUNC_ALIGN					コンフィギュレーションから取得
+	- CHECK_FUNC_NONNULL				コンフィギュレーションから取得
+
+以上

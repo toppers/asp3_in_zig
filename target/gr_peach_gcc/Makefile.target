@@ -1,0 +1,63 @@
+#
+#		Makefile のターゲット依存部（GR-PEACH用）
+#
+#  $Id: Makefile.target 1069 2018-11-24 08:02:26Z ertl-hiro $
+# 
+
+#
+#  システム名，チップ名，コア名，開発環境名の定義
+#
+SYS = gr_peach
+CHIP = rza1
+CORE = arm
+TOOL = gcc
+
+#
+#  実行形態
+#
+#  フラッシュメモリ（ROM）に書き込むか，RAMにロードして実行するかを選択
+#  する．
+#
+#EXECUTE_ON = ROM
+EXECUTE_ON = RAM
+
+#
+#  ブートローダの組込み
+#
+ifeq ($(EXECUTE_ON),ROM)
+	SYSSVC_COBJS := $(SYSSVC_COBJS) sf_boot.o
+endif
+
+#
+#  FPUサポートとコーリングコンベンション
+#
+#  FPUを使用する場合は，USE_ARM_FPUをマクロ定義し，使用するコーリング
+#  コンベンションに応じて，-mfloat-abi=softfpまたは-mfloat-abi=hardオ
+#  プションをつける．
+#
+#CDEFS := $(CDEFS) -DUSE_ARM_FPU
+#COPTS := $(COPTS) -mfloat-abi=softfp
+#COPTS := $(COPTS) -mfloat-abi=hard
+
+#
+#  コンパイルオプション
+#
+INCLUDES := $(INCLUDES) -I$(TARGETDIR)
+COPTS := $(COPTS) -mlittle-endian
+LDFLAGS := $(LDFLAGS) -mlittle-endian
+
+#
+#  コンパイルオプションとリンカスクリプトの定義
+#
+ifeq ($(EXECUTE_ON),ROM)
+	CDEFS := $(CDEFS) -DTOPPERS_EXECUTE_ON_ROM
+	LDSCRIPT = $(TARGETDIR)/gr_peach_rom.ld
+else
+	CDEFS := $(CDEFS) -DTOPPERS_EXECUTE_ON_RAM
+	LDSCRIPT = $(TARGETDIR)/gr_peach_ram.ld
+endif
+
+#
+#  チップ依存部
+#
+include $(SRCDIR)/arch/$(CORE)_$(TOOL)/$(CHIP)/Makefile.chip

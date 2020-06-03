@@ -1,0 +1,6 @@
+E_PACKAGE asp3_ct11mpcore_gcc
+VERSION %date
+
+INCLUDE ../../MANIFEST
+INCLUDE ../../arch/arm_gcc/MANIFEST
+INCLUDE ../../tecsgen/MANIFEST_for_asp3

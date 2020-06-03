@@ -1,0 +1,57 @@
+#
+#		Makefileのコア依存部（ARM用）
+#
+#  $Id: Makefile.core 1017 2018-10-23 16:21:29Z ertl-hiro $
+#
+
+#
+#  コア依存部ディレクトリ名の定義
+#
+COREDIR = $(SRCDIR)/arch/$(CORE)_$(TOOL)/common
+
+#
+#  ツール依存部ディレクトリ名の定義 
+#
+TOOLDIR = $(SRCDIR)/arch/$(TOOL)
+
+#
+#  GNU開発環境のターゲットアーキテクチャの定義
+#
+ifndef GCC_TARGET
+	GCC_TARGET = arm-none-eabi
+endif
+
+#
+#  コンパイルオプション
+#
+INCLUDES := $(INCLUDES) -I$(COREDIR) -I$(TOOLDIR)
+LIBS := $(LIBS) -lgcc
+ZIGOPTS := -target arm-freestanding-eabi $(ZIGOPTS)
+
+#
+#  システムサービスに関する定義
+#
+SYSSVC_DIRS := $(SYSSVC_DIRS) $(COREDIR)
+
+#
+#  コンフィギュレータ関係の変数の定義
+#
+CFG_TABS := $(CFG_TABS) --symval-table $(COREDIR)/core_sym.def
+
+#
+#  オフセットファイル生成のための定義
+#
+TARGET_OFFSET_TRB = $(COREDIR)/core_offset.trb
+
+#
+#  スタートアップモジュールに関する定義
+#
+#  START_OBJSをstart.oに設定し，LDFLAGSに-nostdlibを追加する．
+#
+START_OBJS := start.o
+START_OBJS := $(addprefix $(OBJDIR)/, $(START_OBJS))
+
+$(START_OBJS): $(OBJDIR)/%.o: %.S
+	$(CC) -c -o $@ -MD -MP -MF $(DEPDIR)/$*.d $(CFLAGS) $<
+
+LDFLAGS := -nostdlib $(LDFLAGS)

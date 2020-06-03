@@ -1,0 +1,8 @@
+E_PACKAGE asp3_zybo_z7_gcc
+VERSION %date
+
+INCLUDE ../../MANIFEST
+INCLUDE ../../arch/arm_gcc/MANIFEST
+INCLUDE ../../arch/arm_gcc/zynq7000/MANIFEST
+INCLUDE MANIFEST
+INCLUDE ../../tecsgen/MANIFEST_for_asp3

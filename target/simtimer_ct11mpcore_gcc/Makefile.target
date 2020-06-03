@@ -1,0 +1,68 @@
+#
+#		Makefileのターゲット依存部
+#		（CT11MPcore＋タイマドライバシミュレータ用）
+#
+#  $Id: Makefile.target 1103 2018-11-30 00:15:05Z ertl-hiro $
+# 
+
+#
+#  システム名，チップ名，コア名，開発環境名の定義
+#
+SYS = ct11mpcore
+CORE = arm
+TOOL = gcc
+
+#
+#  このターゲット依存部ではct11mpcore_gccと異なるファイルのみを用意する
+#
+TARGETDIR2 = $(SRCDIR)/target/ct11mpcore_gcc
+TARGET_KERNEL_TRB = $(TARGETDIR2)/target_kernel.trb
+TARGET_CHECK_TRB = $(TARGETDIR2)/target_check.trb
+TARGET_KERNEL_CFG = $(TARGETDIR2)/target_kernel.cfg
+
+#
+#  タイマドライバシミュレータのディレクトリ名の定義
+#
+SIMTIMERDIR = $(SRCDIR)/arch/simtimer
+
+#
+#  QEMUに関する定義
+#
+#  QEMU上で実行する場合には，TOPPERS_USE_QEMUをマクロ定義する．QEMUの
+#  Semihostingを使わない場合には，TOPPERS_OMIT_QEMU_SEMIHOSTINGをマクロ
+#  定義する．Semihostingを使う場合には，QEMUの起動時に，-semihostingオ
+#  プションをつけることが必要である．
+#
+#COPTS := $(COPTS) -DTOPPERS_USE_QEMU
+#COPTS := $(COPTS) -DTOPPERS_OMIT_QEMU_SEMIHOSTING
+
+#
+#  各セグメントの開始アドレスの定義
+#
+TEXT_START_ADDRESS=0x01000000
+DATA_START_ADDRESS=0x01800000
+
+#
+#  コンパイルオプション
+#
+INCLUDES := $(INCLUDES) -I$(TARGETDIR) -I$(SIMTIMERDIR) -I$(TARGETDIR2)
+COPTS := $(COPTS) -mlittle-endian -mcpu=mpcore
+LDFLAGS := $(LDFLAGS) -mlittle-endian -mcpu=mpcore
+CDEFS := $(CDEFS) -D__TARGET_ARCH_ARM=6
+ZIGOPTS := $(ZIGOPTS) -target arm-freestanding-eabi -mcpu mpcore
+
+#
+#  システムサービスに関する定義
+#
+SYSSVC_DIRS := $(SYSSVC_DIRS) $(SRCDIR)/arch/arm_gcc/common $(SIMTIMERDIR)
+SYSSVC_COBJS := $(SYSSVC_COBJS)
+
+#
+#  リンカスクリプトの定義
+#
+LDSCRIPT = $(TARGETDIR2)/ct11mpcore.ld
+
+#
+#  コア依存部
+#
+include $(SRCDIR)/arch/arm_gcc/common/Makefile.core

@@ -1,0 +1,109 @@
+#
+#		Makefileのターゲット依存部（ZYBO用）
+#
+#  $Id: Makefile.target 1264 2019-09-30 03:01:49Z ertl-honda $
+# 
+
+#
+#  システム名，チップ名，コア名，開発環境名の定義
+#
+SYS = zybo_z7
+CHIP = zynq7000
+CORE = arm
+TOOL = gcc
+
+#
+#  FPUサポートとコーリングコンベンション
+#
+#  FPUを使用する場合は，USE_ARM_FPUをマクロ定義し，使用するコーリング
+#  コンベンションに応じて，-mfloat-abi=softfpまたは-mfloat-abi=hardオ
+#  プションをつける．
+#
+#CDEFS := $(CDEFS) -DUSE_ARM_FPU
+#COPTS := $(COPTS) -mfloat-abi=softfp
+#COPTS := $(COPTS) -mfloat-abi=hard
+
+#
+#  QEMUに関する定義
+#
+#  QEMU上で実行する場合には，TOPPERS_USE_QEMUをマクロ定義する．QEMUの
+#  Semihostingを使わない場合には，TOPPERS_OMIT_QEMU_SEMIHOSTINGをマクロ
+#  定義する．Semihostingを使う場合には，QEMUの起動時に，-semihostingオ
+#  プションをつけることが必要である．
+#
+#COPTS := $(COPTS) -DTOPPERS_USE_QEMU
+#COPTS := $(COPTS) -DTOPPERS_OMIT_QEMU_SEMIHOSTING
+
+#
+#  コンパイルオプション
+#
+INCLUDES := $(INCLUDES) -I$(TARGETDIR)
+COPTS := $(COPTS) -mlittle-endian
+LDFLAGS := $(LDFLAGS) -mlittle-endian
+
+#
+#  リンカスクリプトの定義
+#
+LDSCRIPT = $(TARGETDIR)/zybo_z7.ld
+
+#
+#  チップ依存部
+#
+include $(SRCDIR)/arch/$(CORE)_$(TOOL)/$(CHIP)/Makefile.chip
+
+#
+#  プラットホームの判定
+#
+# setup.exeによるCygwinでは，PATHに/cygdrive/が入る
+ifneq (,$(findstring /cygdrive/,$(PATH)))
+    TARGET_UNAME := Cygwin
+else
+# gnupackのCygwinは/cygdrive/が無いため/c/WINDOWS/で判別する(/c/はWSLにも存在する)
+ifneq (,$(findstring /c/WINDOWS/,$(PATH)))
+    TARGET_UNAME := Cygwin
+else
+ifneq (,$(findstring /mnt/c/Windows/,$(PATH)))
+#, WSL
+    TARGET_UNAME := WSL
+else
+# Windows は shell uname が使えないないので，OSで判断
+ifeq ($(OS),Windows_NT)
+    TARGET_UNAME := Windows
+else
+# Linux, Darwin(Mac)
+    TARGET_UNAME := $(shell uname)
+endif
+endif
+endif
+endif
+
+#
+#  使用するツールの選択
+#
+ifeq ($(TARGET_UNAME),Cygwin)
+   XSCT = xsct.bat
+   QEMU = cygstart qemu-system-arm
+else
+ifeq ($(TARGET_UNAME),WSL)
+   XSCT = cmd.exe /c C:/Xilinx/SDK/2018.2/bin/xsct.bat
+   QEMU = qemu-system-arm
+else
+   XSCT = xsct
+   QEMU = qemu-system-arm
+endif
+endif
+
+#
+#  QEMUによる実行
+#
+runq:$(OBJFILE)
+	$(QEMU) -M xilinx-zynq-a9 -semihosting -m 512M \
+		-serial null -serial mon:stdio -nographic -smp 1 -kernel $(OBJFILE)
+
+#
+#  JTAGによる実行
+#
+runj:$(OBJFILE)
+	$(XSCT) -interactive $(SRCDIR)/target/zybo_z7_gcc/xilinx_sdk/jtag.tcl \
+		$(SRCDIR)/target/zybo_z7_gcc/xilinx_sdk/zybo_z7_hw/ps7_init.tcl \
+		$(OBJFILE)
