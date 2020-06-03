@@ -574,7 +574,15 @@ pub fn ExportDtqCfg(dtqinib_table: []DTQINIB) type {
     const tnum_dtq = dtqinib_table.len;
     return struct {
         pub export const _kernel_tmax_dtqid: ID = tnum_dtq;
-        pub export const _kernel_dtqinib_table = dtqinib_table[0 .. tnum_dtq].*;
-        pub export var _kernel_dtqcb_table: [tnum_dtq]DTQCB = undefined;
+
+        // Zigの制限の回避：BIND_CFG != nullの場合に，サイズ0の配列が
+        // 出ないようにする
+        pub export const _kernel_dtqinib_table =
+            if (option.BIND_CFG == null or tnum_dtq > 0)
+                dtqinib_table[0 .. tnum_dtq].*
+            else [1]DTQINIB{ .{ .wobjatr = 0, .dtqcnt = 0, .p_dtqmb = null, }};
+        pub export var _kernel_dtqcb_table:
+            [if (option.BIND_CFG == null or tnum_dtq > 0) tnum_dtq
+                 else 1]DTQCB = undefined;
     };
 }

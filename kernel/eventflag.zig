@@ -415,7 +415,15 @@ pub fn ExportFlgCfg(flginib_table: []FLGINIB) type {
     const tnum_flg = flginib_table.len;
     return struct {
         pub export const _kernel_tmax_flgid: ID = tnum_flg;
-        pub export const _kernel_flginib_table = flginib_table[0 .. tnum_flg].*;
-        pub export var _kernel_flgcb_table: [tnum_flg]FLGCB = undefined;
+
+        // Zigの制限の回避：BIND_CFG != nullの場合に，サイズ0の配列が
+        // 出ないようにする
+        pub export const _kernel_flginib_table =
+            if (option.BIND_CFG == null or tnum_flg > 0)
+                flginib_table[0 .. tnum_flg].*
+            else [1]FLGINIB{ .{ .wobjatr = 0, .iflgptn = 0, }};
+        pub export var _kernel_flgcb_table:
+            [if (option.BIND_CFG == null or tnum_flg > 0) tnum_flg
+                 else 1]FLGCB = undefined;
     };
 }

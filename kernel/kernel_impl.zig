@@ -112,7 +112,6 @@ pub const static_api = @import("static_api.zig");
 ///  コンフィギュレーションデータの取り込み
 ///
 pub const cfg = if (option.BIND_CFG) |CFG_FILE|
-        // ★現状ではうまく動いていない
         @import("../" ++ CFG_FILE).genConfig({})
     else struct {
         usingnamespace task.ExternTskCfg;
@@ -125,6 +124,7 @@ pub const cfg = if (option.BIND_CFG) |CFG_FILE|
         usingnamespace cyclic.ExternCycCfg;
         usingnamespace alarm.ExternAlmCfg;
         usingnamespace overrun.ExternOvrIniB;
+        usingnamespace target_impl.ExternIntIniB;
         usingnamespace if (comptime @hasDecl(target_impl, "ExternIntIniB"))
                            target_impl.ExternIntIniB
                        else interrupt.ExternIntIniB;

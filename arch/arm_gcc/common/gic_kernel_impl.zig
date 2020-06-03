@@ -387,14 +387,6 @@ pub const USE_INTINIB_TABLE = true;
 pub const USE_INTCFG_TABLE = true;
 
 ///
-///  割込み要求ライン設定テーブル
-/// 
-///  割込み要求ラインに対して割込み属性が設定されていればtrue，設定さ
-///  れていなければfalseを保持するテーブル．
-///
-extern const _kernel_intcfg_table: [TNUM_INTNO]bool;
-
-///
 ///  ターゲット非依存部に提供する関数
 ///
 
@@ -402,7 +394,7 @@ extern const _kernel_intcfg_table: [TNUM_INTNO]bool;
 ///  割込み属性の設定のチェック
 ///
 pub fn checkIntnoCfg(intno: INTNO) bool {
-    return _kernel_intcfg_table[intno];
+    return cfg._kernel_intcfg_table[intno];
 }
 
 ///
@@ -701,28 +693,18 @@ pub fn irc_end_exc() callconv(.Naked) void {
 ///
 ///  割込み要求ライン初期化ブロック
 ///
-const INTINIB = extern struct {
+const INTINIB = struct {
     intno: INTNO,               // 割込み番号
     intatr: ATR,                // 割込み属性
     intpri: PRI,                // 割込み優先度
 };
 
 ///
-///  設定する割込み要求ラインの数（kernel_cfg.c）
-///
-extern const _kernel_tnum_cfg_intno: c_uint;
-
-///
-///  割込み要求ライン初期化ブロックのエリア（kernel_cfg.c）
-///
-// zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-extern const _kernel_intinib_table: [100]INTINIB;
-
-///
 ///  割込み管理機能の初期化
 ///
 pub fn initialize_interrupt() void {
-    for (_kernel_intinib_table[0 .. _kernel_tnum_cfg_intno]) |*p_intinib| {
+    for (cfg._kernel_intinib_table[0 .. cfg._kernel_tnum_cfg_intno])
+                                                            |*p_intinib| {
         config_int(p_intinib.intno, p_intinib.intatr, p_intinib.intpri);
     }
 }

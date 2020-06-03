@@ -565,8 +565,16 @@ pub fn ExportMtxCfg(mtxinib_table: []MTXINIB) type {
     const tnum_mtx = mtxinib_table.len;
     return struct {
         pub export const _kernel_tmax_mtxid: ID = tnum_mtx;
-        pub export const _kernel_mtxinib_table = mtxinib_table[0 .. tnum_mtx].*;
-        pub export var _kernel_mtxcb_table: [tnum_mtx]MTXCB = undefined;
+
+        // Zigの制限の回避：BIND_CFG != nullの場合に，サイズ0の配列が
+        // 出ないようにする
+        pub export const _kernel_mtxinib_table =
+            if (option.BIND_CFG == null or tnum_mtx > 0)
+                mtxinib_table[0 .. tnum_mtx].*
+            else [1]MTXINIB{ .{ .wobjatr = 0, .ceilpri = 0, }};
+        pub export var _kernel_mtxcb_table:
+            [if (option.BIND_CFG == null or tnum_mtx > 0) tnum_mtx
+                 else 1]MTXCB = undefined;
     };
 }
 

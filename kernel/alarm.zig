@@ -233,7 +233,15 @@ pub fn ExportAlmCfg(alminib_table: []ALMINIB) type {
     const tnum_alm = alminib_table.len;
     return struct {
         pub export const _kernel_tmax_almid: ID = tnum_alm;
-        pub export const _kernel_alminib_table = alminib_table[0 .. tnum_alm].*;
-        pub export var _kernel_almcb_table: [tnum_alm]ALMCB = undefined;
+
+        // Zigの制限の回避：BIND_CFG != nullの場合に，サイズ0の配列が
+        // 出ないようにする
+        pub export const _kernel_alminib_table =
+            if (option.BIND_CFG == null or tnum_alm > 0)
+                alminib_table[0 .. tnum_alm].*
+            else [1]ALMINIB{ .{ .almatr = 0, .exinf = 0, .nfyhdr = 0, }};
+        pub export var _kernel_almcb_table:
+            [if (option.BIND_CFG == null or tnum_alm > 0) tnum_alm
+                 else 1]ALMCB = undefined;
     };
 }

@@ -259,7 +259,16 @@ pub fn ExportCycCfg(cycinib_table: []CYCINIB) type {
     const tnum_cyc = cycinib_table.len;
     return struct {
         pub export const _kernel_tmax_cycid: ID = tnum_cyc;
-        pub export const _kernel_cycinib_table = cycinib_table[0 .. tnum_cyc].*;
-        pub export var _kernel_cyccb_table: [tnum_cyc]CYCCB = undefined;
+
+        // Zigの制限の回避：BIND_CFG != nullの場合に，サイズ0の配列が
+        // 出ないようにする
+        pub export const _kernel_cycinib_table =
+            if (option.BIND_CFG == null or tnum_cyc > 0)
+                cycinib_table[0 .. tnum_cyc].*
+            else [1]CYCINIB{ .{ .cycatr = 0, .exinf = 0, .nfyhdr = 0,
+                                .cyctim = 0, .cycphs = 0, }};
+        pub export var _kernel_cyccb_table:
+            [if (option.BIND_CFG == null or tnum_cyc > 0) tnum_cyc
+                 else 1]CYCCB = undefined;
     };
 }

@@ -678,6 +678,7 @@ export fn _kernel_bit_kernel() ER {
 //  オブジェクト初期化ブロック／管理ブロックがない場合の対策
 //
 comptime {
+    if (option.BIND_CFG == null) {
     asm(
      \\ .weak _kernel_seminib_table
      \\ _kernel_seminib_table:
@@ -725,4 +726,5 @@ comptime {
      \\ .weak _kernel_terrtnb_table
      \\ _kernel_terrtnb_table:
     );
+    }
 }

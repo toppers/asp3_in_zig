@@ -357,7 +357,15 @@ pub fn ExportSemCfg(seminib_table: []SEMINIB) type {
     const tnum_sem = seminib_table.len;
     return struct {
         pub export const _kernel_tmax_semid: ID = tnum_sem;
-        pub export const _kernel_seminib_table = seminib_table[0 .. tnum_sem].*;
-        pub export var _kernel_semcb_table: [tnum_sem]SEMCB = undefined;
+
+        // Zigの制限の回避：BIND_CFG != nullの場合に，サイズ0の配列が
+        // 出ないようにする
+        pub export const _kernel_seminib_table =
+            if (option.BIND_CFG == null or tnum_sem > 0)
+                seminib_table[0 .. tnum_sem].*
+            else [1]SEMINIB{ .{ .wobjatr = 0, .isemcnt = 0, .maxsem = 0, }};
+        pub export var _kernel_semcb_table:
+            [if (option.BIND_CFG == null or tnum_sem > 0) tnum_sem
+                 else 1]SEMCB = undefined;
     };
 }

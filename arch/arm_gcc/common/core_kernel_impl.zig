@@ -479,7 +479,7 @@ pub const ExternInhIniB = struct {
     ///
     ///  割込みハンドラテーブル
     ///
-    extern const _kernel_inh_table: [TNUM_INHNO]INTHDR;
+    pub extern const _kernel_inh_table: [TNUM_INHNO]INTHDR;
 };
 
 ///
@@ -489,18 +489,18 @@ pub const ExternIntIniB = struct {
     ///
     ///  設定する割込み要求ラインの数
     ///
-    extern const _kernel_tnum_cfg_intno: c_uint;
+    pub extern const _kernel_tnum_cfg_intno: c_uint;
 
     ///
     ///  割込み要求ライン初期化ブロックのエリア
     ///
     // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    extern const _kernel_intinib_table: [100]interrupt.INTINIB;
+    pub extern const _kernel_intinib_table: [100]interrupt.INTINIB;
 
     ///
     ///  割込み要求ライン設定テーブル
     ///
-    extern const _kernel_intcfg_table: [TNUM_INTNO]bool;
+    pub extern const _kernel_intcfg_table: [TNUM_INTNO]bool;
 };
 
 ///
@@ -549,11 +549,11 @@ fn ExportCfg(intinib_list: []interrupt.INTINIB) type {
 
 pub fn ExportIntIniB(intinib_list: []interrupt.INTINIB) type {
     return struct {
-        usingnamespace if (@hasDecl(target_impl, "USE_INTINIB_TABLE")
-                               and target_impl.USE_INTINIB_TABLE)
+        pub usingnamespace if (@hasDecl(target_impl, "USE_INTINIB_TABLE")
+                                   and target_impl.USE_INTINIB_TABLE)
             ExportIniB(intinib_list) else struct {};
-        usingnamespace if (@hasDecl(target_impl, "USE_INTCFG_TABLE")
-                               and target_impl.USE_INTCFG_TABLE)
+        pub usingnamespace if (@hasDecl(target_impl, "USE_INTCFG_TABLE")
+                                   and target_impl.USE_INTCFG_TABLE)
             ExportCfg(intinib_list) else struct {};
     };
 }
@@ -838,7 +838,7 @@ fn irq_handler() callconv(.Naked) void {
 ///  CPU例外ハンドラテーブルの取り込み
 ///
 pub const ExternExcIniB = struct {
-    extern const _kernel_exc_table: [TNUM_EXCNO]EXCHDR;
+    pub extern const _kernel_exc_table: [TNUM_EXCNO]EXCHDR;
 };
 
 ///

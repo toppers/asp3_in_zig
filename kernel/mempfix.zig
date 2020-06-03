@@ -434,7 +434,17 @@ pub fn ExportMpfCfg(mpfinib_table: []MPFINIB) type {
     const tnum_mpf = mpfinib_table.len;
     return struct {
         pub export const _kernel_tmax_mpfid: ID = tnum_mpf;
-        pub export const _kernel_mpfinib_table = mpfinib_table[0 .. tnum_mpf].*;
-        pub export var _kernel_mpfcb_table: [tnum_mpf]MPFCB = undefined;
+
+        // Zigの制限の回避：BIND_CFG != nullの場合に，サイズ0の配列が
+        // 出ないようにする
+        pub export const _kernel_mpfinib_table =
+            if (option.BIND_CFG == null or tnum_mpf > 0)
+                mpfinib_table[0 .. tnum_mpf].*
+            else [1]MPFINIB{ .{ .wobjatr = 0, .blkcnt = 0, .blksz = 0,
+                                .mpf = @intToPtr([*]u8, 256),
+                                .p_mpfmb = @intToPtr([*]MPFMB, 256), }};
+        pub export var _kernel_mpfcb_table:
+            [if (option.BIND_CFG == null or tnum_mpf > 0) tnum_mpf
+                 else 1]MPFCB = undefined;
     };
 }
