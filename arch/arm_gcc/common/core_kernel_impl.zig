@@ -388,6 +388,7 @@ fn dispatcher() callconv(.Naked) void {
      \\  msr cpsr_c, %[cpsr_svc_unlock] // 割込みを許可（スーパバイザモード）
         ) ++ "\n" ++
      \\  b dispatcher_1                 // 割込み待ち
+     \\
      \\ 2:
      \\  .long %[p_runtsk]
      \\ 3:
@@ -429,6 +430,7 @@ fn start_r() callconv(.Naked) noreturn {
      \\  ldr r0, [r2,%[tinib_exinf]]    // exinfをパラメータに
      \\  ldr r1, [r2,%[tinib_task]]     // タスク起動番地にジャンプ
      \\  bx r1
+     \\
      \\ _ext_tsk:
      \\  .long %[ext_tsk]
      :
@@ -460,6 +462,7 @@ pub fn call_exit_kernel() noreturn {
      \\  ldr sp, 5f
      \\  ldr sp, [sp]
      \\  b %[exit_kernel]
+     \\
      \\ 5:
      \\  .long _kernel_istkpt
      :
@@ -1157,6 +1160,7 @@ fn exc_entry() callconv(.Naked) void {
      \\
      \\  mov r4, %[excno_fatal]
      \\  b exc_handler_1
+     \\
      \\ 4:
      \\  .long %[excpt_nest_count]
      \\ 5:
@@ -1448,6 +1452,7 @@ fn exc_entry() callconv(.Naked) void {
         else
      \\  pop {r0-r5,r12,lr}             // スクラッチレジスタ＋αの復帰
      \\  rfefd sp!
+     \\
      \\ 2:
      \\  .long %[p_runtsk]
      \\ 3:
@@ -1544,6 +1549,7 @@ fn exc_entry() callconv(.Naked) void {
      \\  vmsr fpexc, r0
         else "") ++ "\n" ++
      \\  b exc_handler_5
+     \\
      \\ 4:
      \\  .long %[excpt_nest_count]
      \\ 5:
@@ -1958,7 +1964,7 @@ fn start() callconv(.Naked) noreturn {
      : [cpsr_svc_intlock] "n" (@as(u32, arm.CPSR_SVC_MODE | CPSR_INTLOCK)),
        [istk] "s" (&cfg._kernel_istk),
        [istksz] "s" (&cfg._kernel_istksz),
-//       [istkpt] "s" (&cfg._kernel_istkpt),
+//     [istkpt] "s" (&cfg._kernel_istkpt),
        [sta_ker] "s" (startup.sta_ker),
     );
     unreachable;
@@ -2018,11 +2024,6 @@ pub const CoreExportDefs = struct {
                                           excno: EXCNO) void {
         default_exc_handler(p_excinf, excno);
     }
-
-    ///
-    ///  非タスクコンテキスト用のスタックの初期値
-    ///
-    //export var _kernel_istkpt: [*]u8 = undefined;
 
     ///
     ///  オーバランタイマの動作開始
