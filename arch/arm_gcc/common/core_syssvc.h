@@ -54,10 +54,28 @@
 
 /*
  *  計測前のキャッシュと分岐予測の無効化
+ *
+ *  実行時間を計測する前に，キャッシュ，TLB，分岐予測を無効化する．
  */
 #ifdef HIST_INVALIDATE_CACHE
 
-extern void arm_invalidate_all(void);
+Inline void
+arm_invalidate_all(void)
+{
+	uint32_t	reg;
+
+	arm_invalidate_bp();
+	arm_invalidate_tlb();
+	CP15_READ_SCTLR(reg);
+	if ((reg & CP15_SCTLR_DCACHE) == 0U) {
+		arm_invalidate_dcache();
+	}
+	else {
+		arm_clean_and_invalidate_dcache();
+	}
+	arm_invalidate_icache();
+}
+
 #define HIST_BM_HOOK()		arm_invalidate_all()
 
 #endif /* HIST_INVALIDATE_CACHE */

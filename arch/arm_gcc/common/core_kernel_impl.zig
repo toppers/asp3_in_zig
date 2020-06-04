@@ -2042,11 +2042,4 @@ pub const CoreExportDefs = struct {
     export fn _kernel_overrun_stop() void {
         overrun.overrun_stop();
     }
-
-    ///
-    ///  実行時間分布集計サービス向けの関数
-    ///
-    export fn arm_invalidate_all() void {
-        arm.invalidate_all();
-    }
 };

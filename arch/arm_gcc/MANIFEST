@@ -12,6 +12,7 @@ doc/gic_design.txt
 common/Makefile.core
 common/arm.h
 common/arm.zig
+common/arm_insn.h
 common/core_asm.inc
 common/core_check.trb
 common/core_kernel.h
@@ -29,7 +30,6 @@ common/mpcore.zig
 common/mpcore_kernel_impl.zig
 common/mpcore_timer.zig
 common/pl310.zig
-common/start.S
 common/tUartPL011.c
 common/tUartPL011.cdl
 common/uart_pl011.h
