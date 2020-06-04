@@ -593,13 +593,6 @@ export fn sil_dly_nse(dlytim: usize) void {
 }
 
 ///
-///  カーネルの起動関数
-///
-export fn _kernel_sta_ker() noreturn {
-    startup.sta_ker();
-}
-
-///
 ///  各モジュールの初期化関数
 ///
 export fn _kernel_initialize_task() void {

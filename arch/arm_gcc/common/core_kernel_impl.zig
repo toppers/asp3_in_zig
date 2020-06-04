@@ -49,6 +49,8 @@ usingnamespace @import("../../../kernel/kernel_impl.zig");
 ///  コンフィギュレーションオプションの取り込み
 ///
 const OMIT_XLOG_SYS = option.target.OMIT_XLOG_SYS;
+const TOPPERS_OMIT_BSS_INIT = option.target.TOPPERS_OMIT_BSS_INIT;
+const TOPPERS_OMIT_DATA_INIT = option.target.TOPPERS_OMIT_DATA_INIT;
 const USE_ARM_MMU = option.target.USE_ARM_MMU;
 const USE_ARM_SSECTION = option.target.USE_ARM_SSECTION;
 const USE_ARM_FPU = option.target.USE_ARM_FPU;
@@ -191,6 +193,11 @@ pub fn senseLock() bool {
 ///  割込みを受け付けるための遅延処理
 ///
 pub fn delayForInterrupt() void {}
+
+///
+///  非タスクコンテキスト用のスタック初期値
+///
+pub const TOPPERS_ISTKPT = true;
 
 ///
 ///  タスクコンテキストブロック
@@ -1850,9 +1857,116 @@ fn default_exc_handler(p_excinf: *T_EXCINF, excno: EXCNO) void {
     startup.ext_ker();
 }
 
-//
-//  例外ベクタテーブル
-//
+///
+///  スタートアップモジュール
+///
+fn start() callconv(.Naked) noreturn {
+    asm volatile(
+     \\ start:
+     \\ // プロセッサモードの初期化
+     \\ //
+     \\ // スーパバイザモード，全割込みロック状態に初期化する．
+     \\  msr spsr_cxsf, %[cpsr_svc_intlock]
+     \\
+     \\ // スタックポインタとフレームポインタの初期化
+     \\  ldr r0, __kernel_istk
+     \\  ldr r0, [r0]
+     \\  ldr r1, __kernel_istksz
+     \\  ldr r1, [r1]
+     \\  add sp, r0, r1         // スタックポインタ（sp）
+     \\  mov fp, #0             // ARMモード用フレームポインタ（r11）
+     \\  mov r7, #0             // Thumbモード用フレームポインタ（r7）
+     \\
+     \\ // hardware_init_hookの呼出し（0でない場合）
+     \\ //
+     \\ // ターゲットハードウェアに依存して必要な初期化処理がある場合は，
+     \\ // hardware_init_hookという関数を用意する．
+     \\  ldr r0, _hardware_init_hook
+     \\  cmp r0, #0
+     \\  movne lr, pc
+     \\  bxne r0
+        ++ "\n" ++
+        (if (!TOPPERS_OMIT_BSS_INIT)
+     \\ // bssセクションのクリア
+     \\ //
+     \\ // __start_bssから__end_bssまでをゼロクリアする．
+     \\  ldr r0, ___start_bss
+     \\  ldr r2, ___end_bss
+     \\  cmp r0, r2
+     \\  bhs start_3
+     \\  mov r1, #0
+     \\ start_2:
+     \\  str r1, [r0], #4
+     \\  cmp r0, r2
+     \\  blo start_2
+     \\ start_3:
+        else "") ++ "\n" ++
+        (if (!TOPPERS_OMIT_DATA_INIT)
+     \\ // dataセクションの初期化（ROM化対応）
+     \\ //
+     \\ // __start_dataから__end_dataまでに，__start_idata以降のデータ
+     \\ // をコピーする．
+     \\  ldr r0, ___start_data
+     \\  ldr r2, ___end_data
+     \\  cmp r0, r2
+     \\  bhs start_5
+     \\  ldr r1, ___start_idata
+     \\ start_4:
+     \\  ldr r3, [r1], #4
+     \\  str r3, [r0], #4
+     \\  cmp r0, r2
+     \\  blo start_4
+     \\ start_5:
+        else "") ++ "\n" ++
+     \\ // _kernel_istkptの設定
+     \\  ldr r0, 5f
+     \\  str sp, [r0]
+     \\
+     \\ // software_init_hookの呼出し（0でない場合）
+     \\ //
+     \\ // ソフトウェア環境（特にライブラリ）に依存して必要な初期化処理が
+     \\ // ある場合は，software_init_hookという関数を用意すればよい．
+     \\  ldr r0, _software_init_hook
+     \\  cmp r0, #0
+     \\  movne lr, pc
+     \\  bxne r0
+     \\
+     \\ // カーネルの起動
+     \\  b %[sta_ker]
+     \\
+     \\ 5:
+     \\  .long _kernel_istkpt
+     \\ __kernel_istk:
+     \\  .long %[istk]
+     \\ __kernel_istksz:
+     \\  .long %[istksz]
+     \\ _hardware_init_hook:
+     \\  .long hardware_init_hook
+     \\ _software_init_hook:
+     \\  .long software_init_hook
+     \\ ___start_bss:
+     \\  .long __start_bss
+     \\ ___end_bss:
+     \\  .long __end_bss
+     \\ ___start_data:
+     \\  .long __start_data
+     \\ ___end_data:
+     \\  .long __end_data
+     \\ ___start_idata:
+     \\  .long __start_idata
+     :
+     : [cpsr_svc_intlock] "n" (@as(u32, arm.CPSR_SVC_MODE | CPSR_INTLOCK)),
+       [istk] "s" (&cfg._kernel_istk),
+       [istksz] "s" (&cfg._kernel_istksz),
+//       [istkpt] "s" (&cfg._kernel_istkpt),
+       [sta_ker] "s" (startup.sta_ker),
+    );
+    unreachable;
+}
+
+///
+///  例外ベクタテーブル
+///
 pub fn vector_table() linksection(".vector") callconv(.Naked) void {
     asm volatile(
      \\  ldr pc, reset_vector       // リセット
@@ -1880,7 +1994,8 @@ pub fn vector_table() linksection(".vector") callconv(.Naked) void {
      \\ fiq_vector:
      \\  .long fiq_handler
      :
-     : [irq_handler] "s" (irq_handler),
+     : [start] "s" (start),
+       [irq_handler] "s" (irq_handler),
        [exc_entry] "s" (exc_entry),
     );
 }
@@ -1907,7 +2022,7 @@ pub const CoreExportDefs = struct {
     ///
     ///  非タスクコンテキスト用のスタックの初期値
     ///
-    export var _kernel_istkpt: [*]u8 = undefined;
+    //export var _kernel_istkpt: [*]u8 = undefined;
 
     ///
     ///  オーバランタイマの動作開始

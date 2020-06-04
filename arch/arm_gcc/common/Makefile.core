@@ -46,12 +46,6 @@ TARGET_OFFSET_TRB = $(COREDIR)/core_offset.trb
 #
 #  スタートアップモジュールに関する定義
 #
-#  START_OBJSをstart.oに設定し，LDFLAGSに-nostdlibを追加する．
+#  LDFLAGSに-nostdlibを追加する．
 #
-START_OBJS := start.o
-START_OBJS := $(addprefix $(OBJDIR)/, $(START_OBJS))
-
-$(START_OBJS): $(OBJDIR)/%.o: %.S
-	$(CC) -c -o $@ -MD -MP -MF $(DEPDIR)/$*.d $(CFLAGS) $<
-
 LDFLAGS := -nostdlib $(LDFLAGS)

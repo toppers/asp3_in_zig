@@ -48,6 +48,13 @@ usingnamespace time_event;
 usingnamespace check;
 
 ///
+///  非タスクコンテキスト用のスタックの初期値を使用するか
+///
+const TOPPERS_ISTKPT = if (@hasDecl(target_impl, "TOPPERS_ISTKPT"))
+                           target_impl.TOPPERS_ISTKPT
+                       else false;
+
+///
 ///  非タスクコンテキスト用スタックサイズの最小値
 ///
 const TARGET_MIN_ISTKSZ =
@@ -141,6 +148,13 @@ pub const ExternIcs = struct {
     ///  非タスクコンテキスト用スタック領域の先頭番地
     ///
     pub extern const _kernel_istk: [*]u8;
+
+    ///
+    ///  非タスクコンテキスト用のスタックの初期値
+    ///
+    pub usingnamespace if (TOPPERS_ISTKPT) struct {
+        pub extern var _kernel_istkpt: [*]u8 = undefined;
+    } else struct {};
 };
 
 ///
@@ -303,5 +317,8 @@ pub fn ExportIcs(dics: T_DICS) type {
             else &struct {
                 var istack: [istksz]u8 align(STACK_ALIGN) = undefined;
             }.istack;
+        pub usingnamespace if (TOPPERS_ISTKPT) struct {
+            pub export var _kernel_istkpt: [*]u8 = undefined;
+        } else struct {};
     };
 }

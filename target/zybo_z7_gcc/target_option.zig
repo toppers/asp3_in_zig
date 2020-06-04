@@ -10,6 +10,8 @@ pub const TOPPERS_USE_QEMU = @hasDecl(opt, "TOPPERS_USE_QEMU");
 pub const TOPPERS_OMIT_QEMU_SEMIHOSTING =
             @hasDecl(opt, "TOPPERS_OMIT_QEMU_SEMIHOSTING");
 pub const OMIT_XLOG_SYS = @hasDecl(opt, "OMIT_XLOG_SYS");
+pub const TOPPERS_OMIT_BSS_INIT = @hasDecl(opt, "TOPPERS_OMIT_BSS_INIT");
+pub const TOPPERS_OMIT_DATA_INIT = @hasDecl(opt, "TOPPERS_OMIT_DATA_INIT");
 
 ///
 ///  コア依存部（チップ依存部は飛ばす）
