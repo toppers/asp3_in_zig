@@ -43,8 +43,6 @@ pub const mpcore_terminate = mpcore.mpcore_terminate;
 pub const TNUM_INTNO = mpcore.TNUM_INTNO;
 pub const TMAX_INTNO = mpcore.TMIN_INTNO;
 pub const TMIN_INTNO = mpcore.TMAX_INTNO;
-pub const externalIpm = mpcore.externalIpm;
-pub const internalIpm = mpcore.internalIpm;
 pub const validIntno = mpcore.validIntno;
 pub const validInhno = mpcore.validInhno;
 pub const USE_INTINIB_TABLE = mpcore.USE_INTINIB_TABLE;
@@ -146,7 +144,7 @@ pub fn config_int(intno: INTNO, intatr: ATR, intpri: PRI) void {
     }
 
     // 割込み優先度とターゲットプロセッサを設定
-    mpcore.gicd_set_priority(intno, internalIpm(intpri));
+    mpcore.gicd_set_priority(intno, mpcore.internalIpm(intpri));
     mpcore.gicd_set_target(intno, @as(u32, 1)
                                     << @intCast(u5, arm.get_my_prcidx()));
 
