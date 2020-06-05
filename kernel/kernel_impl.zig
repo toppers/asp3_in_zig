@@ -162,6 +162,11 @@ pub const TNUM_DPRI   = TMAX_DPRI - TMIN_DPRI + 1;
 pub const TNUM_INTPRI = TMAX_INTPRI - TMIN_INTPRI + 1;
 
 ///
+///  カーネル内部で使用する属性の定義
+///
+pub const TA_CHECK_USIZE = 0x10000;     // 拡張情報のチェックが必要
+
+///
 ///  通知ハンドラの型定義
 ///
 pub const NFYHDR = TMEHDR;

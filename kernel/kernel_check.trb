@@ -118,7 +118,7 @@ if tmax_cycid > 0
       error("E_PAR: `nfyhdr' of cyclic notification id #{cycid} is null.")
     end
 
-    if (cycatr & 0x10000) != 0
+    if (cycatr & $TA_CHECK_USIZE) != 0
       # exinfがusize型の変数の番地として正しくない場合（E_PAR）
       # ［NGKI3699］［NGKI3897］
       if (exinf & ($CHECK_USIZE_ALIGN - 1)) != 0
@@ -154,7 +154,7 @@ if tmax_almid > 0
       error("E_PAR: `nfyhdr' of almlic notification id #{almid} is null.")
     end
 
-    if (almatr & 0x10000) != 0
+    if (almatr & $TA_CHECK_USIZE) != 0
       # exinfがusize型の変数の番地として正しくない場合（E_PAR）
       # ［NGKI3699］［NGKI3897］
       if (exinf & ($CHECK_USIZE_ALIGN - 1)) != 0

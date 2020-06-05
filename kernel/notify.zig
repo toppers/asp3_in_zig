@@ -192,17 +192,17 @@ pub fn genHandler(comptime nfyinfo: T_NFYINFO) NFYHDR {
 ///  チェック処理のための情報の生成
 ///
 ///  拡張情報に入れるパラメータが，usizeへのポインタ型であることをチェッ
-///  クする必要がある場合に，0x10000を返す．
+///  クする必要がある場合に，TA_CHECK_USIZEを返す．
 ///
 pub fn genFlag(comptime nfyinfo: T_NFYINFO) ATR {
     switch (comptime nfyinfo.nfy) {
         .Handler => |handler| { return 0; },
-        .SetVar, .IncVar => { return 0x10000; },
+        .SetVar, .IncVar => { return TA_CHECK_USIZE; },
         else => {},
     }
     if (comptime nfyinfo.enfy) |enfy| {
         switch (comptime enfy) {
-            .SetVar, .IncVar => { return 0x10000; },
+            .SetVar, .IncVar => { return TA_CHECK_USIZE; },
             else => {},
         }
     }

@@ -706,6 +706,7 @@ pub fn GenCfgData(comptime cfg_data: *CfgData) type {
     exportCheck(@sizeOf(NFYHDR), "sizeof_NFYHDR");
     exportCheck(@sizeOf(EXINF), "sizeof_EXINF");
     exportCheck(@sizeOf(*u8), "sizeof_ptr_u8");
+    exportCheck(TA_CHECK_USIZE, "TA_CHECK_USIZE");
 
     //
     //  コンフィギュレーションデータの生成
