@@ -357,224 +357,6 @@ get_my_prcidx(void)
  */
 
 /*
- *  命令キャッシュの無効化
- */
-Inline void
-arm_invalidate_icache(void)
-{
-	CP15_INVALIDATE_ICACHE();
-}
-
-/*
- *  データキャッシュと統合キャッシュの無効化
- */
-Inline void
-arm_invalidate_dcache(void)
-{
-#if __TARGET_ARCH_ARM <= 6
-	CP15_INVALIDATE_DCACHE();
-	CP15_INVALIDATE_UCACHE();
-#else /* __TARGET_ARCH_ARM <= 6 */
-	armv7_invalidate_dcache();
-#endif /* __TARGET_ARCH_ARM <= 6 */
-}
-
-/*
- *  データキャッシュと統合キャッシュのクリーンと無効化
- */
-Inline void
-arm_clean_and_invalidate_dcache(void)
-{
-#if __TARGET_ARCH_ARM <= 5
-	armv5_clean_and_invalidate_dcache();
-#elif __TARGET_ARCH_ARM == 6
-	CP15_CLEAN_AND_INVALIDATE_DCACHE();
-	CP15_CLEAN_AND_INVALIDATE_UCACHE();
-#else
-	armv7_clean_and_invalidate_dcache();
-#endif
-}
-
-/*
- *  データキャッシュのイネーブル
- */
-Inline void
-arm_enable_dcache(void)
-{
-	uint32_t	reg;
-
-	CP15_READ_SCTLR(reg);
-	if ((reg & CP15_SCTLR_DCACHE) == 0U) {
-		arm_invalidate_dcache();
-
-		reg |= CP15_SCTLR_DCACHE;
-		CP15_WRITE_SCTLR(reg);
-	}
-}
-
-/*
- *  データキャッシュのディスエーブル
- *
- *  データキャッシュがディスエーブルされている状態でclean_and_invalidate
- *  を実行すると暴走する場合があるため，データキャッシュの状態を判断し
- *  て，ディスエーブルされている場合は無効化のみを行う．
- */
-Inline void
-arm_disable_dcache(void)
-{
-	uint32_t	reg;
-
-	CP15_READ_SCTLR(reg);
-	if ((reg & CP15_SCTLR_DCACHE) == 0U) {
-		arm_invalidate_dcache();
-	}
-	else {
-		reg &= ~CP15_SCTLR_DCACHE;
-		CP15_WRITE_SCTLR(reg);
-
-		arm_clean_and_invalidate_dcache();
-	}
-}
-
-/*
- *  命令キャッシュのイネーブル
- */
-Inline void
-arm_enable_icache(void)
-{
-	uint32_t	reg;
-
-	CP15_READ_SCTLR(reg);
-	if ((reg & CP15_SCTLR_ICACHE) == 0U) {
-		arm_invalidate_icache();
-
-		reg |= CP15_SCTLR_ICACHE;
-		CP15_WRITE_SCTLR(reg);
-	}
-}
-
-/*
- *  命令キャッシュのディスエーブル
- */
-Inline void
-arm_disable_icache(void)
-{
-	uint32_t	reg;
-
-	CP15_READ_SCTLR(reg);
-	reg &= ~CP15_SCTLR_ICACHE;
-	CP15_WRITE_SCTLR(reg);
-
-	arm_invalidate_icache();
-}
-
-/*
- *  ARMv7におけるデータキャッシュの無効化
- *
- *  バリアを2か所に入れているのは，ARMアーキテクチャリファレンスマニュ
- *  アルのサンプルコードを踏襲した．
- */
-#if __TARGET_ARCH_ARM == 7
-
-Inline void
-armv7_invalidate_dcache(void)
-{
-	uint32_t	clidr, ccsidr;
-	uint32_t	level, no_levels;
-	uint32_t	way, no_ways, shift_way;
-	uint32_t	set, no_sets, shift_set;
-	uint32_t	waylevel, setwaylevel;
-
-	CP15_READ_CLIDR(clidr);
-	no_levels = (clidr >> 24) & 0x07U;
-	for (level = 0; level < no_levels; level++) {
-		if (((clidr >> (level * 3)) & 0x07U) >= 0x02U) {
-			CP15_WRITE_CSSELR(level << 1);
-			inst_sync_barrier();
-			CP15_READ_CCSIDR(ccsidr);
-			no_sets = ((ccsidr >> 13) & 0x7fffU) + 1;
-			shift_set = (ccsidr & 0x07U) + 4;
-			no_ways = ((ccsidr >> 3) & 0x3ffU) + 1;
-			shift_way = count_leading_zero(no_ways - 1);
-
-			for (way = 0; way < no_ways; way++) {
-				waylevel = (way << shift_way) | (level << 1);
-				for (set = 0; set < no_sets; set++) {
-					setwaylevel = waylevel | (set << shift_set);
-					CP15_WRITE_DCISW(setwaylevel);
-				}
-			}
-		}
-	}
-	data_sync_barrier();
-}
-
-#endif /* __TARGET_ARCH_ARM == 7 */
-
-/*
- *  ARMv7におけるデータキャッシュのクリーンと無効化
- *
- *  バリアを2か所に入れているのは，ARMアーキテクチャリファレンスマニュ
- *  アルのサンプルコードを踏襲した．
- */
-#if __TARGET_ARCH_ARM == 7
-
-Inline void
-armv7_clean_and_invalidate_dcache(void)
-{
-	uint32_t	clidr, ccsidr;
-	uint32_t	level, no_levels;
-	uint32_t	way, no_ways, shift_way;
-	uint32_t	set, no_sets, shift_set;
-	uint32_t	waylevel, setwaylevel;
-
-	CP15_READ_CLIDR(clidr);
-	no_levels = (clidr >> 24) & 0x07U;
-	for (level = 0; level < no_levels; level++) {
-		if (((clidr >> (level * 3)) & 0x07U) >= 0x02U) {
-			CP15_WRITE_CSSELR(level << 1);
-			inst_sync_barrier();
-			CP15_READ_CCSIDR(ccsidr);
-			no_sets = ((ccsidr >> 13) & 0x7fffU) + 1;
-			shift_set = (ccsidr & 0x07U) + 4;
-			no_ways = ((ccsidr >> 3) & 0x3ffU) + 1;
-			shift_way = count_leading_zero(no_ways - 1);
-
-			for (way = 0; way < no_ways; way++) {
-				waylevel = (way << shift_way) | (level << 1);
-				for (set = 0; set < no_sets; set++) {
-					setwaylevel = waylevel | (set << shift_set);
-					CP15_WRITE_DCCISW(setwaylevel);
-				}
-			}
-		}
-	}
-	data_sync_barrier();
-}
-
-#endif /* __TARGET_ARCH_ARM == 7 */
-
-/*
- *  キャッシュのイネーブル
- */
-Inline void
-arm_enable_cache(void)
-{
-	arm_enable_icache();
-	arm_enable_dcache();
-}
-
-/*
- *  キャッシュのディスエーブル
- */
-Inline void
-arm_disable_cache(void)
-{
-	arm_disable_icache();
-	arm_disable_dcache();
-}
-
-/*
  *  ARMv5におけるデータキャッシュの無効化／クリーン
  */
 #if __TARGET_ARCH_ARM <= 5
@@ -672,6 +454,138 @@ armv7_clean_and_invalidate_dcache(void)
 }
 
 #endif /* __TARGET_ARCH_ARM == 7 */
+
+/*
+ *  データキャッシュと統合キャッシュの無効化
+ */
+Inline void
+arm_invalidate_dcache(void)
+{
+#if __TARGET_ARCH_ARM <= 6
+	CP15_INVALIDATE_DCACHE();
+	CP15_INVALIDATE_UCACHE();
+#else /* __TARGET_ARCH_ARM <= 6 */
+	armv7_invalidate_dcache();
+#endif /* __TARGET_ARCH_ARM <= 6 */
+}
+
+/*
+ *  データキャッシュと統合キャッシュのクリーンと無効化
+ */
+Inline void
+arm_clean_and_invalidate_dcache(void)
+{
+#if __TARGET_ARCH_ARM <= 5
+	armv5_clean_and_invalidate_dcache();
+#elif __TARGET_ARCH_ARM == 6
+	CP15_CLEAN_AND_INVALIDATE_DCACHE();
+	CP15_CLEAN_AND_INVALIDATE_UCACHE();
+#else
+	armv7_clean_and_invalidate_dcache();
+#endif
+}
+
+/*
+ *  命令キャッシュの無効化
+ */
+Inline void
+arm_invalidate_icache(void)
+{
+	CP15_INVALIDATE_ICACHE();
+}
+
+/*
+ *  命令キャッシュのイネーブル
+ */
+Inline void
+arm_enable_icache(void)
+{
+	uint32_t	reg;
+
+	CP15_READ_SCTLR(reg);
+	if ((reg & CP15_SCTLR_ICACHE) == 0U) {
+		arm_invalidate_icache();
+
+		reg |= CP15_SCTLR_ICACHE;
+		CP15_WRITE_SCTLR(reg);
+	}
+}
+
+/*
+ *  命令キャッシュのディスエーブル
+ */
+Inline void
+arm_disable_icache(void)
+{
+	uint32_t	reg;
+
+	CP15_READ_SCTLR(reg);
+	reg &= ~CP15_SCTLR_ICACHE;
+	CP15_WRITE_SCTLR(reg);
+
+	arm_invalidate_icache();
+}
+
+/*
+ *  データキャッシュのイネーブル
+ */
+Inline void
+arm_enable_dcache(void)
+{
+	uint32_t	reg;
+
+	CP15_READ_SCTLR(reg);
+	if ((reg & CP15_SCTLR_DCACHE) == 0U) {
+		arm_invalidate_dcache();
+
+		reg |= CP15_SCTLR_DCACHE;
+		CP15_WRITE_SCTLR(reg);
+	}
+}
+
+/*
+ *  データキャッシュのディスエーブル
+ *
+ *  データキャッシュがディスエーブルされている状態でclean_and_invalidate
+ *  を実行すると暴走する場合があるため，データキャッシュの状態を判断し
+ *  て，ディスエーブルされている場合は無効化のみを行う．
+ */
+Inline void
+arm_disable_dcache(void)
+{
+	uint32_t	reg;
+
+	CP15_READ_SCTLR(reg);
+	if ((reg & CP15_SCTLR_DCACHE) == 0U) {
+		arm_invalidate_dcache();
+	}
+	else {
+		reg &= ~CP15_SCTLR_DCACHE;
+		CP15_WRITE_SCTLR(reg);
+
+		arm_clean_and_invalidate_dcache();
+	}
+}
+
+/*
+ *  キャッシュのイネーブル
+ */
+Inline void
+arm_enable_cache(void)
+{
+	arm_enable_icache();
+	arm_enable_dcache();
+}
+
+/*
+ *  キャッシュのディスエーブル
+ */
+Inline void
+arm_disable_cache(void)
+{
+	arm_disable_icache();
+	arm_disable_dcache();
+}
 
 /*
  *  分岐予測の無効化
