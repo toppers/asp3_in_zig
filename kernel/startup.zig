@@ -153,7 +153,7 @@ pub const ExternIcs = struct {
     ///  非タスクコンテキスト用のスタックの初期値
     ///
     pub usingnamespace if (TOPPERS_ISTKPT) struct {
-        pub extern var _kernel_istkpt: [*]u8 = undefined;
+        pub extern var _kernel_istkpt: [*]u8;
     } else struct {};
 };
 
