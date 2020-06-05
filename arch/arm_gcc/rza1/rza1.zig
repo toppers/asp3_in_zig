@@ -6,14 +6,8 @@ usingnamespace @import("../../../kernel/kernel_impl.zig");
 ///
 ///  コンフィギュレーションオプションの取り込み
 ///
-const TOPPERS_RZA1H =
-    if (@hasDecl(option.target, "TOPPERS_RZA1H"))
-         option.target.TOPPERS_RZA1H
-    else false;
-const TOPPERS_RZA1L =
-    if (@hasDecl(option.target, "TOPPERS_RZA1L"))
-         option.target.TOPPERS_RZA1L
-    else false;
+const TOPPERS_RZA1H = isTrue(option.target, "TOPPERS_RZA1H");
+const TOPPERS_RZA1L = isTrue(option.target, "TOPPERS_RZA1L");
 const RZA1_CLK_P0 = option.target.RZA1_CLK_P0;
 const RZA1_CLK_P1 = option.target.RZA1_CLK_P1;
 

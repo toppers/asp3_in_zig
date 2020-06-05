@@ -51,42 +51,27 @@ usingnamespace check;
 ///
 ///  ターゲット依存のタスク属性
 ///
-const TARGET_TSKATR =
-    if (@hasDecl(target_impl, "TARGET_TSKATR"))
-        target_impl.TARGET_TSKATR
-    else 0;
+const TARGET_TSKATR = decl(ATR, target_impl, "TARGET_TSKATR", 0);
 
 ///
 ///  スタックサイズの最小値
 ///
-const TARGET_MIN_STKSZ =
-    if (@hasDecl(target_impl, "TARGET_MIN_STKSZ"))
-        target_impl.TARGET_MIN_STKSZ
-    else 1;
+const TARGET_MIN_STKSZ = decl(usize, target_impl, "TARGET_MIN_STKSZ", 1);
 
 ///
 ///  スタックサイズのアライン単位
 ///
-const CHECK_STKSZ_ALIGN =
-    if (@hasDecl(target_impl, "CHECK_STKSZ_ALIGN"))
-        target_impl.CHECK_STKSZ_ALIGN
-    else 1;
+const CHECK_STKSZ_ALIGN = decl(usize, target_impl, "CHECK_STKSZ_ALIGN", 1);
 
 ///
 ///  スタック領域のアライン単位（チェック用）
 ///
-const CHECK_STACK_ALIGN =
-    if (@hasDecl(target_impl, "CHECK_STACK_ALIGN"))
-        target_impl.CHECK_STACK_ALIGN
-    else 1;
+const CHECK_STACK_ALIGN = decl(usize, target_impl, "CHECK_STACK_ALIGN", 1);
 
 ///
 ///  スタック領域のアライン単位（確保用）
 ///
-const STACK_ALIGN =
-    if (@hasDecl(target_impl, "STACK_ALIGN"))
-        target_impl.STACK_ALIGN
-    else CHECK_STACK_ALIGN;
+const STACK_ALIGN = decl(usize, target_impl, "STACK_ALIGN", CHECK_STACK_ALIGN);
 
 ///
 ///  優先度の範囲チェック

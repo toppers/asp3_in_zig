@@ -54,6 +54,7 @@ const std = @import("std");
 ///  コンフィギュレーションオプションの取り込み
 ///
 const option = @import("../include/option.zig");
+const isTrue = option.isTrue;
 
 ///
 ///  ターゲット依存部
@@ -63,12 +64,8 @@ const target = @import("../target/" ++ option.TARGET ++ "/target_stddef.zig");
 ///
 ///  ターゲット依存の定義の取り込み
 ///
-const USE_64BIT_SYSTIM =
-    if (@hasDecl(target, "USE_64BIT_SYSTIM")) target.USE_64BIT_SYSTIM
-    else false;
-const USE_64BIT_HRTCNT =
-    if (@hasDecl(target, "USE_64BIT_HRTCNT")) target.USE_64BIT_HRTCNT
-    else false;
+const USE_64BIT_SYSTIM = isTrue(target, "USE_64BIT_SYSTIM");
+const USE_64BIT_HRTCNT = isTrue(target, "USE_64BIT_HRTCNT");
 
 ///
 ///  システムログ機能

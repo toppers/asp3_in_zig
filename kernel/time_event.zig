@@ -49,10 +49,8 @@ usingnamespace @import("kernel_impl.zig");
 ///
 ///  ターゲット依存の定義の取り込み
 ///
-const HRTCNT_BOUND: ?comptime_int =
-    if (@hasDecl(target_timer.hrt, "HRTCNT_BOUND"))
-        target_timer.hrt.HRTCNT_BOUND
-    else null;
+const HRTCNT_BOUND = decl(?comptime_int, target_timer.hrt, "HRTCNT_BOUND",
+                          null);
 
 //
 //  TSTEP_HRTCNTの範囲チェック

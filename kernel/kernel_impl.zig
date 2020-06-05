@@ -50,6 +50,8 @@
 ///  コンフィギュレーションオプションの取り込み
 ///
 pub const option = @import("../include/option.zig");
+pub const isTrue = option.isTrue;
+pub const decl = option.decl;
 
 ///
 ///  アプリケーションと共通の定義ファイル

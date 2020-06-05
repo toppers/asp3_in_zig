@@ -9,22 +9,14 @@ usingnamespace @import("../../../kernel/kernel_impl.zig");
 const GIC_TNUM_INTNO = option.target.GIC_TNUM_INTNO;
 const GICC_BASE = option.target.GICC_BASE;
 const GICD_BASE = option.target.GICD_BASE;
-const GIC_SUPPORT_DISABLE_SGI =
-    if (@hasDecl(option.target, "GIC_SUPPORT_DISABLE_SGI"))
-        option.target.GIC_SUPPORT_DISABLE_SGI
-    else false;
-const GIC_ARM11MPCORE =
-    if (@hasDecl(option.target, "GIC_ARM11MPCORE"))
-        option.target.GIC_ARM11MPCORE
-    else false;
+const GIC_SUPPORT_DISABLE_SGI = isTrue(option.target,
+                                       "GIC_SUPPORT_DISABLE_SGI");
+const GIC_ARM11MPCORE = isTrue(option.target, "GIC_ARM11MPCORE");
 
 ///
 ///  ターゲット依存の定義の取り込み
 ///
-const GIC_PL390_ERRATA =
-    if (@hasDecl(target_impl, "GIC_PL390_ERRATA"))
-        target_impl.GIC_PL390_ERRATA
-    else false;
+const GIC_PL390_ERRATA = isTrue(target_impl, "GIC_PL390_ERRATA");
 
 ///
 ///  用いるライブラリ

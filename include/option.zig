@@ -49,8 +49,7 @@ pub const TARGET = opt.TARGET;
 pub const NDEBUG = @hasDecl(opt, "NDEBUG");
 pub const SUPPORT_OVRHDR = @hasDecl(opt, "SUPPORT_OVRHDR");
 pub const TOPPERS_OMIT_TECS = @hasDecl(opt, "TOPPERS_OMIT_TECS");
-pub const BIND_CFG: ?[]const u8 =
-    if (@hasDecl(opt, "BIND_CFG")) opt.BIND_CFG else null;
+pub const BIND_CFG = decl(?[]const u8, opt, "BIND_CFG", null);
 const TOPPERS_ENABLE_TRACE = @hasDecl(opt, "TOPPERS_ENABLE_TRACE");
 
 ///
@@ -66,3 +65,19 @@ pub const log = if (TOPPERS_ENABLE_TRACE)
 ///  ターゲット依存部
 ///
 pub const target = @import("../target/" ++ TARGET ++ "/target_option.zig");
+
+///
+///  ネームスペースnsにnameが定義されていればその値を返し，そうでない
+///  場合はデフォルト値を返す関数
+///
+pub fn decl(comptime T: type, comptime ns: type,
+            comptime name: []const u8, comptime default_value: T) T {
+    return if (@hasDecl(ns, name)) @field(ns, name) else default_value;
+}
+
+///
+///  ネームスペースnsでnameがtrueに定義されているかを判定する関数
+///
+pub fn isTrue(comptime ns: type, comptime name: []const u8) bool {
+    return @hasDecl(ns, name) and @field(ns, name);
+}

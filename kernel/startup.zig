@@ -50,41 +50,27 @@ usingnamespace check;
 ///
 ///  非タスクコンテキスト用のスタックの初期値を使用するか
 ///
-const TOPPERS_ISTKPT = if (@hasDecl(target_impl, "TOPPERS_ISTKPT"))
-                           target_impl.TOPPERS_ISTKPT
-                       else false;
+const TOPPERS_ISTKPT = isTrue(target_impl, "TOPPERS_ISTKPT");
 
 ///
 ///  非タスクコンテキスト用スタックサイズの最小値
 ///
-const TARGET_MIN_ISTKSZ =
-    if (@hasDecl(target_impl, "TARGET_MIN_ISTKSZ"))
-        target_impl.TARGET_MIN_ISTKSZ
-    else 1;
+const TARGET_MIN_ISTKSZ = decl(usize, target_impl, "TARGET_MIN_ISTKSZ", 1);
 
 ///
 ///  スタックサイズのアライン単位
 ///
-const CHECK_STKSZ_ALIGN =
-    if (@hasDecl(target_impl, "CHECK_STKSZ_ALIGN"))
-        target_impl.CHECK_STKSZ_ALIGN
-    else 1;
+const CHECK_STKSZ_ALIGN = decl(usize, target_impl, "CHECK_STKSZ_ALIGN", 1);
 
 ///
 ///  スタック領域のアライン単位（チェック用）
 ///
-const CHECK_STACK_ALIGN =
-    if (@hasDecl(target_impl, "CHECK_STACK_ALIGN"))
-        target_impl.CHECK_STACK_ALIGN
-    else 1;
+const CHECK_STACK_ALIGN = decl(usize, target_impl, "CHECK_STACK_ALIGN", 1);
 
 ///
 ///  スタック領域のアライン単位（確保用）
 ///
-const STACK_ALIGN =
-    if (@hasDecl(target_impl, "STACK_ALIGN"))
-        target_impl.STACK_ALIGN
-    else CHECK_STACK_ALIGN;
+const STACK_ALIGN = decl(usize, target_impl, "STACK_ALIGN", CHECK_STACK_ALIGN);
 
 ///
 ///  初期化ルーチンブロック

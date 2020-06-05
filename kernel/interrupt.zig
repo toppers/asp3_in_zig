@@ -155,23 +155,17 @@ pub fn intnoToInhno(intno: INTNO) INHNO {
 ///
 ///  ターゲット依存の割込み要求ライン属性
 ///
-const TARGET_INTATR =
-    if (@hasDecl(target_impl, "TARGET_INTATR")) target_impl.TARGET_INTATR
-    else 0;
+const TARGET_INTATR = decl(ATR, target_impl, "TARGET_INTATR", 0);
 
 ///
 ///  ターゲット依存の割込みハンドラ属性
 ///
-const TARGET_INHATR =
-    if (@hasDecl(target_impl, "TARGET_INHATR")) target_impl.TARGET_INHATR
-    else 0;
+const TARGET_INHATR = decl(ATR, target_impl, "TARGET_INHATR", 0);
 
 ///
 ///  ターゲット依存の割込みサービスルーチン属性
 ///
-const TARGET_ISRATR =
-    if (@hasDecl(target_impl, "TARGET_ISRATR")) target_impl.TARGET_ISRATR
-    else 0;
+const TARGET_ISRATR = decl(ATR, target_impl, "TARGET_ISRATR", 0);
 
 ///
 ///  標準的な割込み要求ライン初期化ブロックの取り込み

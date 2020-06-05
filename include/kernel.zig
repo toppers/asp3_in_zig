@@ -52,6 +52,8 @@ const std = @import("std");
 ///  コンフィギュレーションオプションの取り込み
 ///
 const option = @import("../include/option.zig");
+const isTrue = option.isTrue;
+const decl = option.decl;
 
 ///
 ///  TOPPERS共通のデータ型・定数・関数
@@ -68,33 +70,18 @@ pub usingnamespace target.publish;
 ///  サポートする機能
 ///
 pub const TOPPERS_SUPPORT_DIS_INT =     // dis_intがサポートされている
-    if (@hasDecl(target, "TOPPERS_SUPPORT_DIS_INT"))
-        target.TOPPERS_SUPPORT_DIS_INT
-    else false;
-
+    isTrue(target, "TOPPERS_SUPPORT_DIS_INT");
 pub const TOPPERS_SUPPORT_ENA_INT =     // ena_intがサポートされている
-    if (@hasDecl(target, "TOPPERS_SUPPORT_ENA_INT"))
-        target.TOPPERS_SUPPORT_ENA_INT
-    else false;
-
+    isTrue(target, "TOPPERS_SUPPORT_ENA_INT");
 pub const TOPPERS_SUPPORT_CLR_INT =     // clr_intがサポートされている
-    if (@hasDecl(target, "TOPPERS_SUPPORT_CLR_INT"))
-        target.TOPPERS_SUPPORT_CLR_INT
-    else false;
-
+    isTrue(target, "TOPPERS_SUPPORT_CLR_INT");
 pub const TOPPERS_SUPPORT_RAS_INT =     // ras_intがサポートされている
-    if (@hasDecl(target, "TOPPERS_SUPPORT_RAS_INT"))
-        target.TOPPERS_SUPPORT_RAS_INT
-    else false;
-
+    isTrue(target, "TOPPERS_SUPPORT_RAS_INT");
 pub const TOPPERS_SUPPORT_PRB_INT =     // prb_intがサポートされている
-    if (@hasDecl(target, "TOPPERS_SUPPORT_PRB_INT"))
-        target.TOPPERS_SUPPORT_PRB_INT
-    else false;
+    isTrue(target, "TOPPERS_SUPPORT_PRB_INT");
 
 pub const TOPPERS_SUPPORT_OVRHDR =      // オーバランハンドラ機能拡張
-    if (option.SUPPORT_OVRHDR and @hasDecl(target, "TOPPERS_SUPPORT_OVRHDR"))
-        target.TOPPERS_SUPPORT_OVRHDR
+    if (option.SUPPORT_OVRHDR) isTrue(target, "TOPPERS_SUPPORT_OVRHDR")
     else false;
 
 ///
@@ -540,9 +527,7 @@ pub const TMAX_ADJTIM = 1000000;    // システム時刻の最大調整時間
 ///
 ///  オーバランハンドラの残りプロセッサ時間の最大値（単位：μ秒）
 ///
-pub const TMAX_OVRTIM =
-    if (@hasDecl(target, "TMAX_OVRTIM")) target.TMAX_OVRTIM
-    else std.math.maxInt(u32);
+pub const TMAX_OVRTIM = decl(u32, target, "TMAX_OVRTIM", std.math.maxInt(u32));
 
 ///
 ///  その他の構成定数
@@ -550,7 +535,7 @@ pub const TMAX_OVRTIM =
 pub const TMAX_MAXSEM = std.math.maxInt(c_uint);
                                         // セマフォの最大資源数の最大値
 pub const TCYC_HRTCNT: ?comptime_int =  // 高分解能タイマのタイマ周期
-    if (@hasDecl(target, "TCYC_HRTCNT")) target.TCYC_HRTCNT else null;
+    decl(?comptime_int, target, "TCYC_HRTCNT", null);
 pub const TSTEP_HRTCNT = target.TSTEP_HRTCNT;
                                         // 高分解能タイマのカウント値の進み幅
 

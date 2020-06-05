@@ -675,29 +675,23 @@ pub fn GenCfgData(comptime cfg_data: *CfgData) type {
     //  チェック処理用の定義の生成（★未完成）
     //
     exportCheck(0x12345678, "TOPPERS_magic_number");
-    exportCheck(if (@hasDecl(target_impl, "CHECK_USIZE_ALIGN"))
-                    target_impl.CHECK_USIZE_ALIGN else 1,
+    exportCheck(decl(u32, target_impl, "CHECK_USIZE_ALIGN", 1),
                 "CHECK_USIZE_ALIGN");
-    exportCheck(@boolToInt(if (@hasDecl(target_impl, "CHECK_USIZE_NONNULL"))
-                               target_impl.CHECK_USIZE_NONNULL else false),
+    exportCheck(decl(u32, target_impl, "CHECK_USIZE_ALIGN", 1),
+                "CHECK_USIZE_ALIGN");
+    exportCheck(@boolToInt(isTrue(target_impl, "CHECK_USIZE_NONNULL")),
                 "CHECK_USIZE_NONNULL");
-    exportCheck(if (@hasDecl(target_impl, "CHECK_FUNC_ALIGN"))
-                    target_impl.CHECK_FUNC_ALIGN else 1,
+    exportCheck(decl(u32, target_impl, "CHECK_FUNC_ALIGN", 1),
                 "CHECK_FUNC_ALIGN");
-    exportCheck(@boolToInt(if (@hasDecl(target_impl, "CHECK_FUNC_NONNULL"))
-                               target_impl.CHECK_FUNC_NONNULL else false),
+    exportCheck(@boolToInt(isTrue(target_impl, "CHECK_FUNC_NONNULL")),
                 "CHECK_FUNC_NONNULL");
-    exportCheck(if (@hasDecl(target_impl, "CHECK_STACK_ALIGN"))
-                    target_impl.CHECK_STACK_ALIGN else 1,
+    exportCheck(decl(u32, target_impl, "CHECK_STACK_ALIGN", 1),
                 "CHECK_STACK_ALIGN");
-    exportCheck(@boolToInt(if (@hasDecl(target_impl, "CHECK_STACK_NONNULL"))
-                               target_impl.CHECK_STACK_NONNULL else false),
+    exportCheck(@boolToInt(isTrue(target_impl, "CHECK_STACK_NONNULL")),
                 "CHECK_STACK_NONNULL");
-    exportCheck(if (@hasDecl(target_impl, "CHECK_MPF_ALIGN"))
-                    target_impl.CHECK_MPF_ALIGN else 1,
+    exportCheck(decl(u32, target_impl, "CHECK_MPF_ALIGN", 1),
                 "CHECK_MPF_ALIGN");
-    exportCheck(@boolToInt(if (@hasDecl(target_impl, "CHECK_MPF_NONNULL"))
-                               target_impl.CHECK_MPF_NONNULL else false),
+    exportCheck(@boolToInt(isTrue(target_impl, "CHECK_MPF_NONNULL")),
                 "CHECK_MPF_NONNULL");
 
     exportCheck(@sizeOf(c_uint), "sizeof_UINT");

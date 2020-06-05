@@ -72,10 +72,7 @@ const TOPPERS_USE_QEMU = option.target.TOPPERS_USE_QEMU;
 ///
 ///  ターゲット依存の定義の取り込み
 ///
-const ARM_CA9_GTC_ERRATA =
-    if (@hasDecl(target_impl, "ARM_CA9_GTC_ERRATA"))
-        target_impl.ARM_CA9_GTC_ERRATA
-    else false;
+const ARM_CA9_GTC_ERRATA = isTrue(target_impl, "ARM_CA9_GTC_ERRATA");
 
 ///
 ///  MPCoreのハードウェア資源の定義

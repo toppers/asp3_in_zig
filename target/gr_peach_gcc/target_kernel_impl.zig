@@ -6,11 +6,9 @@
 ///  コンフィギュレーションオプションの取り込み
 ///
 const option = @import("../../include/option.zig");
+const isTrue = option.isTrue;
 const TOPPERS_OMIT_TECS = option.TOPPERS_OMIT_TECS;
-const TOPPERS_RZA1H =
-    if (@hasDecl(option.target, "TOPPERS_RZA1H"))
-         option.target.TOPPERS_RZA1H
-    else false;
+const TOPPERS_RZA1H = isTrue(option.target, "TOPPERS_RZA1H");
 
 ///
 ///  チップ依存部（RZ/A1用）
