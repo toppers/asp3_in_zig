@@ -464,9 +464,10 @@ pub fn call_exit_kernel() noreturn {
      \\  b %[exit_kernel]
      \\
      \\ 5:
-     \\  .long _kernel_istkpt
+     \\  .long %[istkpt]
      :
      : [exit_kernel] "s" (startup.exit_kernel),
+       [istkpt] "s" (&cfg._kernel_istkpt),
     );
     unreachable;
 }
@@ -816,9 +817,9 @@ fn irq_handler() callconv(.Naked) void {
      \\ 4:
      \\  .long %[excpt_nest_count]
      \\ 5:
-     \\  .long _kernel_istkpt
+     \\  .long %[istkpt]
      \\ 6:
-     \\  .long _kernel_inh_table
+     \\  .long %[inh_table]
      :
      : [cpsr_svc_cpulock] "n" (@as(u32, arm.CPSR_SVC_MODE | CPSR_CPULOCK)),
        [cpsr_irq_cpulock] "n" (@as(u32, arm.CPSR_IRQ_MODE | CPSR_CPULOCK)),
@@ -837,6 +838,8 @@ fn irq_handler() callconv(.Naked) void {
        [excpt_nest_count] "s" (&excpt_nest_count),
        [p_runtsk] "s" (&task.p_runtsk),
        [p_schedtsk] "s" (&task.p_schedtsk),
+       [istkpt] "s" (&cfg._kernel_istkpt),
+       [inh_table] "s" (&cfg._kernel_inh_table),
        [irc_begin_int] "s" (target_impl.irc_begin_int),
        [irc_end_int] "s" (target_impl.irc_end_int),
        [dispatcher] "s" (dispatcher),
@@ -1164,7 +1167,7 @@ fn exc_entry() callconv(.Naked) void {
      \\ 4:
      \\  .long %[excpt_nest_count]
      \\ 5:
-     \\  .long _kernel_istkpt
+     \\  .long %[istkpt]
      :
      : [cpsr_svc_intlock] "n" (@as(u32, arm.CPSR_SVC_MODE | CPSR_INTLOCK)),
        [cpsr_abt_intlock] "n" (@as(u32, arm.CPSR_ABT_MODE | CPSR_INTLOCK)),
@@ -1172,6 +1175,7 @@ fn exc_entry() callconv(.Naked) void {
        [cpsr_abt] "n" (@as(u32, arm.CPSR_ABT_MODE)),
        [excno_fatal] "n" (@as(u32, EXCNO_FATAL)),
        [excpt_nest_count] "s" (&excpt_nest_count),
+       [istkpt] "s" (&cfg._kernel_istkpt),
     );
 
     //
@@ -1460,9 +1464,9 @@ fn exc_entry() callconv(.Naked) void {
      \\ 4:
      \\  .long %[excpt_nest_count]
      \\ 5:
-     \\  .long _kernel_istkpt
+     \\  .long %[istkpt]
      \\ 7:
-     \\  .long _kernel_exc_table
+     \\  .long %[exc_table]
         )
      :
      : [cpsr_svc_cpulock] "n" (@as(u32, arm.CPSR_SVC_MODE | CPSR_CPULOCK)),
@@ -1480,6 +1484,8 @@ fn exc_entry() callconv(.Naked) void {
        [excpt_nest_count] "s" (&excpt_nest_count),
        [p_runtsk] "s" (&task.p_runtsk),
        [p_schedtsk] "s" (&task.p_schedtsk),
+       [istkpt] "s" (&cfg._kernel_istkpt),
+       [exc_table] "s" (&cfg._kernel_exc_table),
        [irc_get_intpri] "s" (target_impl.irc_get_intpri),
        [irc_begin_exc] "s" (target_impl.irc_begin_exc),
        [irc_end_exc] "s" (target_impl.irc_end_exc),
@@ -1553,13 +1559,15 @@ fn exc_entry() callconv(.Naked) void {
      \\ 4:
      \\  .long %[excpt_nest_count]
      \\ 5:
-     \\  .long _kernel_istkpt
+     \\  .long %[istkpt]
      \\ 7:
-     \\  .long _kernel_exc_table
+     \\  .long %[exc_table]
      :
      : [fpexc_enable] "n" (@as(u32, arm.FPEXC_ENABLE)),
        [cpsr_svc] "n" (@as(u32, arm.CPSR_SVC_MODE)),
        [excpt_nest_count] "s" (&excpt_nest_count),
+       [istkpt] "s" (&cfg._kernel_istkpt),
+       [exc_table] "s" (&cfg._kernel_exc_table),
     );
     unreachable;
 }
@@ -1942,7 +1950,7 @@ fn start() callconv(.Naked) noreturn {
      \\  b %[sta_ker]
      \\
      \\ 5:
-     \\  .long _kernel_istkpt
+     \\  .long %[istkpt]
      \\ __kernel_istk:
      \\  .long %[istk]
      \\ __kernel_istksz:
@@ -1965,7 +1973,7 @@ fn start() callconv(.Naked) noreturn {
      : [cpsr_svc_intlock] "n" (@as(u32, arm.CPSR_SVC_MODE | CPSR_INTLOCK)),
        [istk] "s" (&cfg._kernel_istk),
        [istksz] "s" (&cfg._kernel_istksz),
-//     [istkpt] "s" (&cfg._kernel_istkpt),
+       [istkpt] "s" (&cfg._kernel_istkpt),
        [sta_ker] "s" (startup.sta_ker),
     );
     unreachable;
