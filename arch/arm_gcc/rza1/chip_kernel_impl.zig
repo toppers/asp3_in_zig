@@ -154,28 +154,18 @@ pub fn config_int(intno: INTNO, intatr: ATR, intpri: PRI) void {
 ///
 ///  割込み要求ライン初期化ブロック
 ///
-const INTINIB = extern struct {
+const INTINIB = struct {
     intno: INTNO,               // 割込み番号
     intatr: ATR,                // 割込み属性
     intpri: PRI,                // 割込み優先度
 };
 
 ///
-///  設定する割込み要求ラインの数（kernel_cfg.c）
-///
-extern const _kernel_tnum_cfg_intno: c_uint;
-
-///
-///  割込み要求ライン初期化ブロックのエリア（kernel_cfg.c）
-///
-// zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-extern const _kernel_intinib_table: [100]INTINIB;
-
-///
 ///  割込み管理機能の初期化
 ///
 pub fn initialize_interrupt() void {
-    for (_kernel_intinib_table[0 .. _kernel_tnum_cfg_intno]) |*p_intinib| {
+    for (cfg._kernel_intinib_table[0 .. cfg._kernel_tnum_cfg_intno])
+                                                            |*p_intinib| {
         config_int(p_intinib.intno, p_intinib.intatr, p_intinib.intpri);
     }
 }
