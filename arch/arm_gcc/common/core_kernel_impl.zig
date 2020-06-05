@@ -1868,6 +1868,7 @@ fn default_exc_handler(p_excinf: *T_EXCINF, excno: EXCNO) void {
 ///
 fn start() callconv(.Naked) noreturn {
     asm volatile(
+     \\  .global start
      \\ start:
      \\ // プロセッサモードの初期化
      \\ //
@@ -2041,5 +2042,17 @@ pub const CoreExportDefs = struct {
     ///
     export fn _kernel_overrun_stop() void {
         overrun.overrun_stop();
+    }
+
+    ///
+    ///  vector_tableがコンパイルされるようにするための関数
+    ///
+    ///  vector_tableがコンパイルされるように，exportされる関数から参
+    ///  照する．vector_tableは.vectorセクションに置かれるため，リンカ
+    ///  スクリプトのKEEP指定により，必ずリンクされる．それに対して，
+    ///  この関数自身はリンクされず，最終的な実行ファイルには残らない．
+    ///
+    export fn _kernel_vector_table() callconv(.Naked) usize {
+        return @ptrToInt(vector_table);
     }
 };

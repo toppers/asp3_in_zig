@@ -160,9 +160,6 @@ pub const ExportDefs = struct {
         if (USE_ARM_FPU) {
             arm_fpu_initialize();
         }
-
-        // vector_tableがコンパイルされるようにする
-        asm volatile("" :: [vector_table] "s" (vector_table));
     }
 
     ///
