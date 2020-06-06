@@ -632,17 +632,17 @@ export fn _kernel_initialize_exception() void {
 ///
 ///  ターゲット依存部からexportする関数
 ///
-export const target_impl_export = target_impl.ExportDefs{};
+usingnamespace target_impl.ExportDefs;
 
 ///
 ///  タイマモジュールからexportする関数
 ///
-export const target_timer_export = target_timer.ExportDefs{};
+usingnamespace target_timer.ExportDefs;
 
 ///
 ///  トレースログの設定からexportする関数
 ///
-export const trace_option = option.log.TraceExportDefs{};
+usingnamespace option.log.TraceExportDefs;
 
 ///
 ///  トレースログのためのカーネル情報の取出し関数
