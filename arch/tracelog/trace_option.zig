@@ -109,28 +109,3 @@ fn traceWrite(logtype: c_uint, args: var) void {
     if (args.len > 5) { tracebuf.logpar[5] = logPar(args.@"5"); }
     _ = tTraceLog_eTraceLog_write(&tracebuf);
 }
-
-///
-///  アセンブリ言語で記述されるコードからトレースログを出力するための
-///  関数
-///
-pub const TraceExportDefs = struct {
-    export fn _kernel_log_dsp_enter(p_tcb: *task.TCB) void {
-        traceWrite(LOG_TYPE_DSP|LOG_ENTER, .{ p_tcb });
-    }
-    export fn _kernel_log_dsp_leave(p_tcb: *task.TCB) void {
-        traceWrite(LOG_TYPE_DSP|LOG_LEAVE, .{ p_tcb });
-    }
-    export fn _kernel_log_inh_enter(inhno: INHNO) void {
-        traceWrite(LOG_TYPE_INH|LOG_ENTER, .{ inhno });
-    }
-    export fn _kernel_log_inh_leave(inhno: INHNO) void {
-        traceWrite(LOG_TYPE_INH|LOG_LEAVE, .{ inhno });
-    }
-    export fn _kernel_log_exc_enter(excno: EXCNO) void {
-        traceWrite(LOG_TYPE_EXC|LOG_ENTER, .{ excno });
-    }
-    export fn _kernel_log_exc_leave(excno: EXCNO) void {
-        traceWrite(LOG_TYPE_EXC|LOG_LEAVE, .{ excno });
-    }
-};

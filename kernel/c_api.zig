@@ -640,11 +640,6 @@ usingnamespace target_impl.ExportDefs;
 usingnamespace target_timer.ExportDefs;
 
 ///
-///  トレースログの設定からexportする関数
-///
-usingnamespace option.log.TraceExportDefs;
-
-///
 ///  トレースログのためのカーネル情報の取出し関数
 ///
 export fn _kernel_get_tskid(info: usize) usize {

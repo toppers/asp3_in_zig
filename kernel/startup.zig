@@ -203,11 +203,11 @@ pub fn ext_ker() noreturn {
     kerflg = false;
 
     // カーネルの終了処理の呼出し
-    target_impl.call_exit_kernel();
+    target_impl.callExitKernel();
 }
 
 /// カーネルの終了処理
-pub fn exit_kernel() noreturn {
+pub fn exitKernel() noreturn {
     // 終了処理ルーチンの実行
     for (cfg._kernel_terrtnb_table[0 .. cfg._kernel_tnum_terrtn]) |terrtnb| {
         terrtnb.terrtn(terrtnb.exinf);

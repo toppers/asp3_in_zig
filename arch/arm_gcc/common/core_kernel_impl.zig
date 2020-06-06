@@ -59,12 +59,29 @@ const USE_ARM_PMCNT = option.target.USE_ARM_PMCNT;
 const USE_ARM_PMCNT_DIV64 = option.target.USE_ARM_PMCNT_DIV64;
 const TNUM_INHNO = option.target.TNUM_INHNO;
 const TNUM_INTNO = option.target.TNUM_INTNO;
-const LOG_INH_ENTER = @hasDecl(option.log, "inthdrEnter");
-const LOG_INH_LEAVE = @hasDecl(option.log, "inthdrLeave");
-const LOG_EXC_ENTER = @hasDecl(option.log, "exchdrEnter");
-const LOG_EXC_LEAVE = @hasDecl(option.log, "exchdrLeave");
-const LOG_DSP_ENTER = @hasDecl(option.log, "dispatchEnter");
-const LOG_DSP_LEAVE = @hasDecl(option.log, "dispatchLeave");
+
+///
+///  アセンブリ言語で記述されるコードからトレースログを出力するための
+///  関数
+///
+fn logDispatchEnter(p_tcb: *task.TCB) callconv(.C) void {
+    traceLog("dispatchEnter", .{ p_tcb });
+}
+fn logDispatchLeave(p_tcb: *task.TCB) callconv(.C) void {
+    traceLog("dispatchLeave", .{ p_tcb });
+}
+fn logInthdrEnter(inhno: INHNO) callconv(.C) void {
+    traceLog("inthdrEnter", .{ inhno });
+}
+fn logInthdrLeave(inhno: INHNO) callconv(.C) void {
+    traceLog("inthdrLeave", .{ inhno });
+}
+fn logExchdrEnter(excno: EXCNO) callconv(.C) void {
+    traceLog("exchdrEnter", .{ excno });
+}
+fn logExchdrLeave(excno: EXCNO) callconv(.C) void {
+    traceLog("exchdrLeave", .{ excno });
+}
 
 ///
 ///  用いるライブラリ
@@ -347,10 +364,10 @@ fn dispatcher() callconv(.Naked) void {
     asm volatile(
      \\ dispatcher:
         ++ "\n" ++
-        (if (LOG_DSP_ENTER)
+        (if (@hasDecl(option.log, "dispatchEnter"))
      \\ // 【この時点のレジスタ状態】
      \\ //  r0：p_runtsk（タスク切換え前）
-     \\  bl _kernel_log_dsp_enter
+     \\  bl %[log_dsp_enter]
         else "") ++ "\n" ++
      \\
      \\ dispatcher_0:
@@ -365,9 +382,9 @@ fn dispatcher() callconv(.Naked) void {
      \\  beq dispatcher_1
      \\  ldr sp, [r4,%[tcb_sp]]         // タスクスタックを復帰
         ++ "\n" ++
-        (if (LOG_DSP_LEAVE)
+        (if (@hasDecl(option.log, "dispatchLeave"))
      \\  mov r0, r4                     // p_runtskをパラメータに渡す
-     \\  bl _kernel_log_dsp_leave
+     \\  bl %[log_dsp_leave]
         else "") ++ "\n" ++
      \\  ldr r0, [r4,%[tcb_pc]]         // 実行再開番地を復帰
      \\  bx r0                          // p_runtskをr4に入れた状態で分岐する
@@ -401,6 +418,8 @@ fn dispatcher() callconv(.Naked) void {
        [cpsr_svc_unlock] "n" (@as(u32, arm.CPSR_SVC_MODE | CPSR_UNLOCK)),
        [p_runtsk] "s" (&task.p_runtsk),
        [p_schedtsk] "s" (&task.p_schedtsk),
+       [log_dsp_enter] "s" (logDispatchEnter),
+       [log_dsp_leave] "s" (logDispatchLeave),
     );
     unreachable;
 }
@@ -449,10 +468,10 @@ fn start_r() callconv(.Naked) noreturn {
 ///
 ///  カーネルの終了処理の呼出し
 ///
-///  call_exit_kernelは，カーネルの終了時に呼び出すべきもので，非タス
-///  クコンテキストに切り換えて，カーネルの終了処理（exit_kernel）へ分
-///  岐する．
-pub fn call_exit_kernel() noreturn {
+///  callExitKernelは，カーネルの終了時に呼び出すべきもので，非タスク
+///  コンテキストに切り換えて，カーネルの終了処理（exitKernel）へ分岐
+///  する．
+pub fn callExitKernel() noreturn {
     // 例外ネストカウントを1にする．
     excpt_nest_count = 1;
 
@@ -466,7 +485,7 @@ pub fn call_exit_kernel() noreturn {
      \\ 5:
      \\  .long %[istkpt]
      :
-     : [exit_kernel] "s" (startup.exit_kernel),
+     : [exit_kernel] "s" (startup.exitKernel),
        [istkpt] "s" (&cfg._kernel_istkpt),
     );
     unreachable;
@@ -663,10 +682,10 @@ fn irq_handler() callconv(.Naked) void {
         ) ++ "\n" ++
      \\
         ++ "\n" ++
-        (if (LOG_INH_ENTER)
+        (if (@hasDecl(option.log, "inthdrEnter"))
      \\ // ログ出力の呼出し
      \\  mov r0, r4                     // 割込み番号をパラメータに渡す
-     \\  bl _kernel_log_inh_enter
+     \\  bl %[log_inh_enter]
         else "") ++ "\n" ++
      \\
      \\ // 割込みハンドラの呼出し
@@ -676,10 +695,10 @@ fn irq_handler() callconv(.Naked) void {
      \\  bx r1
      \\
         ++ "\n" ++
-        (if (LOG_INH_LEAVE)
+        (if (@hasDecl(option.log, "inthdrLeave"))
      \\ // ログ出力の呼出し
      \\  mov r0, r4                     // 割込み番号をパラメータに渡す
-     \\  bl _kernel_log_inh_leave
+     \\  bl %[log_inh_leave]
         else "") ++ "\n" ++
      \\
      \\ // カーネル管理の割込みを禁止する．
@@ -838,6 +857,8 @@ fn irq_handler() callconv(.Naked) void {
        [p_schedtsk] "s" (&task.p_schedtsk),
        [istkpt] "s" (&cfg._kernel_istkpt),
        [inh_table] "s" (&cfg._kernel_inh_table),
+       [log_inh_enter] "s" (logInthdrEnter),
+       [log_inh_leave] "s" (logInthdrLeave),
        [irc_begin_int] "s" (target_impl.irc_begin_int),
        [irc_end_int] "s" (target_impl.irc_end_int),
        [dispatcher] "s" (dispatcher),
@@ -1308,10 +1329,10 @@ fn exc_entry() callconv(.Naked) void {
         ) ++ "\n" ++
      \\
         ++ "\n" ++
-        (if (LOG_EXC_ENTER)
+        (if (@hasDecl(option.log, "exchdrEnter"))
      \\ // ログ出力の呼出し
      \\  mov r0, r4                     // CPU例外番号をパラメータに渡す
-     \\  bl _kernel_log_exc_enter
+     \\  bl %[log_exc_enter]
         else "") ++ "\n" ++
      \\
      \\ // CPU例外ハンドラの呼出し
@@ -1324,10 +1345,10 @@ fn exc_entry() callconv(.Naked) void {
      \\  bx r3
      \\
         ++ "\n" ++
-        (if (LOG_EXC_LEAVE)
+        (if (@hasDecl(option.log, "exchdrLeave"))
      \\ // ログ出力の呼出し
      \\  mov r0, r4                     // CPU例外番号をパラメータに渡す
-     \\  bl _kernel_log_exc_leave
+     \\  bl %[log_exc_leave]
         else "") ++ "\n" ++
      \\
      \\ // カーネル管理の割込みを禁止する．
@@ -1484,6 +1505,8 @@ fn exc_entry() callconv(.Naked) void {
        [p_schedtsk] "s" (&task.p_schedtsk),
        [istkpt] "s" (&cfg._kernel_istkpt),
        [exc_table] "s" (&cfg._kernel_exc_table),
+       [log_exc_enter] "s" (logExchdrEnter),
+       [log_exc_leave] "s" (logExchdrLeave),
        [irc_get_intpri] "s" (target_impl.irc_get_intpri),
        [irc_begin_exc] "s" (target_impl.irc_begin_exc),
        [irc_end_exc] "s" (target_impl.irc_end_exc),
