@@ -16,12 +16,12 @@ const MPCORE_WDG_FREQ = option.target.MPCORE_WDG_FREQ;
 ///
 ///  MPCoreのグローバルタイマを用いて高分解能タイマを実現する．
 ///
-usingnamespace @import("../common/mpcore_timer.zig");
+const mpcore_timer = @import("../common/mpcore_timer.zig");
 
 ///
 ///  高分解能タイマドライバのインスタンシエート
 ///
-pub const hrt = GTC_HRT(.{
+pub const hrt = mpcore_timer.GTC_HRT(.{
     .GTC_PS_VALUE = MPCORE_GTC_PS_VALUE,
     .GTC_FREQ     = MPCORE_GTC_FREQ,
 });
@@ -36,7 +36,7 @@ usingnamespace @import("../common/mpcore_timer.zig");
 ///
 ///  オーバランタイマドライバのインスタンシエート
 ///
-pub const ovrtimer = WDG_OVRTIMER(.{
+pub const ovrtimer = mpcore_timer.WDG_OVRTIMER(.{
     .WDG_PS_VALUE = MPCORE_WDG_PS_VALUE,
     .WDG_FREQ     = MPCORE_WDG_FREQ,
 });

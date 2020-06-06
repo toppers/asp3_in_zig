@@ -18,12 +18,12 @@ const EB_IRQNO_TIMER01 = option.target.EB_IRQNO_TIMER01;
 ///  MPCoreのプライベートタイマとウォッチドッグを用いて高分解能タイマ
 ///  を実現する．
 ///
-usingnamespace @import("../../arch/arm_gcc/common/mpcore_timer.zig");
+const mpcore_timer = @import("../../arch/arm_gcc/common/mpcore_timer.zig");
 
 ///
 ///  高分解能タイマドライバのインスタンシエート
 ///
-pub const hrt = TMRWDG_HRT(.{
+pub const hrt = mpcore_timer.TMRWDG_HRT(.{
     .TMR_PS_VALUE = MPCORE_TMR_PS_VALUE,
     .WDG_PS_VALUE = MPCORE_WDG_PS_VALUE,
 });
