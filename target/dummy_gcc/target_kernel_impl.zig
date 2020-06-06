@@ -283,9 +283,9 @@ pub fn exc_handler_entry() void {}
 ///
 ///  カーネルの終了処理の呼出し
 ///
-pub fn call_exit_kernel() noreturn {
+pub fn callExitKernel() noreturn {
     // 非タスクコンテキストに切り換える
-    startup.exit_kernel();
+    startup.exitKernel();
 }
 
 ///
