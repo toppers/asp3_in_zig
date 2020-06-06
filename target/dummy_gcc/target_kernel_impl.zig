@@ -191,7 +191,7 @@ pub fn probeInt(intno: INTNO) bool { return true; }
 ///
 pub noinline fn dispatch() void {
     if (comptime TOPPERS_SUPPORT_OVRHDR) {
-        overrun_stop();
+        overrun.overrun_stop();
     }
     // スクラッチレジスタを除くすべてのレジスタをスタックに保存する
     // スタックポインタを自タスク（p_runtsk）のTCBに保存する
@@ -201,7 +201,7 @@ pub noinline fn dispatch() void {
 //  dispatch_r:
     // スクラッチレジスタを除くすべてのレジスタをスタックから復帰する
     if (TOPPERS_SUPPORT_OVRHDR) {
-        overrun_start();
+        overrun.overrun_start();
     }
 }
 
