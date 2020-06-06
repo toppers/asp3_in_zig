@@ -233,13 +233,13 @@ pub fn exitAndDispatch() noreturn {
 ///  ディスパッチャ本体
 ///
 fn dispatcher() void {
-    log.dispatchEnter(task.p_runtsk.?);
+    traceLog("dispatchEnter", .{ task.p_runtsk.? });
 
 //  dispatcher_0:
     task.p_runtsk = task.p_schedtsk;
     if (task.p_runtsk != null) {
         // 自タスク（p_runtsk）のTCBからスタックポインタを復帰する
-        log.dispatchLeave(task.p_runtsk.?);
+        traceLog("dispatchLeave", .{ task.p_runtsk.? });
         // 自タスクのTCBから実行再開番地を復帰し，そこへ分岐する
     }
 
@@ -378,6 +378,13 @@ pub fn exit() noreturn {
 ///  ターゲット依存部からexportする関数
 ///
 pub const ExportDefs = struct {
+    ///
+    ///  スタートアップモジュール
+    ///
+    export fn _start() void {
+        startup.sta_ker();
+    }
+
     ///
     ///  リンクエラーを防ぐための定義
     ///

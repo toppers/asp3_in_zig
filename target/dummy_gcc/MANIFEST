@@ -4,7 +4,6 @@ MANIFEST
 Makefile.target
 dummy.h
 dummy.zig
-start.c
 tSIOPortDummy.cdl
 tSIOPortDummyMain.c
 target.cdl
