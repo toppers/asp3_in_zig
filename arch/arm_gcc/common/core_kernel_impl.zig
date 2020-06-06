@@ -59,10 +59,10 @@ const USE_ARM_PMCNT = option.target.USE_ARM_PMCNT;
 const USE_ARM_PMCNT_DIV64 = option.target.USE_ARM_PMCNT_DIV64;
 const TNUM_INHNO = option.target.TNUM_INHNO;
 const TNUM_INTNO = option.target.TNUM_INTNO;
-const LOG_INH_ENTER = @hasDecl(option.log, "interruptHandlerEnter");
-const LOG_INH_LEAVE = @hasDecl(option.log, "interruptHandlerLeave");
-const LOG_EXC_ENTER = @hasDecl(option.log, "exceptionHandlerEnter");
-const LOG_EXC_LEAVE = @hasDecl(option.log, "exceptionHandlerLeave");
+const LOG_INH_ENTER = @hasDecl(option.log, "inthdrEnter");
+const LOG_INH_LEAVE = @hasDecl(option.log, "inthdrLeave");
+const LOG_EXC_ENTER = @hasDecl(option.log, "exchdrEnter");
+const LOG_EXC_LEAVE = @hasDecl(option.log, "exchdrLeave");
 const LOG_DSP_ENTER = @hasDecl(option.log, "dispatchEnter");
 const LOG_DSP_LEAVE = @hasDecl(option.log, "dispatchLeave");
 
