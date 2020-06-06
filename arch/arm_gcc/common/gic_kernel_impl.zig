@@ -33,13 +33,6 @@ comptime {
 }
 
 ///
-///  割込み番号の数，最小値と最大値
-///
-pub const TNUM_INTNO = GIC_TNUM_INTNO;
-pub const TMIN_INTNO = 0;
-pub const TMAX_INTNO = GIC_TNUM_INTNO - 1;
-
-///
 ///  割込み番号の定義
 ///
 const GIC_INTNO_SGI0 = 0;
@@ -360,7 +353,7 @@ pub fn gicd_terminate() void {
 ///  割込み番号の範囲の判定
 ///
 pub fn validIntno(intno: INTNO) bool {
-    return TMIN_INTNO <= intno and intno <= TMAX_INTNO;
+    return 0 <= intno and intno < GIC_TNUM_INTNO;
 }
 
 ///
