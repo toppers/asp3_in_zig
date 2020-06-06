@@ -33,6 +33,12 @@ comptime {
 }
 
 ///
+///  割込み番号の最小値と最大値
+///
+pub const GIC_TMIN_INTNO = 0;
+pub const GIC_TMAX_INTNO = GIC_TNUM_INTNO - 1;
+
+///
 ///  割込み番号の定義
 ///
 const GIC_INTNO_SGI0 = 0;
@@ -42,9 +48,9 @@ const GIC_INTNO_SPI0 = 32;
 ///
 ///  割込み優先度の操作
 ///
-///  割込み優先度の内部表現は，uint_t型で表し，0が最高優先度で，値が大
-///  きいほど優先度が下がるものとする．GICのレジスタ構成と整合させるた
-///  めに，優先度の段数が256段階の時にあわせて表す．
+///  割込み優先度の内部表現は，u32型で表し，0が最高優先度で，値が大き
+///  いほど優先度が下がるものとする．GICのレジスタ構成と整合させるため
+///  に，優先度の段数が256段階の時にあわせて表す．
 ///
 const GIC_PRI_LEVEL = TMAX_INTPRI - TMIN_INTPRI + 2;
 const GIC_PRI_SHIFT = switch (GIC_PRI_LEVEL) {
@@ -65,13 +71,13 @@ const GIC_PRI_MASK = switch (GIC_PRI_LEVEL) {
 };
 
 /// 割込み優先度マスクの外部表現への変換
-pub fn externalIpm(pri: c_uint) PRI {
+pub fn externalIpm(pri: u32) PRI {
     return @intCast(PRI, (pri >> GIC_PRI_SHIFT)) - (GIC_PRI_LEVEL - 1);
 }
 
 /// 割込み優先度マスクの内部表現への変換
-pub fn internalIpm(ipm: PRI) c_uint {
-    return @intCast(c_uint, ipm + GIC_PRI_LEVEL - 1) << GIC_PRI_SHIFT;
+pub fn internalIpm(ipm: PRI) u32 {
+    return @intCast(u32, ipm + GIC_PRI_LEVEL - 1) << GIC_PRI_SHIFT;
 }
 
 ///
@@ -163,14 +169,14 @@ pub const GICD_ICFGRn_1_N   = if (GIC_ARM11MPCORE) 0x01 else @compileError("");
 ///
 ///  割込み優先度マスクを設定（priは内部表現）
 /// 
-fn gicc_set_priority(pri: c_uint) void {
+fn gicc_set_priority(pri: u32) void {
     sil.swrw_mem(GICC_PMR, pri);
 }
 
 ///
 ///  割込み優先度マスクを取得（内部表現で返す）
 /// 
-fn gicc_get_priority() c_uint {
+fn gicc_get_priority() u32 {
     return sil.rew_mem(GICC_PMR);
 }
 
@@ -353,7 +359,7 @@ pub fn gicd_terminate() void {
 ///  割込み番号の範囲の判定
 ///
 pub fn validIntno(intno: INTNO) bool {
-    return 0 <= intno and intno < GIC_TNUM_INTNO;
+    return GIC_TMIN_INTNO <= intno and intno <= GIC_TMAX_INTNO;
 }
 
 ///
@@ -404,7 +410,7 @@ pub fn validIntnoDisInt(intno: INTNO) bool {
         return validIntno(intno);
     }
     else {
-        return GIC_INTNO_PPI0 <= intno and intno <= TMAX_INTNO;
+        return GIC_INTNO_PPI0 <= intno and intno <= GIC_TMAX_INTNO;
     }
 }
 
@@ -426,7 +432,7 @@ pub fn enableInt(intno: INTNO) void {
 ///  割込み要求がクリアできる割込み番号の範囲の判定
 ///
 pub fn validIntnoClrInt(intno: INTNO) bool {
-    return GIC_INTNO_PPI0 <= intno and intno <= TMAX_INTNO;
+    return GIC_INTNO_PPI0 <= intno and intno <= GIC_TMAX_INTNO;
 }
 
 ///
