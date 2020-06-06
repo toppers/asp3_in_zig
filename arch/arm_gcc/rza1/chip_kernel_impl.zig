@@ -149,15 +149,6 @@ pub fn config_int(intno: INTNO, intatr: ATR, intpri: PRI) void {
 }
 
 ///
-///  割込み要求ライン初期化ブロック
-///
-const INTINIB = struct {
-    intno: INTNO,               // 割込み番号
-    intatr: ATR,                // 割込み属性
-    intpri: PRI,                // 割込み優先度
-};
-
-///
 ///  割込み管理機能の初期化
 ///
 pub fn initialize_interrupt() void {
