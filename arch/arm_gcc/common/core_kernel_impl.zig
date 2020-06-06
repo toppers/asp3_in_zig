@@ -560,11 +560,9 @@ fn ExportCfg(intinib_list: []interrupt.INTINIB) type {
 
 pub fn ExportIntIniB(intinib_list: []interrupt.INTINIB) type {
     return struct {
-        pub usingnamespace if (@hasDecl(target_impl, "USE_INTINIB_TABLE")
-                                   and target_impl.USE_INTINIB_TABLE)
+        pub usingnamespace if (isTrue(target_impl, "USE_INTINIB_TABLE"))
             ExportIniB(intinib_list) else struct {};
-        pub usingnamespace if (@hasDecl(target_impl, "USE_INTCFG_TABLE")
-                                   and target_impl.USE_INTCFG_TABLE)
+        pub usingnamespace if (isTrue(target_impl, "USE_INTCFG_TABLE"))
             ExportCfg(intinib_list) else struct {};
     };
 }
