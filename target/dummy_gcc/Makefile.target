@@ -34,11 +34,6 @@ SYSSVC_DIRS := $(SYSSVC_DIRS) $(TARGETDIR)
 SYSSVC_COBJS := $(SYSSVC_COBJS)
 
 #
-#  オフセットファイル生成のための定義
-#
-TARGET_OFFSET_TRB = $(TARGETDIR)/target_offset.trb
-
-#
 #  スタートアップモジュールに関する定義
 #
 #  LDFLAGSに-nostdlibを追加する．
