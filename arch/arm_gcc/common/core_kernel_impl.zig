@@ -432,7 +432,7 @@ fn start_r() callconv(.Naked) noreturn {
     // r4：p_runtsk（タスク切換え後）
     asm volatile(
         (if (TOPPERS_SUPPORT_OVRHDR)
-     \\  bl _kernel_overrun_start
+     \\  bl %[overrun_start]
         else "") ++ "\n" ++
      \\  msr cpsr_c, %[cpsr_svc_unlock] // CPUロック解除状態に
      \\  ldr lr, _ext_tsk               // タスク本体からの戻り番地を設定
@@ -455,6 +455,7 @@ fn start_r() callconv(.Naked) noreturn {
      :
      : [cpsr_svc_unlock] "n" (@as(u32, arm.CPSR_SVC_MODE | CPSR_UNLOCK)),
        [ext_tsk] "s" (task_term.ext_tsk),
+       [overrun_start] "s" (overrun.overrun_start),
        [tcb_p_tinib] "J" (@as(i16, @byteOffsetOf(task.TCB, "p_tinib"))),
        [tinib_tskatr] "J" (@as(i16, @byteOffsetOf(task.TINIB, "tskatr"))),
        [tinib_exinf] "J" (@as(i16, @byteOffsetOf(task.TINIB, "exinf"))),
@@ -642,7 +643,7 @@ fn irq_handler() callconv(.Naked) void {
      \\
         ++ "\n" ++
         (if (TOPPERS_SUPPORT_OVRHDR)
-     \\  bl _kernel_overrun_stop
+     \\  bl %[overrun_stop]
         else "") ++ "\n" ++
         (if (USE_ARM_FPU)
      \\ // FPUをディスエーブルする．
@@ -803,7 +804,7 @@ fn irq_handler() callconv(.Naked) void {
      \\ irq_handler_4:
         ++ "\n" ++
         (if (TOPPERS_SUPPORT_OVRHDR)
-     \\  bl _kernel_overrun_start
+     \\  bl %[overrun_start]
         else "") ++ "\n" ++
      \\
      \\ // 割込み処理からのリターン
@@ -859,6 +860,8 @@ fn irq_handler() callconv(.Naked) void {
        [inh_table] "s" (&cfg._kernel_inh_table),
        [log_inh_enter] "s" (logInthdrEnter),
        [log_inh_leave] "s" (logInthdrLeave),
+       [overrun_start] "s" (overrun.overrun_start),
+       [overrun_stop] "s" (overrun.overrun_stop),
        [irc_begin_int] "s" (target_impl.irc_begin_int),
        [irc_end_int] "s" (target_impl.irc_end_int),
        [dispatcher] "s" (dispatcher),
@@ -1290,7 +1293,7 @@ fn exc_entry() callconv(.Naked) void {
      \\
         ++ "\n" ++
         (if (TOPPERS_SUPPORT_OVRHDR)
-     \\  bl _kernel_overrun_stop
+     \\  bl %[overrun_stop]
         else "") ++ "\n" ++
         (if (USE_ARM_FPU)
      \\ // FPUをディスエーブルする．
@@ -1453,7 +1456,7 @@ fn exc_entry() callconv(.Naked) void {
      \\ exc_handler_4:
         ++ "\n" ++
         (if (TOPPERS_SUPPORT_OVRHDR)
-     \\  bl _kernel_overrun_start
+     \\  bl %[overrun_start]
         else "") ++ "\n" ++
      \\
      \\ // CPU例外処理からのリターン
@@ -1507,6 +1510,8 @@ fn exc_entry() callconv(.Naked) void {
        [exc_table] "s" (&cfg._kernel_exc_table),
        [log_exc_enter] "s" (logExchdrEnter),
        [log_exc_leave] "s" (logExchdrLeave),
+       [overrun_start] "s" (overrun.overrun_start),
+       [overrun_stop] "s" (overrun.overrun_stop),
        [irc_get_intpri] "s" (target_impl.irc_get_intpri),
        [irc_begin_exc] "s" (target_impl.irc_begin_exc),
        [irc_end_exc] "s" (target_impl.irc_end_exc),
@@ -2053,24 +2058,6 @@ pub const CoreExportDefs = struct {
     export fn _kernel_default_exc_handler(p_excinf: *T_EXCINF,
                                           excno: EXCNO) void {
         default_exc_handler(p_excinf, excno);
-    }
-
-    ///
-    ///  オーバランタイマの動作開始
-    ///
-    ///  この関数は，アセンブリコードから呼び出すために用意している．
-    ///
-    export fn _kernel_overrun_start() void {
-        overrun.overrun_start();
-    }
-
-    ///
-    ///  オーバランタイマの停止
-    ///
-    ///  この関数は，アセンブリコードから呼び出すために用意している．
-    ///
-    export fn _kernel_overrun_stop() void {
-        overrun.overrun_stop();
     }
 
     ///
