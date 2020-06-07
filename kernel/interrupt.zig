@@ -168,36 +168,15 @@ const TARGET_INHATR = decl(ATR, target_impl, "TARGET_INHATR", 0);
 const TARGET_ISRATR = decl(ATR, target_impl, "TARGET_ISRATR", 0);
 
 ///
-///  標準的な割込み要求ライン初期化ブロックの取り込み
+///  割込み要求ライン初期化ブロック
 ///
-pub const ExternIntIniB = struct {
-    ///
-    /// 定義する割込みハンドラ番号の数
-    ///
-    pub extern const _kernel_tnum_def_inhno: c_uint;
-
-    ///
-    /// 割込みハンドラ初期化ブロックのエリア
-    ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern const _kernel_inhinib_table: [100]INHINIB;
-};
-
-///
-///  標準的な割込みハンドラ初期化ブロックの取り込み
-///
-pub const ExternInhIniB = struct {
-    ///
-    ///  設定する割込み要求ラインの数
-    ///
-    pub extern const _kernel_tnum_cfg_intno: c_uint;
-
-    ///
-    ///  割込み要求ライン初期化ブロックのエリア
-    ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern const _kernel_intinib_table: [100]INTINIB;
-};
+pub const INTINIB =
+    if (@hasDecl(target_impl, "INTINIB")) target_impl.INTINIB
+    else struct {
+        intno: INTNO,           // 割込み番号
+        intatr: ATR,            // 割込み属性
+        intpri: PRI,            // 割込み優先度
+    };
 
 ///
 ///  割込みハンドラ初期化ブロック
@@ -211,14 +190,39 @@ pub const INHINIB =
     };
 
 ///
-///  割込み要求ライン初期化ブロック
+///  割込み要求ライン初期化ブロックの取り込み
 ///
-pub const INTINIB =
-    if (@hasDecl(target_impl, "INTINIB")) target_impl.INTINIB
+pub const ExternIntIniB =
+    if (@hasDecl(target_impl, "ExternIntIniB")) target_impl.ExternIntIniB
     else struct {
-        intno: INTNO,           // 割込み番号
-        intatr: ATR,            // 割込み属性
-        intpri: PRI,            // 割込み優先度
+        ///
+        /// 定義する割込みハンドラ番号の数
+        ///
+        pub extern const _kernel_tnum_def_inhno: c_uint;
+
+        ///
+        /// 割込みハンドラ初期化ブロックのエリア
+        ///
+        // zigの制限の回避（配列のサイズを大きい値にしている）
+        pub extern const _kernel_inhinib_table: [100]INHINIB;
+    };
+
+///
+///  標準的な割込みハンドラ初期化ブロックの取り込み
+///
+pub const ExternInhIniB =
+    if (@hasDecl(target_impl, "ExternInhIniB")) target_impl.ExternInhIniB
+    else struct {
+        ///
+        ///  設定する割込み要求ラインの数
+        ///
+        pub extern const _kernel_tnum_cfg_intno: c_uint;
+
+        ///
+        ///  割込み要求ライン初期化ブロックのエリア
+        ///
+        // zigの制限の回避（配列のサイズを大きい値にしている）
+        pub extern const _kernel_intinib_table: [100]INTINIB;
     };
 
 ///

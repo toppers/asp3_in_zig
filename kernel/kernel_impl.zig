@@ -126,15 +126,9 @@ pub const cfg = if (option.BIND_CFG) |CFG_FILE|
         usingnamespace cyclic.ExternCycCfg;
         usingnamespace alarm.ExternAlmCfg;
         usingnamespace overrun.ExternOvrIniB;
-        usingnamespace if (@hasDecl(target_impl, "ExternIntIniB"))
-                           target_impl.ExternIntIniB
-                       else interrupt.ExternIntIniB;
-        usingnamespace if (@hasDecl(target_impl, "ExternInhIniB"))
-                           target_impl.ExternInhIniB
-                       else interrupt.ExternInhIniB;
-        usingnamespace if (@hasDecl(target_impl, "ExternExcIniB"))
-                           target_impl.ExternExcIniB
-                       else exception.ExternExcIniB;
+        usingnamespace interrupt.ExternIntIniB;
+        usingnamespace interrupt.ExternInhIniB;
+        usingnamespace exception.ExternExcIniB;
         usingnamespace startup.ExternIcs;
         usingnamespace startup.ExternIniRtnB;
         usingnamespace startup.ExternTerRtnB;

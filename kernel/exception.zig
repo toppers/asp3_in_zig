@@ -67,31 +67,33 @@ const TARGET_EXCATR =
     else 0;
 
 ///
-///  標準的なCPU例外ハンドラ初期化ブロックの取り込み
-///
-pub const ExternExcIniB = struct {
-    ///
-    ///  定義するCPU例外ハンドラ番号の数
-    ///
-    pub extern const _kernel_tnum_def_excno: c_uint;
-
-    ///
-    ///  CPU例外ハンドラ初期化ブロックのエリア
-    ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern const _kernel_excinib_table: [100]EXCINIB;
-};
-
-///
 ///  CPU例外ハンドラ初期化ブロック
 ///
 pub const EXCINIB =
     if (@hasDecl(target_impl, "EXCINIB")) target_impl.EXCINIB
-    else extern struct {
+    else struct {
         excno: EXCNO,           // CPU例外ハンドラ番号
         excatr: ATR,            // CPU例外ハンドラ属性
         exchdr: EXCHDR,         // CPU例外ハンドラの先頭番地
     };
+
+///
+///  CPU例外ハンドラ初期化ブロックの取り込み
+///
+pub const ExternExcIniB =
+    if (@hasDecl(target_impl, "ExternExcIniB")) target_impl.ExternExcIniB
+    else struct {
+        ///
+        ///  定義するCPU例外ハンドラ番号の数
+        ///
+        pub extern const _kernel_tnum_def_excno: c_uint;
+
+        ///
+        ///  CPU例外ハンドラ初期化ブロックのエリア
+        ///
+        // zigの制限の回避（配列のサイズを大きい値にしている）
+        pub extern const _kernel_excinib_table: [100]EXCINIB;
+     };
 
 ///
 ///  CPU例外管理機能の初期化
