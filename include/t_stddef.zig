@@ -126,6 +126,16 @@ pub fn castToExinf(exinf: var) EXINF {
 }
 
 ///
+///  EXINF型からの強制変換
+///
+pub fn exinfToPtr(comptime T: type, exinf: EXINF) T {
+    return @ptrCast(T, @alignCast(@alignOf(T), exinf));
+}
+pub fn exinfToInt(comptime T: type, exinf: EXINF) T {
+    return @intCast(T, @ptrToInt(exinf));
+}
+
+///
 ///  サービスコールにおけるエラー
 ///
 pub const ItronError = error {

@@ -102,7 +102,7 @@ fn genNotifyFunction(comptime nfyinfo: T_NFYINFO) type {
             switch (comptime nfyinfo.nfy) {
                 .Handler => unreachable,
                 .SetVar => |setvar| {
-                    ptrAlignCast(*usize, exinf).* = setvar.value;
+                    exinfToPtr(*usize, exinf).* = setvar.value;
                     if (nfyinfo.enfy != null) {
                         // エラー通知を指定した場合（E_PAR）［NGKI3721］
                         @compileError("E_PAR: illegal error notification.");
@@ -111,7 +111,7 @@ fn genNotifyFunction(comptime nfyinfo: T_NFYINFO) type {
                 },
                 .IncVar => {
                     _ = c_api.loc_cpu();
-                    ptrAlignCast(*usize, exinf).* += 1;
+                    exinfToPtr(*usize, exinf).* += 1;
                     _ = c_api.unl_cpu();
                     if (nfyinfo.enfy != null) {
                         // エラー通知を指定した場合（E_PAR）［NGKI3721］
@@ -139,12 +139,12 @@ fn genNotifyFunction(comptime nfyinfo: T_NFYINFO) type {
                 if (comptime nfyinfo.enfy) |enfy| {
                     switch (comptime enfy) {
                         .SetVar => {
-                            ptrAlignCast(*usize, exinf).* =
+                            exinfToPtr(*usize, exinf).* =
                                 @bitCast(usize, @intCast(isize, ercd));
                         },
                         .IncVar => {
                             _ = c_api.loc_cpu();
-                            ptrAlignCast(*usize, exinf).* += 1;
+                            exinfToPtr(*usize, exinf).* += 1;
                             _ = c_api.unl_cpu();
                         },
                         .ActTsk => |acttsk| {
