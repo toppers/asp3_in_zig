@@ -166,7 +166,7 @@ export fn dly_tsk(dlytim: RELTIM) ER {
 }
 
 // ext_tskのC言語API
-pub export fn ext_tsk() ER {
+export fn ext_tsk() ER {
     return callService(task_term.ext_tsk());
 }
 
@@ -635,12 +635,19 @@ export fn _kernel_initialize_exception() void {
 usingnamespace target_impl.ExportDefs;
 
 ///
-///  タイマモジュールからexportする関数
+///  タイマドライバからexportする関数
 ///
 usingnamespace target_timer.ExportDefs;
 
+//
+//  システムログ機能用の高分解能タイマの現在のカウント値の読出し関数
+//
+export fn _kernel_target_hrt_get_current() HRTCNT {
+    return target_timer.hrt.get_current();
+}
+
 ///
-///  トレースログのためのカーネル情報の取出し関数
+///  トレースログ出力のためのカーネル情報の取出し関数
 ///
 export fn _kernel_get_tskid(info: usize) usize {
     return task.getTskId(info);
