@@ -2,7 +2,7 @@
 ///  TOPPERS/ASP Kernel
 ///      Toyohashi Open Platform for Embedded Real-Time Systems/
 ///      Advanced Standard Profile Kernel
-/// 
+///
 ///  Copyright (C) 2000-2003 by Embedded and Real-Time Systems Laboratory
 ///                                 Toyohashi Univ. of Technology, JAPAN
 ///  Copyright (C) 2005-2020 by Embedded and Real-Time Systems Laboratory
@@ -242,7 +242,7 @@ pub const TCB = struct {
                                 // 残りプロセッサ時間
     tskctxb: target_impl.TSKCTXB,
 };                              // タスクコンテキストブロック
-     
+
 ///
 ///  実行状態のタスク
 ///

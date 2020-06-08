@@ -2,7 +2,7 @@
 ///  TOPPERS/ASP Kernel
 ///      Toyohashi Open Platform for Embedded Real-Time Systems/
 ///      Advanced Standard Profile Kernel
-/// 
+///
 ///  Copyright (C) 2000-2003 by Embedded and Real-Time Systems Laboratory
 ///                                 Toyohashi Univ. of Technology, JAPAN
 ///  Copyright (C) 2006-2020 by Embedded and Real-Time Systems Laboratory
@@ -145,7 +145,7 @@ pub fn senseContext() bool {
 ///  みとし，カーネルの動作中はIRQを常にマスクする．この方法を使用する
 ///  場合には，TOPPERS_SAFEG_SECUREをマクロ定義する（★現時点では未サ
 ///  ポート）．
-/// 
+///
 ///  TOPPERS標準割込み処理モデルの中で，割込み優先度マスクと割込み要求
 ///  禁止フラグに関しては，割込みコントローラによって実現方法が異なる
 ///  ため，ARMコア依存部では扱わない．
@@ -652,7 +652,7 @@ fn irq_handler() callconv(.Naked) void {
      \\  bic r0, r0, %[fpexc_enable]
      \\  vmsr fpexc, r0                 // FPEXCを設定
         else "") ++ "\n" ++
-     \\ 
+     \\
      \\ // 非タスクコンテキスト用のスタックに切り換える．
      \\  mov r3, sp                     // この時点のスタックポインタをr3に
      \\  ldr r2, 5f                     // 非タスクコンテキスト用のスタックに
@@ -1302,7 +1302,7 @@ fn exc_entry() callconv(.Naked) void {
      \\  bic r0, r0, %[fpexc_enable]
      \\  vmsr fpexc, r0                 // FPEXCを設定
         else "") ++ "\n" ++
-     \\ 
+     \\
      \\ // 非タスクコンテキスト用のスタックに切り換える．
      \\  mov r3, sp                     // この時点のスタックポインタをr3に
      \\  ldr r2, 5f                     // 非タスクコンテキスト用のスタックに
@@ -1383,7 +1383,7 @@ fn exc_entry() callconv(.Naked) void {
      \\  ldr r0, [sp]                   // FPEXCを復帰
      \\  vmsr fpexc, r0
         else "") ++ "\n" ++
-     \\ 
+     \\
      \\ // p_runtskがNULLか判定する．
      \\  ldr r0, 2f                     // p_runtsk → r0
      \\  ldr r0, [r0]
@@ -1542,7 +1542,7 @@ fn exc_entry() callconv(.Naked) void {
      \\  bic r0, r0, %[fpexc_enable]
      \\  vmsr fpexc, r0                 // FPEXCを設定
         else "") ++ "\n" ++
-     \\ 
+     \\
      \\ // 非タスクコンテキスト用のスタックに切り換える．
      \\  mov r3, sp                     // この時点のスタックポインタをr3に
      \\  ldr r2, 5f                     // 非タスクコンテキスト用のスタックに
