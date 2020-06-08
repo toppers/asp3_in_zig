@@ -146,14 +146,6 @@ pub const ExportDefs = struct {
     export fn _kernel_target_ovrtimer_handler() void {
         ovrtimer.handler();
     }
-
-    //
-    //  システムログ機能用の関数
-    //
-    // 高分解能タイマの現在のカウント値の読出し
-    export fn _kernel_target_hrt_get_current() HRTCNT {
-        return hrt.get_current();
-    }
 };
 
 ///
