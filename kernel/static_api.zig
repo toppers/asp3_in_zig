@@ -576,6 +576,11 @@ pub const CfgData = struct {
 
     // コンフィギュレーションデータの加工処理
     pub fn process(comptime p_self: *CfgData) void {
+        // タスクが1つも登録されていない場合［NGKI0033］
+        if (p_self.tsk_list.head == null) {
+            @compileError("no task is registered.");
+        }
+
         // 割込みサービスルーチンを呼び出す割込みハンドラの生成
         comptime var isrcfg_table: [p_self.isr_list.length]interrupt.ISRCFG
                                                                 = undefined;
@@ -639,11 +644,6 @@ pub fn GenCfgData(comptime cfg_data: *CfgData) type {
     // コンフィギュレーションデータの加工処理
     cfg_data.process();
 
-    // タスクが1つも登録されていない場合［NGKI0033］
-    if (cfg_data.tsk_list.head == null) {
-        @compileError("no task is registered.");
-    }
-
     //
     //  オブジェクトIDの定義の生成
     //
@@ -672,7 +672,7 @@ pub fn GenCfgData(comptime cfg_data: *CfgData) type {
     exportIdSymbol(cfg_data.terrtn_list.length, "TNUM_TERRTN");
 
     //
-    //  チェック処理用の定義の生成（★未完成）
+    //  チェック処理用の定義の生成
     //
     exportCheck(0x12345678, "TOPPERS_magic_number");
     exportCheck(decl(u32, target_impl, "CHECK_USIZE_ALIGN", 1),
