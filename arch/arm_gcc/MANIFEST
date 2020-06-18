@@ -4,11 +4,6 @@ VERSION 3.5.0
 E_PACKAGE
 MANIFEST
 
-doc/arm_design.txt
-doc/arm_porting.txt
-doc/arm_user.txt
-doc/gic_design.txt
-
 common/Makefile.core
 common/arm.h
 common/arm.zig

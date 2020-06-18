@@ -147,7 +147,6 @@ sample/sample3.h
 sample/sample3.zig
 sample/sample3_cfg.zig
 
-INCLUDE cfg/MANIFEST
 INCLUDE test/MANIFEST
 INCLUDE test_cfg/MANIFEST
 INCLUDE target/dummy_gcc/MANIFEST
