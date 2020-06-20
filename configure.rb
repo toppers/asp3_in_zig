@@ -63,9 +63,11 @@ require "shell"
 #  -B <bannerobj>		バナー表示のオブジェクトファイル（.oファイル名で指定）
 #  -L <kernel_lib>		カーネルライブラリ（libkernel.a）のディレクトリ名
 #						（省略した場合，カーネルライブラリもmakeする）
-#  -f					カーネルを関数単位でコンパイルするかどうかの指定
+#  -n <bind_cfg>		カーネルとコンフィギュレーションデータを一体で
+#						コンパイルする場合のシステムコンフィギュレーショ
+#						ン記述のファイル（.zig）
 #  -D <srcdir>			カーネルソースの置かれているディレクトリ
-#  -l <srclang>			プログラミング言語（現時点ではcとc++のみサポート）
+#  -l <srclang>			プログラミング言語（c，c++，zigのいずれか）
 #  -m <tempmakefile>	Makefileのテンプレートのファイル名の指定（デフォル
 #						トはsampleディレクトリのMakefile）
 #  -d <objdir>			中間オブジェクトファイルと依存関係ファイルを置く
@@ -117,7 +119,7 @@ $applobjs = []
 $syssvcobjs = []
 $bannerobj = nil
 $kernel_lib = ""
-$kernel_funcobjs = ""
+$bind_cfg = ""
 $srcdir = nil
 $srclang = "c"
 $tempmakefile = nil
@@ -168,8 +170,9 @@ OptionParser.new(nil, 22) do |opt|
   opt.on("-L kernel_lib",	"directory of built kernel library") do |val|
     $kernel_lib = val
   end
-  opt.on("-f", "each function is complied separately in kernel") do |val|
-    $kernel_funcobjs = "true"
+  opt.on("-n cfg_file",		"system configuration description file when " \
+									"compiled with kernel in one") do |val|
+    $bind_cfg = val
   end
   opt.on("-D srcdir",		"path of source code directory") do |val|
     $srcdir = val
@@ -301,7 +304,7 @@ $vartable["APPLOBJS"] = $applobjs.join(" ")
 $vartable["SYSSVCOBJS"] = $syssvcobjs.join(" ")
 $vartable["BANNEROBJ"] = $bannerobj
 $vartable["KERNEL_LIB"] = $kernel_lib
-$vartable["KERNEL_FUNCOBJS"] = $kernel_funcobjs
+$vartable["BIND_CFG"] = $bind_cfg
 $vartable["SRCDIR"] = $srcdir
 $vartable["SRCABSDIR"] = $srcabsdir
 $vartable["SRCLANG"] = $srclang

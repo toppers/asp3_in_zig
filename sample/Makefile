@@ -84,6 +84,11 @@ OBJEXT = @(OBJEXT)
 KERNEL_LIB = @(KERNEL_LIB)
 
 #
+#  カーネルとコンフィギュレーションデータを一体でコンパイルするかどうかの定義
+#
+BIND_CFG = @(BIND_CFG)
+
+#
 #  TECSを外すかどうかの定義
 #
 OMIT_TECS = @(OMIT_TECS)
@@ -176,10 +181,13 @@ CFLAGS = $(COPTS) $(CDEFS) $(INCLUDES)
 ZIGOPTS := $(ZIGOPTS) -DTARGET=\"$(TARGET)\"
 ZIGOPTS := $(ZIGOPTS) -DSRCDIR=\"$(SRCDIR)\"
 ZIGOPTS := $(ZIGOPTS) -DTECSGENDIR=\"@(BUILDDIR)/gen\"
+ifdef BIND_CFG
+	ZIGOPTS := $(ZIGOPTS) -DBIND_CFG=\"$(BIND_CFG).zig\"
+endif
 ZIGOPTS := --main-pkg-path $(SRCDIR) -ffunction-sections $(ZIGOPTS)
 ZIGOPTS := --release-safe $(ZIGOPTS)
 # ZIGOPTS := --release-fast $(ZIGOPTS)
-ZIGFLAGS = $(ZIGOPTS) $(CDEFS) -I$(SRCDIR)/kernel $(INCLUDES)
+ZIGFLAGS = $(ZIGOPTS) $(CDEFS) $(INCLUDES)
 
 #
 #  アプリケーションプログラムに関する定義
@@ -250,10 +258,12 @@ endif
 CFG_KERNEL := --kernel asp
 CFG_TABS := --api-table $(SRCDIR)/kernel/kernel_api.def \
 			--symval-table $(SRCDIR)/kernel/kernel_sym.def $(CFG_TABS)
-ZIGCFG = @(ZIGCFG)
-CFGOBJ = $(OBJDIR)/$(ZIGCFG).o
-APPL_ZIGOBJS := $(APPL_ZIGOBJS) $(ZIGCFG).o
-
+ifdef BIND_CFG
+	CFGOBJ = kernel.o
+else
+	CFGOBJ = $(OBJDIR)/@(ZIGCFG).o
+	APPL_ZIGOBJS := $(APPL_ZIGOBJS) @(ZIGCFG).o
+endif
 ifndef TARGET_CHECK_TRB
 	TARGET_CHECK_TRB := $(TARGETDIR)/target_check.trb
 endif
@@ -331,7 +341,7 @@ kernel_cfg.h: $(CFGOBJ)
 #  カーネルライブラリファイルの生成
 #
 .PHONY: libkernel.a
-libkernel.a: $(SRCDIR)/kernel/c_api.zig
+libkernel.a kernel.o: $(SRCDIR)/kernel/c_api.zig
 	zig build-lib --name kernel $(ZIGFLAGS) $<
 	$(RANLIB) libkernel.a
 

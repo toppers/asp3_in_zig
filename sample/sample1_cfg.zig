@@ -67,10 +67,10 @@ fn configuration(comptime cfg: *CfgData) void {
 //  genConfigにvoid型のパラメータを渡すのは，Zigコンパイラの不具合の回
 //  避のため（これがないと，genConfigが2回実行される）．
 //
-fn genConfig(comptime dummy: void) type {
+pub fn genConfig(comptime dummy: void) type {
     comptime var cfg = CfgData{};
     target.configuration(&cfg);
     configuration(&cfg);
     return GenCfgData(&cfg);
 }
-export const _ = genConfig({}){};
+export const _ = if (@hasDecl(@This(), "BIND_CFG")) {} else genConfig({}){};
