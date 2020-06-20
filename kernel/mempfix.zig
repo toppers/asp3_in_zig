@@ -135,28 +135,22 @@ comptime {
 ///
 pub const ExternMpfCfg = struct {
     ///
-    ///  固定長メモリプールIDの最大値
+    ///  固定長メモリプール初期化ブロック（スライス）
     ///
-    pub extern const _kernel_tmax_mpfid: ID;
-
-    ///
-    ///  固定長メモリプール初期化ブロックのエリア
-    ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern const _kernel_mpfinib_table: [100]MPFINIB;
+    pub extern const _kernel_mpfinib_table: []MPFINIB;
 
     ///
     ///  固定長メモリプール管理ブロックのエリア
     ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern var _kernel_mpfcb_table: [100]MPFCB;
+    // Zigの制限事項の回避：十分に大きいサイズの配列とする
+    pub extern var _kernel_mpfcb_table: [1000]MPFCB;
 };
 
 ///
-///  固定長メモリプールの数
+///  固定長メモリプールIDの最大値
 ///
-fn numOfMpf() usize {
-    return @intCast(usize, cfg._kernel_tmax_mpfid - TMIN_MPFID + 1);
+fn maxMpfId() ID {
+    return @intCast(ID, TMIN_MPFID + cfg._kernel_mpfinib_table.len - 1);
 }
 
 ///
@@ -166,7 +160,7 @@ fn indexMpf(mpfid: ID) usize {
     return @intCast(usize, mpfid - TMIN_MPFID);
 }
 fn checkAndGetMpfCB(mpfid: ID) ItronError!*MPFCB {
-    try checkId(TMIN_MPFID <= mpfid and mpfid <= cfg._kernel_tmax_mpfid);
+    try checkId(TMIN_MPFID <= mpfid and mpfid <= maxMpfId());
     return &cfg._kernel_mpfcb_table[indexMpf(mpfid)];
 }
 
@@ -197,7 +191,8 @@ pub fn getMpfIdFromWinfo(p_winfo: *WINFO) ID {
 ///  固定長メモリプール機能の初期化
 ///
 pub fn initialize_mempfix() void {
-    for (cfg._kernel_mpfcb_table[0 .. numOfMpf()]) |*p_mpfcb, i| {
+    for (cfg._kernel_mpfcb_table[0 .. cfg._kernel_mpfinib_table.len])
+                                                        |*p_mpfcb, i| {
         p_mpfcb.wait_queue.initialize();
         p_mpfcb.p_wobjinib = &cfg._kernel_mpfinib_table[i];
         p_mpfcb.fblkcnt = p_mpfcb.p_wobjinib.blkcnt;
@@ -433,16 +428,10 @@ pub fn ExportMpfCfg(mpfinib_table: []MPFINIB) type {
 
     const tnum_mpf = mpfinib_table.len;
     return struct {
-        pub export const _kernel_tmax_mpfid: ID = tnum_mpf;
+        pub export const _kernel_mpfinib_table = mpfinib_table;
 
         // Zigの制限の回避：BIND_CFG != nullの場合に，サイズ0の配列が
         // 出ないようにする
-        pub export const _kernel_mpfinib_table =
-            if (option.BIND_CFG == null or tnum_mpf > 0)
-                mpfinib_table[0 .. tnum_mpf].*
-            else [1]MPFINIB{ .{ .wobjatr = 0, .blkcnt = 0, .blksz = 0,
-                                .mpf = @intToPtr([*]u8, 256),
-                                .p_mpfmb = @intToPtr([*]MPFMB, 256), }};
         pub export var _kernel_mpfcb_table:
             [if (option.BIND_CFG == null or tnum_mpf > 0) tnum_mpf
                  else 1]MPFCB = undefined;

@@ -107,28 +107,22 @@ comptime {
 ///
 pub const ExternSemCfg = struct {
     ///
-    ///  セマフォIDの最大値
+    ///  セマフォ初期化ブロック（スライス）
     ///
-    pub extern const _kernel_tmax_semid: ID;
-
-    ///
-    ///  セマフォ初期化ブロックのエリア
-    ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern const _kernel_seminib_table: [100]SEMINIB;
+    pub extern const _kernel_seminib_table: []SEMINIB;
 
     ///
     ///  セマフォ管理ブロックのエリア
     ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern var _kernel_semcb_table: [100]SEMCB;
+    // Zigの制限事項の回避：十分に大きいサイズの配列とする
+    pub extern var _kernel_semcb_table: [1000]SEMCB;
 };
 
 ///
-///  セマフォの数
+///  セマフォIDの最大値
 ///
-fn numOfSem() usize {
-    return @intCast(usize, cfg._kernel_tmax_semid - TMIN_SEMID + 1);
+fn maxSemId() ID {
+    return @intCast(ID, TMIN_SEMID + cfg._kernel_seminib_table.len - 1);
 }
 
 ///
@@ -138,7 +132,7 @@ fn indexSem(semid: ID) usize {
     return @intCast(usize, semid - TMIN_SEMID);
 }
 fn checkAndGetSemCB(semid: ID) ItronError!*SEMCB {
-    try checkId(TMIN_SEMID <= semid and semid <= cfg._kernel_tmax_semid);
+    try checkId(TMIN_SEMID <= semid and semid <= maxSemId());
     return &cfg._kernel_semcb_table[indexSem(semid)];
 }
 
@@ -169,7 +163,8 @@ pub fn getSemIdFromWinfo(p_winfo: *WINFO) ID {
 ///  セマフォ機能の初期化
 ///
 pub fn initialize_semaphore() void {
-    for (cfg._kernel_semcb_table[0 .. numOfSem()]) |*p_semcb, i| {
+    for (cfg._kernel_semcb_table[0 .. cfg._kernel_seminib_table.len])
+                                                        |*p_semcb, i| {
         p_semcb.wait_queue.initialize();
         p_semcb.p_wobjinib = &cfg._kernel_seminib_table[i];
         p_semcb.semcnt = p_semcb.p_wobjinib.isemcnt;
@@ -356,14 +351,10 @@ pub fn cre_sem(csem: T_CSEM) ItronError!SEMINIB {
 pub fn ExportSemCfg(seminib_table: []SEMINIB) type {
     const tnum_sem = seminib_table.len;
     return struct {
-        pub export const _kernel_tmax_semid: ID = tnum_sem;
+        pub export const _kernel_seminib_table = seminib_table;
 
         // Zigの制限の回避：BIND_CFG != nullの場合に，サイズ0の配列が
         // 出ないようにする
-        pub export const _kernel_seminib_table =
-            if (option.BIND_CFG == null or tnum_sem > 0)
-                seminib_table[0 .. tnum_sem].*
-            else [1]SEMINIB{ .{ .wobjatr = 0, .isemcnt = 0, .maxsem = 0, }};
         pub export var _kernel_semcb_table:
             [if (option.BIND_CFG == null or tnum_sem > 0) tnum_sem
                  else 1]SEMCB = undefined;

@@ -315,34 +315,28 @@ var ready_primap: prio_bitmap.PrioBitmap(TNUM_TPRI) = undefined;
 ///
 pub const ExternTskCfg = struct {
     ///
-    ///  タスクIDの最大値
+    ///  タスク初期化ブロック（スライス）
     ///
-    pub extern const _kernel_tmax_tskid: ID;
-
-    ///
-    ///  タスク初期化ブロックのエリア
-    ///
-    // zigの制限の回避（配列のサイズを大きい値にしている）
-    pub extern const _kernel_tinib_table: [100]TINIB;
+    pub extern const _kernel_tinib_table: []TINIB;
 
     ///
     ///  タスク生成順序テーブル
     ///
-    // zigの制限の回避（配列のサイズを大きい値にしている）
-    pub extern const _kernel_torder_table: [100]ID;
+    // Zigの制限事項の回避：十分に大きいサイズの配列とする
+    pub extern const _kernel_torder_table: [1000]ID;
 
     ///
     ///  TCBのエリア
     ///
-    // zigの制限の回避（配列のサイズを大きい値にしている）
-    pub extern var _kernel_tcb_table: [100]TCB;
+    // Zigの制限事項の回避：十分に大きいサイズの配列とする
+    pub extern var _kernel_tcb_table: [1000]TCB;
 };
 
 ///
-///  タスクの数
+///  タスクIDの最大値
 ///
-fn numOfTsk() usize {
-    return @intCast(usize, cfg._kernel_tmax_tskid - TMIN_TSKID + 1);
+fn maxTskId() ID {
+    return @intCast(ID, TMIN_TSKID + cfg._kernel_tinib_table.len - 1);
 }
 
 ///
@@ -352,7 +346,7 @@ fn indexTsk(tskid: ID) usize {
     return @intCast(usize, tskid - TMIN_TSKID);
 }
 pub fn checkAndGetTCB(tskid: ID) ItronError!*TCB {
-    try checkId(TMIN_TSKID <= tskid and tskid <= cfg._kernel_tmax_tskid);
+    try checkId(TMIN_TSKID <= tskid and tskid <= maxTskId());
     return &cfg._kernel_tcb_table[indexTsk(tskid)];
 }
 
@@ -399,7 +393,7 @@ pub fn initialize_task() void {
     }
     ready_primap.initialize();
 
-    for (cfg._kernel_torder_table[0 .. numOfTsk()]) |tskid| {
+    for (cfg._kernel_torder_table[0 .. cfg._kernel_tinib_table.len]) |tskid| {
         const p_tcb = &cfg._kernel_tcb_table[indexTsk(tskid)];
         p_tcb.p_tinib = &cfg._kernel_tinib_table[indexTsk(tskid)];
         p_tcb.flags.actque = 0;
@@ -689,8 +683,7 @@ pub fn ExportTskCfg(tinib_table: []TINIB, torder_table: []ID) type {
 
     const tnum_tsk = tinib_table.len;
     return struct {
-        pub export const _kernel_tmax_tskid: ID = tnum_tsk;
-        pub export const _kernel_tinib_table = tinib_table[0 .. tnum_tsk].*;
+        pub export const _kernel_tinib_table = tinib_table;
         pub export const _kernel_torder_table = torder_table[0 .. tnum_tsk].*;
         pub export var _kernel_tcb_table: [tnum_tsk]TCB = undefined;
     };
@@ -750,7 +743,7 @@ pub fn validTCB(p_tcb: *TCB) bool {
         return false;
     }
     const tskid = getTskIdFromTCB(p_tcb);
-    return TMIN_TSKID <= tskid and tskid <= cfg._kernel_tmax_tskid;
+    return TMIN_TSKID <= tskid and tskid <= maxTskId();
 }
 
 ///
@@ -936,7 +929,7 @@ pub fn bitTask() ItronError!void {
     try bitSched();
 
     // タスク毎の整合性検査
-    for (cfg._kernel_tcb_table[0 .. numOfTsk()]) |*p_tcb| {
+    for (cfg._kernel_tcb_table[0 .. cfg._kernel_tinib_table.len]) |*p_tcb| {
         try bitTCB(p_tcb);
     }
 }

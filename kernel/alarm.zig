@@ -70,28 +70,22 @@ pub const ALMCB = struct {
 ///
 pub const ExternAlmCfg = struct {
     ///
-    ///  アラーム通知IDの最大値
+    ///  アラーム通知初期化ブロック（スライス）
     ///
-    pub extern const _kernel_tmax_almid: ID;
-
-    ///
-    ///  アラーム通知初期化ブロックのエリア
-    ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern const _kernel_alminib_table: [100]ALMINIB;
+    pub extern const _kernel_alminib_table: []ALMINIB;
 
     ///
     ///  アラーム通知管理ブロックのエリア
     ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern var _kernel_almcb_table: [100]ALMCB;
+    // Zigの制限事項の回避：十分に大きいサイズの配列とする
+    pub extern var _kernel_almcb_table: [1000]ALMCB;
 };
 
 ///
-///  アラーム通知の数
+///  アラーム通知IDの最大値
 ///
-fn numOfAlm() usize {
-    return @intCast(usize, cfg._kernel_tmax_almid - TMIN_ALMID + 1);
+fn maxAlmId() ID {
+    return @intCast(ID, TMIN_ALMID + cfg._kernel_alminib_table.len - 1);
 }
 
 ///
@@ -101,7 +95,7 @@ fn indexAlm(almid: ID) usize {
     return @intCast(usize, almid - TMIN_ALMID);
 }
 fn checkAndGetAlmCB(almid: ID) ItronError!*ALMCB {
-    try checkId(TMIN_ALMID <= almid and almid <= cfg._kernel_tmax_almid);
+    try checkId(TMIN_ALMID <= almid and almid <= maxAlmId());
     return &cfg._kernel_almcb_table[indexAlm(almid)];
 }
 
@@ -109,7 +103,8 @@ fn checkAndGetAlmCB(almid: ID) ItronError!*ALMCB {
 ///  アラーム通知機能の初期化
 ///
 pub fn initialize_alarm() void {
-    for (cfg._kernel_almcb_table[0 .. numOfAlm()]) |*p_almcb, i| {
+    for (cfg._kernel_almcb_table[0 .. cfg._kernel_alminib_table.len])
+                                                        |*p_almcb, i| {
         p_almcb.p_alminib = &cfg._kernel_alminib_table[i];
         p_almcb.almsta = false;
         p_almcb.tmevtb.callback = callAlarm;
@@ -232,14 +227,10 @@ pub fn ExportAlmCfg(alminib_table: []ALMINIB) type {
 
     const tnum_alm = alminib_table.len;
     return struct {
-        pub export const _kernel_tmax_almid: ID = tnum_alm;
+        pub export const _kernel_alminib_table = alminib_table;
 
         // Zigの制限の回避：BIND_CFG != nullの場合に，サイズ0の配列が
         // 出ないようにする
-        pub export const _kernel_alminib_table =
-            if (option.BIND_CFG == null or tnum_alm > 0)
-                alminib_table[0 .. tnum_alm].*
-            else [1]ALMINIB{ .{ .almatr = 0, .exinf = 0, .nfyhdr = 0, }};
         pub export var _kernel_almcb_table:
             [if (option.BIND_CFG == null or tnum_alm > 0) tnum_alm
                  else 1]ALMCB = undefined;

@@ -694,6 +694,7 @@ pub fn GenCfgData(comptime cfg_data: *CfgData) type {
     exportCheck(@boolToInt(isTrue(target_impl, "CHECK_MPF_NONNULL")),
                 "CHECK_MPF_NONNULL");
 
+    exportCheck(@sizeOf(usize), "sizeof_usize");
     exportCheck(@sizeOf(c_uint), "sizeof_UINT");
     exportCheck(@sizeOf(ID), "sizeof_ID");
     exportCheck(@sizeOf(ATR), "sizeof_ATR");

@@ -93,15 +93,9 @@ pub const TERRTNB = struct {
 ///
 pub const ExternIniRtnB = struct {
     ///
-    ///  初期化ルーチンの数
+    ///  初期化ルーチンブロック（スライス）
     ///
-    pub extern const _kernel_tnum_inirtn: c_uint;
-
-    ///
-    ///  初期化ルーチンブロックテーブル
-    ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern const _kernel_inirtnb_table: [100]INIRTNB;
+    pub extern const _kernel_inirtnb_table: []INIRTNB;
 };
 
 ///
@@ -109,15 +103,9 @@ pub const ExternIniRtnB = struct {
 ///
 pub const ExternTerRtnB = struct {
     ///
-    ///  終了処理ルーチンの数
+    ///  終了処理ルーチンブロック（スライス）
     ///
-    pub extern const _kernel_tnum_terrtn: c_uint;
-
-    ///
-    ///  終了処理ルーチンブロックテーブル
-    ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern const _kernel_terrtnb_table: [100]TERRTNB;
+    pub extern const _kernel_terrtnb_table: []TERRTNB;
 };
 
 ///
@@ -173,7 +161,7 @@ pub fn sta_ker() noreturn {
     cfg._kernel_initialize_object();
 
     // 初期化ルーチンの実行
-    for (cfg._kernel_inirtnb_table[0 .. cfg._kernel_tnum_inirtn]) |inirtnb| {
+    for (cfg._kernel_inirtnb_table) |inirtnb| {
         inirtnb.inirtn(inirtnb.exinf);
     }
 
@@ -209,7 +197,7 @@ pub fn ext_ker() noreturn {
 /// カーネルの終了処理
 pub fn exitKernel() noreturn {
     // 終了処理ルーチンの実行
-    for (cfg._kernel_terrtnb_table[0 .. cfg._kernel_tnum_terrtn]) |terrtnb| {
+    for (cfg._kernel_terrtnb_table) |terrtnb| {
         terrtnb.terrtn(terrtnb.exinf);
     }
 
@@ -241,7 +229,7 @@ pub fn attachInitializeRoutine(aini: T_AINI) ItronError!INIRTNB {
     try checkValidAtr(aini.iniatr, TA_NULL);
 
     // 初期化ルーチンブロックを返す
-    return INIRTNB{ .inirtn = aini.inirtn, .exinf = aini.exinf, };
+    return INIRTNB{ .inirtn = aini.inirtn, .exinf = aini.exinf };
 }
 
 ///
@@ -253,7 +241,7 @@ pub fn attachTerminateRoutine(ater: T_ATER) ItronError!TERRTNB {
     try checkValidAtr(ater.teratr, TA_NULL);
 
     // 終了処理ルーチンブロックを返す
-    return TERRTNB{ .terrtn = ater.terrtn, .exinf = ater.exinf, };
+    return TERRTNB{ .terrtn = ater.terrtn, .exinf = ater.exinf };
 }
 
 ///
@@ -265,11 +253,8 @@ pub fn ExportIniRtnB(inirtnb_table: []INIRTNB) type {
     exportCheck(@sizeOf(INIRTN), "sizeof_INIRTN");
     exportCheck(@byteOffsetOf(INIRTNB, "inirtn"), "offsetof_INIRTNB_inirtn");
 
-    const tnum_inirtn = inirtnb_table.len;
     const Exports = struct {
-        pub export const _kernel_tnum_inirtn: c_uint = tnum_inirtn;
-        pub export const _kernel_inirtnb_table =
-                                        inirtnb_table[0 .. tnum_inirtn].*;
+        pub export const _kernel_inirtnb_table = inirtnb_table;
     };
     return Exports;
 }
@@ -283,11 +268,8 @@ pub fn ExportTerRtnB(terrtnb_table: []TERRTNB) type {
     exportCheck(@sizeOf(TERRTN), "sizeof_TERRTN");
     exportCheck(@byteOffsetOf(TERRTNB, "terrtn"), "offsetof_TERRTNB_terrtn");
 
-    const tnum_terrtn = terrtnb_table.len;
     return struct {
-        pub export const _kernel_tnum_terrtn: c_uint = tnum_terrtn;
-        pub export const _kernel_terrtnb_table =
-                                        terrtnb_table[0 .. tnum_terrtn].*;
+        pub export const _kernel_terrtnb_table = terrtnb_table;
     };
 }
 

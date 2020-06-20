@@ -112,28 +112,22 @@ comptime {
 ///
 pub const ExternFlgCfg = struct {
     ///
-    ///  イベントフラグIDの最大値
+    ///  イベントフラグ初期化ブロック（スライス）
     ///
-    pub extern const _kernel_tmax_flgid: ID;
-
-    ///
-    ///  イベントフラグ初期化ブロックのエリア
-    ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern const _kernel_flginib_table: [100]FLGINIB;
+    pub extern const _kernel_flginib_table: []FLGINIB;
 
     ///
     ///  イベントフラグ管理ブロックのエリア
     ///
-    // zigの不具合と思われる現象の回避（*c を大きい数字に置き換えた）
-    pub extern var _kernel_flgcb_table: [100]FLGCB;
+    // Zigの制限事項の回避：十分に大きいサイズの配列とする
+    pub extern var _kernel_flgcb_table: [1000]FLGCB;
 };
 
 ///
-///  イベントフラグの数
+///  イベントフラグIDの最大値
 ///
-fn numOfFlg() usize {
-    return @intCast(usize, cfg._kernel_tmax_flgid - TMIN_FLGID + 1);
+fn maxFlgId() ID {
+    return @intCast(ID, TMIN_FLGID + cfg._kernel_flginib_table.len - 1);
 }
 
 ///
@@ -143,7 +137,7 @@ fn indexFlg(flgid: ID) usize {
     return @intCast(usize, flgid - TMIN_FLGID);
 }
 fn checkAndGetFlgCB(flgid: ID) ItronError!*FLGCB {
-    try checkId(TMIN_FLGID <= flgid and flgid <= cfg._kernel_tmax_flgid);
+    try checkId(TMIN_FLGID <= flgid and flgid <= maxFlgId());
     return &cfg._kernel_flgcb_table[indexFlg(flgid)];
 }
 
@@ -174,7 +168,8 @@ pub fn getFlgIdFromWinfo(p_winfo: *WINFO) ID {
 ///  イベントフラグ機能の初期化
 ///
 pub fn initialize_eventflag() void {
-    for (cfg._kernel_flgcb_table[0 .. numOfFlg()]) |*p_flgcb, i| {
+    for (cfg._kernel_flgcb_table[0 .. cfg._kernel_flginib_table.len])
+                                                        |*p_flgcb, i| {
         p_flgcb.wait_queue.initialize();
         p_flgcb.p_wobjinib = &cfg._kernel_flginib_table[i];
         p_flgcb.flgptn = p_flgcb.p_wobjinib.iflgptn;
@@ -404,7 +399,7 @@ pub fn cre_flg(cflg: T_CFLG) ItronError!FLGINIB {
                             & ~@as(FLGPTN, (1 << TBIT_FLGPTN) - 1)) == 0);
 
     // イベントフラグ初期化ブロックを返す
-    return FLGINIB{ .wobjatr = cflg.flgatr, .iflgptn = cflg.iflgptn, };
+    return FLGINIB{ .wobjatr = cflg.flgatr, .iflgptn = cflg.iflgptn };
 }
 
 ///
@@ -414,14 +409,10 @@ pub fn cre_flg(cflg: T_CFLG) ItronError!FLGINIB {
 pub fn ExportFlgCfg(flginib_table: []FLGINIB) type {
     const tnum_flg = flginib_table.len;
     return struct {
-        pub export const _kernel_tmax_flgid: ID = tnum_flg;
+        pub export const _kernel_flginib_table = flginib_table;
 
         // Zigの制限の回避：BIND_CFG != nullの場合に，サイズ0の配列が
         // 出ないようにする
-        pub export const _kernel_flginib_table =
-            if (option.BIND_CFG == null or tnum_flg > 0)
-                flginib_table[0 .. tnum_flg].*
-            else [1]FLGINIB{ .{ .wobjatr = 0, .iflgptn = 0, }};
         pub export var _kernel_flgcb_table:
             [if (option.BIND_CFG == null or tnum_flg > 0) tnum_flg
                  else 1]FLGCB = undefined;
