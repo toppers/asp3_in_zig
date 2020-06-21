@@ -80,92 +80,98 @@ end
 #
 #  固定長メモリプールに関するチェック
 #
-mpfinib_table = SYMBOL("_kernel_mpfinib_table")
-mpfinib = PEEK(mpfinib_table, $sizeof_ptr_u8)
-tmax_mpfid = PEEK(mpfinib_table + $sizeof_ptr_u8, $sizeof_usize)
-1.upto(tmax_mpfid).each do |mpfid|
-  mpf = PEEK(mpfinib + $offsetof_MPFINIB_mpf, $sizeof_ptr_u8)
+mpfinib_table = SYMBOL("_kernel_mpfinib_table", true)
+if mpfinib_table
+  mpfinib = PEEK(mpfinib_table, $sizeof_ptr_u8)
+  tmax_mpfid = PEEK(mpfinib_table + $sizeof_ptr_u8, $sizeof_usize)
+  1.upto(tmax_mpfid).each do |mpfid|
+    mpf = PEEK(mpfinib + $offsetof_MPFINIB_mpf, $sizeof_ptr_u8)
 
-  # mpfがターゲット定義の制約に合致しない場合（E_PAR）［NGKI2249］
-  if (mpf & ($CHECK_MPF_ALIGN - 1)) != 0
-    error("E_PAR: `mpf' of fixed-sized memory pool id #{mpfid} " \
-		  "is not aligned.")
-  end
-  if $CHECK_MPF_NONNULL != 0 && mpf == 0
-    error("E_PAR: `mpf' of fixed-sized memory pool id #{mpfid} is null.")
-  end
+    # mpfがターゲット定義の制約に合致しない場合（E_PAR）［NGKI2249］
+    if (mpf & ($CHECK_MPF_ALIGN - 1)) != 0
+      error("E_PAR: `mpf' of fixed-sized memory pool id #{mpfid} " \
+														"is not aligned.")
+    end
+    if $CHECK_MPF_NONNULL != 0 && mpf == 0
+      error("E_PAR: `mpf' of fixed-sized memory pool id #{mpfid} is null.")
+    end
 
-  mpfinib += $sizeof_MPFINIB
+    mpfinib += $sizeof_MPFINIB
+  end
 end
 
 #
 #  周期通知に関するチェック
 #
-cycinib_table = SYMBOL("_kernel_cycinib_table")
-cycinib = PEEK(cycinib_table, $sizeof_ptr_u8)
-tmax_cycid = PEEK(cycinib_table + $sizeof_ptr_u8, $sizeof_usize)
-1.upto(tmax_cycid).each do |cycid|
-  cycatr = PEEK(cycinib + $offsetof_CYCINIB_cycatr, $sizeof_ATR)
-  exinf = PEEK(cycinib + $offsetof_CYCINIB_exinf, $sizeof_EXINF)
-  nfyhdr = PEEK(cycinib + $offsetof_CYCINIB_nfyhdr, $sizeof_NFYHDR)
+cycinib_table = SYMBOL("_kernel_cycinib_table", true)
+if cycinib_table
+  cycinib = PEEK(cycinib_table, $sizeof_ptr_u8)
+  tmax_cycid = PEEK(cycinib_table + $sizeof_ptr_u8, $sizeof_usize)
+  1.upto(tmax_cycid).each do |cycid|
+    cycatr = PEEK(cycinib + $offsetof_CYCINIB_cycatr, $sizeof_ATR)
+    exinf = PEEK(cycinib + $offsetof_CYCINIB_exinf, $sizeof_EXINF)
+    nfyhdr = PEEK(cycinib + $offsetof_CYCINIB_nfyhdr, $sizeof_NFYHDR)
 
-  # nfyhdrがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3693］
-  if (nfyhdr & ($CHECK_FUNC_ALIGN - 1)) != 0
-    error("E_PAR: `nfyhdr' of cyclic notification id #{cycid} " \
-		  "is not aligned.")
-  end
-  if $CHECK_FUNC_NONNULL != 0 && nfyhdr == 0
-    error("E_PAR: `nfyhdr' of cyclic notification id #{cycid} is null.")
-  end
-
-  if (cycatr & $TA_CHECK_USIZE) != 0
-    # exinfがusize型の変数の番地として正しくない場合（E_PAR）
-    # ［NGKI3699］［NGKI3897］
-    if (exinf & ($CHECK_USIZE_ALIGN - 1)) != 0
-      error("E_PAR: `exinf' of cyclic notification id #{cycid} " \
-			"is not aligned.")
+    # nfyhdrがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3693］
+    if (nfyhdr & ($CHECK_FUNC_ALIGN - 1)) != 0
+      error("E_PAR: `nfyhdr' of cyclic notification id #{cycid} " \
+														"is not aligned.")
     end
-    if $CHECK_USIZE_NONNULL != 0 && exinf == 0
-      error("E_PAR: `exinf' of cyclic notification id #{cycid} is null.")
+    if $CHECK_FUNC_NONNULL != 0 && nfyhdr == 0
+      error("E_PAR: `nfyhdr' of cyclic notification id #{cycid} is null.")
     end
-  end
 
-  cycinib += $sizeof_CYCINIB
+    if (cycatr & $TA_CHECK_USIZE) != 0
+      # exinfがusize型の変数の番地として正しくない場合（E_PAR）
+      # ［NGKI3699］［NGKI3897］
+      if (exinf & ($CHECK_USIZE_ALIGN - 1)) != 0
+        error("E_PAR: `exinf' of cyclic notification id #{cycid} " \
+														"is not aligned.")
+      end
+      if $CHECK_USIZE_NONNULL != 0 && exinf == 0
+        error("E_PAR: `exinf' of cyclic notification id #{cycid} is null.")
+      end
+    end
+
+    cycinib += $sizeof_CYCINIB
+  end
 end
 
 #
 #  アラーム通知に関するチェック
 #
-alminib_table = SYMBOL("_kernel_alminib_table")
-alminib = PEEK(alminib_table, $sizeof_ptr_u8)
-tmax_almid = PEEK(alminib_table + $sizeof_ptr_u8, $sizeof_usize)
-1.upto(tmax_almid).each do |almid|
-  almatr = PEEK(alminib + $offsetof_ALMINIB_almatr, $sizeof_ATR)
-  exinf = PEEK(alminib + $offsetof_ALMINIB_exinf, $sizeof_EXINF)
-  nfyhdr = PEEK(alminib + $offsetof_ALMINIB_nfyhdr, $sizeof_NFYHDR)
+alminib_table = SYMBOL("_kernel_alminib_table", true)
+if alminib_table
+  alminib = PEEK(alminib_table, $sizeof_ptr_u8)
+  tmax_almid = PEEK(alminib_table + $sizeof_ptr_u8, $sizeof_usize)
+  1.upto(tmax_almid).each do |almid|
+    almatr = PEEK(alminib + $offsetof_ALMINIB_almatr, $sizeof_ATR)
+    exinf = PEEK(alminib + $offsetof_ALMINIB_exinf, $sizeof_EXINF)
+    nfyhdr = PEEK(alminib + $offsetof_ALMINIB_nfyhdr, $sizeof_NFYHDR)
 
-  # nfyhdrがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3693］
-  if (nfyhdr & ($CHECK_FUNC_ALIGN - 1)) != 0
-    error("E_PAR: `nfyhdr' of almlic notification id #{almid} " \
-		  "is not aligned.")
-  end
-  if $CHECK_FUNC_NONNULL != 0 && nfyhdr == 0
-    error("E_PAR: `nfyhdr' of almlic notification id #{almid} is null.")
-  end
-
-  if (almatr & $TA_CHECK_USIZE) != 0
-    # exinfがusize型の変数の番地として正しくない場合（E_PAR）
-    # ［NGKI3699］［NGKI3897］
-    if (exinf & ($CHECK_USIZE_ALIGN - 1)) != 0
-      error("E_PAR: `exinf' of alarm notification id #{almid} " \
-			"is not aligned.")
+    # nfyhdrがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3693］
+    if (nfyhdr & ($CHECK_FUNC_ALIGN - 1)) != 0
+      error("E_PAR: `nfyhdr' of almlic notification id #{almid} " \
+														"is not aligned.")
     end
-    if $CHECK_USIZE_NONNULL != 0 && exinf == 0
-      error("E_PAR: `exinf' of alarm notification id #{almid} is null.")
+    if $CHECK_FUNC_NONNULL != 0 && nfyhdr == 0
+      error("E_PAR: `nfyhdr' of almlic notification id #{almid} is null.")
     end
-  end
 
-  alminib += $sizeof_ALMINIB
+    if (almatr & $TA_CHECK_USIZE) != 0
+      # exinfがusize型の変数の番地として正しくない場合（E_PAR）
+      # ［NGKI3699］［NGKI3897］
+      if (exinf & ($CHECK_USIZE_ALIGN - 1)) != 0
+        error("E_PAR: `exinf' of alarm notification id #{almid} " \
+														"is not aligned.")
+      end
+      if $CHECK_USIZE_NONNULL != 0 && exinf == 0
+        error("E_PAR: `exinf' of alarm notification id #{almid} is null.")
+      end
+    end
+
+    alminib += $sizeof_ALMINIB
+  end
 end
 
 #
@@ -200,40 +206,44 @@ end
 #
 #  初期化ルーチンに関するチェック
 #
-inirtnb_table = SYMBOL("_kernel_inirtnb_table")
-inirtnb = PEEK(inirtnb_table, $sizeof_ptr_u8)
-tnum_inirtn = PEEK(inirtnb_table + $sizeof_ptr_u8, $sizeof_usize)
-1.upto(tnum_inirtn).each do |inino|
-  inirtn = PEEK(inirtnb + $offsetof_INIRTNB_inirtn, $sizeof_INIRTN)
+inirtnb_table = SYMBOL("_kernel_inirtnb_table", true)
+if inirtnb_table
+  inirtnb = PEEK(inirtnb_table, $sizeof_ptr_u8)
+  tnum_inirtn = PEEK(inirtnb_table + $sizeof_ptr_u8, $sizeof_usize)
+  1.upto(tnum_inirtn).each do |inino|
+    inirtn = PEEK(inirtnb + $offsetof_INIRTNB_inirtn, $sizeof_INIRTN)
 
-  # inirtnがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3243］
-  if (inirtn & ($CHECK_FUNC_ALIGN - 1)) != 0
-    error("E_PAR: `inirtn' of #{inino}th initialization routine " \
-		  "is not aligned.")
-  end
-  if $CHECK_FUNC_NONNULL != 0 && inirtn == 0
-    error("E_PAR: `inirtn' of #{inino}th initialization routine is null.")
-  end
+    # inirtnがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3243］
+    if (inirtn & ($CHECK_FUNC_ALIGN - 1)) != 0
+      error("E_PAR: `inirtn' of #{inino}th initialization routine " \
+														"is not aligned.")
+    end
+    if $CHECK_FUNC_NONNULL != 0 && inirtn == 0
+      error("E_PAR: `inirtn' of #{inino}th initialization routine is null.")
+    end
 
-  inirtnb += $sizeof_INIRTNB
+    inirtnb += $sizeof_INIRTNB
+  end
 end
 
 #
 #  終了処理ルーチンに関するチェック
 #
-terrtnb_table = SYMBOL("_kernel_terrtnb_table")
-terrtnb = PEEK(terrtnb_table, $sizeof_ptr_u8)
-tnum_terrtn = PEEK(terrtnb_table + $sizeof_ptr_u8, $sizeof_usize)
-1.upto(tnum_terrtn).each do |terno|
-  terrtn = PEEK(terrtnb + $offsetof_TERRTNB_terrtn, $sizeof_TERRTN)
+terrtnb_table = SYMBOL("_kernel_terrtnb_table", true)
+if terrtnb_table
+  terrtnb = PEEK(terrtnb_table, $sizeof_ptr_u8)
+  tnum_terrtn = PEEK(terrtnb_table + $sizeof_ptr_u8, $sizeof_usize)
+  1.upto(tnum_terrtn).each do |terno|
+    terrtn = PEEK(terrtnb + $offsetof_TERRTNB_terrtn, $sizeof_TERRTN)
 
-  # terrtnがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3250］
-  if (terrtn & ($CHECK_FUNC_ALIGN - 1)) != 0
-    error("E_PAR: `terrtn' of #{terno}th termination routine is not aligned.")
-  end
-  if $CHECK_FUNC_NONNULL != 0 && terrtn == 0
-    error("E_PAR: `terrtn' of #{terno}th termination routine is null.")
-  end
+    # terrtnがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3250］
+    if (terrtn & ($CHECK_FUNC_ALIGN - 1)) != 0
+      error("E_PAR: `terrtn' of #{terno}th termination routine is not aligned.")
+    end
+    if $CHECK_FUNC_NONNULL != 0 && terrtn == 0
+      error("E_PAR: `terrtn' of #{terno}th termination routine is null.")
+    end
 
-  terrtnb += $sizeof_TERRTNB
+    terrtnb += $sizeof_TERRTNB
+  end
 end

@@ -84,15 +84,9 @@ pub const ExternExcIniB =
     if (@hasDecl(target_impl, "ExternExcIniB")) target_impl.ExternExcIniB
     else struct {
         ///
-        ///  定義するCPU例外ハンドラ番号の数
+        ///  CPU例外ハンドラ初期化ブロック（スライス）
         ///
-        pub extern const _kernel_tnum_def_excno: c_uint;
-
-        ///
-        ///  CPU例外ハンドラ初期化ブロックのエリア
-        ///
-        // zigの制限の回避（配列のサイズを大きい値にしている）
-        pub extern const _kernel_excinib_table: [100]EXCINIB;
+        pub extern const _kernel_excinib_table: []EXCINIB;
      };
 
 ///
@@ -104,8 +98,7 @@ pub fn initialize_exception() void {
     }
     else {
         // 標準的な初期化処理
-        for (cfg._kernel_excinib_table
-                 [0 .. cfg._kernel_tnum_def_excno]) |*p_excinib| {
+        for (cfg._kernel_excinib_table) |*p_excinib| {
             target_impl.define_exc(p_excinib.excno, p_excinib.excatr,
                                    p_excinib.exchdr);
         }
@@ -162,8 +155,6 @@ pub fn ExportExcIniB(excinib_table: []EXCINIB) type {
     exportCheck(@byteOffsetOf(EXCINIB, "exchdr"), "offsetof_EXCINIB_exchdr");
 
     return struct {
-        export const _kernel_tnum_def_excno: c_uint = excinib_table.len;
-        export const _kernel_excinib_table = excinib_table
-                                                [0 .. excinib_table.len].*;
+        export const _kernel_excinib_table = excinib_table;
     };
 }
