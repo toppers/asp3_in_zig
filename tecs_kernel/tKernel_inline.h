@@ -5,7 +5,7 @@
  * 
  *  Copyright (C) 2015 by Ushio Laboratory
  *              Graduate School of Engineering Science, Osaka Univ., JAPAN
- *  Copyright (C) 2015 by Embedded and Real-Time Systems Laboratory
+ *  Copyright (C) 2015-2020 by Embedded and Real-Time Systems Laboratory
  *              Graduate School of Information Science, Nagoya Univ., JAPAN
  * 
  *  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
@@ -47,7 +47,7 @@
  *  自タスクの拡張情報の参照
  */
 Inline ER
-eKernel_getExtendedInformation(intptr_t* p_exinf)
+eKernel_getExtendedInformation(EXINF* p_exinf)
 {
 	return(get_inf(p_exinf));
 }
