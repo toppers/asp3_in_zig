@@ -596,7 +596,7 @@ fn GenInterruptHandler(comptime isrcfg_table: []ISRCFG) type {
 ///
 ///  割込みサービスルーチン優先度の比較
 ///
-fn isrcfgLessThan(lhs: ISRCFG, rhs: ISRCFG) bool {
+fn isrcfgLessThan(context: void, lhs: ISRCFG, rhs: ISRCFG) bool {
     return lhs.cisr.isrpri < rhs.cisr.isrpri;
 }
 
@@ -630,7 +630,7 @@ pub fn generateInhForIsr(isrcfg_table: []ISRCFG,
         }
 
         // ISR優先度順にソート
-        std.sort.sort(ISRCFG, &isrcfg_table_intno, isrcfgLessThan);
+        std.sort.sort(ISRCFG, &isrcfg_table_intno, {}, isrcfgLessThan);
 
         // ISRを呼び出す割込みハンドラの生成
         cfg_data.addInh(INHINIB{
