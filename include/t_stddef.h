@@ -4,7 +4,7 @@
  * 
  *  Copyright (C) 2000-2003 by Embedded and Real-Time Systems Laboratory
  *                              Toyohashi Univ. of Technology, JAPAN
- *  Copyright (C) 2004-2019 by Embedded and Real-Time Systems Laboratory
+ *  Copyright (C) 2004-2020 by Embedded and Real-Time Systems Laboratory
  *              Graduate School of Information Science, Nagoya Univ., JAPAN
  * 
  *  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
@@ -105,7 +105,11 @@ typedef	uint_t			STAT;		/* オブジェクトの状態 */
 typedef	uint_t			MODE;		/* サービスコールの動作モード */
 typedef	int_t			PRI;		/* 優先度 */
 typedef	uint32_t		TMO;		/* タイムアウト指定 */
-typedef void			*EXINF;		/* 拡張情報（★Zigの制限に対応）*/
+#ifndef TECSGEN
+typedef const void		*EXINF;		/* 拡張情報（★Zigの制限に対応）*/
+#else /* TECSGEN */
+typedef void			*EXINF;		/* 拡張情報（★tecsgenの制限に対応）*/
+#endif /* TECSGEN */
 typedef	uint32_t		RELTIM;		/* 相対時間［NGKI0550］*/
 #ifdef UINT64_MAX
 typedef	uint64_t		SYSTIM;		/* システム時刻［NGKI0548］*/

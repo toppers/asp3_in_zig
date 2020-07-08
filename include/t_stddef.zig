@@ -83,7 +83,7 @@ pub const STAT = c_uint;            // オブジェクトの状態
 pub const MODE = c_uint;            // サービスコールの動作モード
 pub const PRI = c_int;              // 優先度
 pub const TMO = u32;                // タイムアウト指定
-pub const EXINF = ?*c_void;         // 拡張情報（★Zigの制限に対応）
+pub const EXINF = ?*const c_void;   // 拡張情報（★Zigの制限に対応）
 pub const RELTIM = u32;             // 相対時間［NGKI0550］
 pub const SYSTIM = if (USE_64BIT_SYSTIM) u64 else u32;
                                     // システム時刻［NGKI0548］
@@ -110,11 +110,17 @@ pub const ACVCT = struct {          // アクセス許可ベクタ
 ///
 ///  EXINF型への強制変換
 ///
+fn sintToUsize(sint: var) usize {
+    return @bitCast(usize, @intCast(isize, sint));
+}
 pub fn castToExinf(exinf: var) EXINF {
     return switch (@typeInfo(@TypeOf(exinf))) {
         .Null => null,
         .Bool => @intToPtr(EXINF, @boolToInt(exinf)),
-        .Int, .ComptimeInt => @intToPtr(EXINF, exinf),
+        .Int => |int|
+            @intToPtr(EXINF, if (int.is_signed) sintToUsize(exinf) else exinf),
+        .ComptimeInt =>
+            @intToPtr(EXINF, if (exinf < 0) sintToUsize(exinf) else exinf),
         .Enum => @intToPtr(EXINF, @enumToInt(arg)),
         .Pointer => |pointer|
             @ptrCast(EXINF, if (pointer.size == .Slice) exinf.ptr else exinf),
@@ -129,10 +135,22 @@ pub fn castToExinf(exinf: var) EXINF {
 ///  EXINF型からの強制変換
 ///
 pub fn exinfToPtr(comptime T: type, exinf: EXINF) T {
-    return @ptrCast(T, @alignCast(@alignOf(T), exinf));
+    if (@typeInfo(T) == .Pointer) {
+        return @intToPtr(T, @ptrToInt(exinf));
+    }
+    else {
+        @compileLog(@typeInfo(@TypeOf(exinf)));
+    }
 }
 pub fn exinfToInt(comptime T: type, exinf: EXINF) T {
-    return @intCast(T, @ptrToInt(exinf));
+    if (@typeInfo(T) == .Int) {
+        return @intCast(T, if (@typeInfo(T).Int.is_signed)
+                            @bitCast(isize, @ptrToInt(exinf))
+                            else @ptrToInt(exinf));
+    }
+    else {
+        @compileLog(@typeInfo(@TypeOf(exinf)));
+    }
 }
 
 ///
