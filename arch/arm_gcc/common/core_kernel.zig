@@ -46,7 +46,7 @@ pub const core_publish = struct {
     pub const T_EXCINF = if (comptime !arm.isEnabled(arm.Feature.has_v6))
         struct {
             nest_count: u32,        // 例外ネストカウント
-            intpri: u32,            // 割込み優先度マスク
+            intpri: i32,            // 割込み優先度マスク
             cpsr: u32,              // CPU例外発生時のCPSR
             r0: u32,
             r1: u32,
@@ -61,7 +61,7 @@ pub const core_publish = struct {
     else
         struct {
             nest_count: u32,        // 例外ネストカウント
-            intpri: u32,            // 割込み優先度マスク
+            intpri: i32,            // 割込み優先度マスク
             r0: u32,
             r1: u32,
             r2: u32,
