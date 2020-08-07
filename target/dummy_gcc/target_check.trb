@@ -17,12 +17,11 @@ inhinib_table = SYMBOL("_kernel_inhinib_table", true)
 if inhinib_table
   inhinib = PEEK(inhinib_table, $sizeof_ptr_u8)
   tnum_def_inhno = PEEK(inhinib_table + $sizeof_ptr_u8, $sizeof_usize)
-
   1.upto(tnum_def_inhno).each do
     inhno = PEEK(inhinib + $offsetof_INHINIB_inhno, $sizeof_INHNO)
     inthdr = PEEK(inhinib + $offsetof_INHINIB_inthdr, $sizeof_INTHDR)
 
-    # 割込みハンドラの先頭番地のチェック［NGKI3056］
+    # inthdrがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3056］
     if (inthdr & ($CHECK_FUNC_ALIGN - 1)) != 0
       error("E_PAR: `inthdr' of interrupt handler #{inhno} is not aligned.")
     end
@@ -41,12 +40,11 @@ excinib_table = SYMBOL("_kernel_excinib_table", true)
 if excinib_table
   excinib = PEEK(excinib_table, $sizeof_ptr_u8)
   tnum_def_excno = PEEK(excinib_table + $sizeof_ptr_u8, $sizeof_usize)
-
   1.upto(tnum_def_excno).each do
     excno = PEEK(excinib + $offsetof_EXCINIB_excno, $sizeof_EXCNO)
     exchdr = PEEK(excinib + $offsetof_EXCINIB_exchdr, $sizeof_EXCHDR)
 
-    # CPU例外ハンドラの先頭番地のチェック［NGKI3135］
+    # exchdrがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI3135］
     if (exchdr & ($CHECK_FUNC_ALIGN - 1)) != 0
       error("E_PAR: `exchdr' of exception handler #{excno} is not aligned.")
     end
