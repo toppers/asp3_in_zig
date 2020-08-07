@@ -170,6 +170,8 @@ OptionParser.new(nil, 22) do |opt|
   opt.on("-L kernel_lib",	"directory of built kernel library") do |val|
     $kernel_lib = val
   end
+  opt.on("-f", "invalid option (remained for compatibility)") do |val|
+  end
   opt.on("-n cfg_file",		"system configuration description file when " \
 									"compiled with kernel in one") do |val|
     $bind_cfg = val
