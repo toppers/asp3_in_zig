@@ -182,11 +182,9 @@ if ovrinib
   ovrhdr = PEEK(ovrinib + $offsetof_OVRINIB_ovrhdr, $sizeof_OVRHDR)
 
   # ovrhdrがプログラムの先頭番地として正しくない場合（E_PAR）［NGKI2613］
+  # ovrhdrがnullになるのは正常なので，チェックしない．
   if (ovrhdr & ($CHECK_FUNC_ALIGN - 1)) != 0
     error("E_PAR: `ovrhdr' of overrun handler is not aligned.")
-  end
-  if $CHECK_FUNC_NONNULL != 0 && ovrhdr == 0
-    error("E_PAR: `ovrhdr' of overrun handler is null.")
   end
 end
 
