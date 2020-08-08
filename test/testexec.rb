@@ -180,11 +180,7 @@ TEST_SPEC = {
 def BuildKernel(target, mkdirFlag=false)
   return unless $targetOptions.has_key?(target)
 
-  kernelDir = "KERNELLIB"
-  if (target != 0)
-    kernelDir += target.to_s
-  end
-
+  kernelDir = "KERNELLIB" + target.to_s
   if !Dir.exist?(kernelDir)
     if mkdirFlag
       Dir.mkdir(kernelDir)
@@ -247,9 +243,10 @@ def BuildTest(test, testSpec, mkdirFlag=false)
     end
 
     if !testSpec.has_key?(:DEFS)
-      kernelDir = "KERNELLIB"
-      if (testSpec.has_key?(:TARGET) && testSpec[:TARGET] != 0)
-        kernelDir += testSpec[:TARGET].to_s
+      if (testSpec.has_key?(:TARGET))
+        kernelDir = "KERNELLIB" + testSpec[:TARGET].to_s
+      else
+        kernelDir = "KERNELLIB0"
       end
       if Dir.exist?("../" + kernelDir)
         configCommand += " -L ../" + kernelDir
@@ -339,11 +336,7 @@ end
 def CleanKernel(target)
   return unless $targetOptions.has_key?(target)
 
-  kernelDir = "KERNELLIB"
-  if (target != 0)
-    kernelDir += target.to_s
-  end
-
+  kernelDir = "KERNELLIB" + target.to_s
   if Dir.exist?(kernelDir)
     Dir.chdir(kernelDir) do
       system("make clean")
