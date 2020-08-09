@@ -776,7 +776,7 @@ fn irq_handler() callconv(.Naked) void {
         (if (USE_ARM_FPU)
      \\  ldr r2, [r4,%[tcb_p_tinib]]    // p_runtsk.p_tinib → r2
      \\  ldr r1, [r2,%[tinib_tskatr]]   // p_runtsk.p_tinib.tskatr → r1
-     \\  tst r1, #TA_FPU
+     \\  tst r1, %[ta_fpu]
      \\  vmrs r0, fpexc
      \\  biceq r0, r0, %[fpexc_enable]
      \\  orrne r0, r0, %[fpexc_enable]
