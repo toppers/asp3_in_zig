@@ -4,7 +4,6 @@
 ///  $Id$
 ///
 usingnamespace @import("../kernel/kernel_cfg.zig");
-const T_NFYINFO = zig.T_NFYINFO;
 
 const tecs = @import("../" ++ TECSGENDIR ++ "/tecsgen_cfg.zig");
 
