@@ -132,7 +132,7 @@ pub const cfg = if (option.BIND_CFG) |CFG_FILE|
         usingnamespace startup.ExternIcs;
         usingnamespace startup.ExternIniRtnB;
         usingnamespace startup.ExternTerRtnB;
-        pub extern var _kernel_tmevt_heap: [100]*time_event.TMEVTB;
+        pub extern var _kernel_tmevt_heap: [1000]*time_event.TMEVTB;
         pub extern fn _kernel_initialize_object() void;
     };
 
