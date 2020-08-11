@@ -1624,7 +1624,8 @@ const DEFAULT_ASID = 1;                // 使用するASID
 ///  セクションテーブル
 ///
 var section_table: [arm.SECTION_TABLE_ENTRY]u32
-    align(arm.SECTION_TABLE_ALIGN) = undefined;
+    align(arm.SECTION_TABLE_ALIGN)
+    linksection(".bss.section_table") = undefined;
 
 ///
 ///  MMUのセクションテーブルエントリの設定
