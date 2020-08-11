@@ -169,6 +169,34 @@ TEST_SPEC = {
   "perf4" => { TARGET: 1, CDL: "perf_pf", NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
   "perf5" => { TARGET: 1, CDL: "perf_pf", NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
 
+  # 性能評価プログラム（ReleaseFast）
+  "perf0_fast" => { TARGET: 4, SRC: "perf0", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+  "perf1_fast" => { TARGET: 4, SRC: "perf1", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+  "perf2_fast" => { TARGET: 4, SRC: "perf2", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+  "perf3_fast" => { TARGET: 4, SRC: "perf3", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+  "perf4_fast" => { TARGET: 4, SRC: "perf4", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+  "perf5_fast" => { TARGET: 4, SRC: "perf5", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+
+  # 性能評価プログラム（ReleaseSmall）
+  "perf0_small" => { TARGET: 5, SRC: "perf0", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+  "perf1_small" => { TARGET: 5, SRC: "perf1", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+  "perf2_small" => { TARGET: 5, SRC: "perf2", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+  "perf3_small" => { TARGET: 5, SRC: "perf3", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+  "perf4_small" => { TARGET: 5, SRC: "perf4", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+  "perf5_small" => { TARGET: 5, SRC: "perf5", CDL: "perf_pf",
+									NK_DEFS: "-DHIST_INVALIDATE_CACHE" },
+
   # ARM向けテストプログラム
   "arm_cpuexc1" => { SRC: "arm_cpuexc1", SRCDIR: "arch/arm_gcc/test" },
   "arm_fpu1" => { TARGET: 3, SRC: "arm_fpu1", SRCDIR: "arch/arm_gcc/test" },

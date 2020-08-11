@@ -63,6 +63,7 @@ require "shell"
 #  -B <bannerobj>		バナー表示のオブジェクトファイル（.oファイル名で指定）
 #  -L <kernel_lib>		カーネルライブラリ（libkernel.a）のディレクトリ名
 #						（省略した場合，カーネルライブラリもmakeする）
+#  -M <mode>			コンパイルモード（safe，fast，smallのいずれか）
 #  -n <bind_cfg>		カーネルとコンフィギュレーションデータを一体で
 #						コンパイルする場合のシステムコンフィギュレーショ
 #						ン記述のファイル（.zig）
@@ -119,6 +120,7 @@ $applobjs = []
 $syssvcobjs = []
 $bannerobj = nil
 $kernel_lib = ""
+$mode = "safe"
 $bind_cfg = ""
 $srcdir = nil
 $srclang = "c"
@@ -171,6 +173,9 @@ OptionParser.new(nil, 22) do |opt|
     $kernel_lib = val
   end
   opt.on("-f", "invalid option (remained for compatibility)") do |val|
+  end
+  opt.on("-M mode",			"compile mode (safe, fast, or small)") do |val|
+    $mode = val
   end
   opt.on("-n cfg_file",		"system configuration description file when " \
 									"compiled with kernel in one") do |val|
@@ -306,6 +311,7 @@ $vartable["APPLOBJS"] = $applobjs.join(" ")
 $vartable["SYSSVCOBJS"] = $syssvcobjs.join(" ")
 $vartable["BANNEROBJ"] = $bannerobj
 $vartable["KERNEL_LIB"] = $kernel_lib
+$vartable["MODE"] = $mode
 $vartable["BIND_CFG"] = $bind_cfg
 $vartable["SRCDIR"] = $srcdir
 $vartable["SRCABSDIR"] = $srcabsdir
