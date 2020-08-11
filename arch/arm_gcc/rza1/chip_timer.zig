@@ -130,11 +130,11 @@ pub const hrt = struct {
 
         // 現在のカウント値を読み，hrtcnt後に割込みが発生するように設定する．
         const current = sil.rew_mem(OSTM_CNT(rza1.OSTM0_BASE));
-        sil.wrw_mem(OSTM_CMP(rza1.OSTM0_BASE), current + cnt);
+        sil.wrw_mem(OSTM_CMP(rza1.OSTM0_BASE), current +% cnt);
 
         // 上で現在のカウント値を読んで以降に，cnt以上カウントアップしてい
         // た場合には，割込みを発生させる．
-        if (sil.rew_mem(OSTM_CNT(rza1.OSTM0_BASE)) - current >= cnt) {
+        if (sil.rew_mem(OSTM_CNT(rza1.OSTM0_BASE)) -% current >= cnt) {
             target_impl.raiseInt(rza1.INTNO_OSTM0);
         }
     }
