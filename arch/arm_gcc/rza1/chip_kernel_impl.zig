@@ -152,8 +152,7 @@ pub fn config_int(intno: INTNO, intatr: ATR, intpri: PRI) void {
 ///  割込み管理機能の初期化
 ///
 pub fn initialize_interrupt() void {
-    for (cfg._kernel_intinib_table[0 .. cfg._kernel_tnum_cfg_intno])
-                                                            |*p_intinib| {
+    for (cfg._kernel_intinib_table) |*p_intinib| {
         config_int(p_intinib.intno, p_intinib.intatr, p_intinib.intpri);
     }
 }
