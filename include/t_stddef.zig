@@ -127,7 +127,7 @@ pub fn castToExinf(exinf: var) EXINF {
         .Array => @ptrCast(EXINF, &exinf),
         .Optional =>
             if (exinf) |_exinf| castToExinf(_exinf) else @intToPtr(EXINF, 0),
-        else => @compileLog(@typeInfo(@TypeOf(exinf))),
+        else => @compileError("unsupported data type for castToExinf."),
     };
 }
 
@@ -139,7 +139,7 @@ pub fn exinfToPtr(comptime T: type, exinf: EXINF) T {
         return @intToPtr(T, @ptrToInt(exinf));
     }
     else {
-        @compileLog(@typeInfo(@TypeOf(exinf)));
+        @compileError("unsupported data type for exinfToPtr.");
     }
 }
 pub fn exinfToInt(comptime T: type, exinf: EXINF) T {
@@ -149,7 +149,7 @@ pub fn exinfToInt(comptime T: type, exinf: EXINF) T {
                             else @ptrToInt(exinf));
     }
     else {
-        @compileLog(@typeInfo(@TypeOf(exinf)));
+        @compileError("unsupported data type for exinfToInt.");
     }
 }
 
