@@ -67,6 +67,8 @@ fn configuration(comptime cfg: *CfgData) void {
 //  genConfigにvoid型のパラメータを渡すのは，Zigコンパイラの不具合の回
 //  避のため（これがないと，genConfigが2回実行される）．
 //
+//  genConfigをpubにするのは，BIND_CFGに対応するため．
+//
 pub fn genConfig(comptime dummy: void) type {
     comptime var cfg = CfgData{};
     target.configuration(&cfg);
