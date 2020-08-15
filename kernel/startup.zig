@@ -253,10 +253,9 @@ pub fn ExportIniRtnB(inirtnb_table: []INIRTNB) type {
     exportCheck(@sizeOf(INIRTN), "sizeof_INIRTN");
     exportCheck(@byteOffsetOf(INIRTNB, "inirtn"), "offsetof_INIRTNB_inirtn");
 
-    const Exports = struct {
+    return struct {
         pub export const _kernel_inirtnb_table = inirtnb_table;
     };
-    return Exports;
 }
 
 ///
