@@ -8,4 +8,5 @@ TOPPERS/ASP3 Kernel written in Zig Programming Language
     % mkdir OBJ-ARM
     % cd OBJ-ARM
     % ../configure.rb -T ct11mpcore_gcc -O "-DTOPPERS_USE_QEMU"
+    % make
     % qemu-system-arm -M realview-eb-mpcore -semihosting -m 128M -nographic -kernel asp
