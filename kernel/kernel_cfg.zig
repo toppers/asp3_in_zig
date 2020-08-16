@@ -16,7 +16,7 @@ usingnamespace zig;
 ///
 ///  静的APIの記述を楽にするための関数
 ///
-pub fn CTSK(tskatr: ATR, exinf: var, task_main: TASK, itskpri: PRI,
+pub fn CTSK(tskatr: ATR, exinf: anytype, task_main: TASK, itskpri: PRI,
             stksz: usize, stk: ?[*]u8) T_CTSK {
     return T_CTSK{
             .tskatr = tskatr, .exinf = comptime castToExinf(exinf),
@@ -101,7 +101,7 @@ pub fn DINH(inhatr: ATR, inthdr: INTHDR) T_DINH {
     };
 }
 
-pub fn CISR(isratr: ATR, exinf: var, intno: INTNO, isr_main: ISR,
+pub fn CISR(isratr: ATR, exinf: anytype, intno: INTNO, isr_main: ISR,
             isrpri: PRI) T_CISR {
     return T_CISR{
         .isratr = isratr, .exinf = comptime castToExinf(exinf),
@@ -115,27 +115,27 @@ pub fn DICS(istksz: usize, comptime istk: *u8) T_DICS {
     };
 }
 
-pub fn AINI(iniatr: ATR, exinf: var, inirtn_main: INIRTN) T_AINI {
+pub fn AINI(iniatr: ATR, exinf: anytype, inirtn_main: INIRTN) T_AINI {
     return T_AINI{
         .iniatr = iniatr, .exinf = comptime castToExinf(exinf),
         .inirtn = inirtn_main,
     };
 }
 
-pub fn ATER(teratr: ATR, exinf: var, comptime terrtn_main: TERRTN) T_ATER {
+pub fn ATER(teratr: ATR, exinf: anytype, comptime terrtn_main: TERRTN) T_ATER {
     return T_ATER{
         .teratr = teratr, .exinf = comptime castToExinf(exinf),
         .terrtn = terrtn_main,
     };
 }
 
-pub fn NFY_TMEHDR(comptime exinf: var, comptime tmehdr: TMEHDR) T_NFYINFO {
+pub fn NFY_TMEHDR(comptime exinf: anytype, comptime tmehdr: TMEHDR) T_NFYINFO {
     return T_NFYINFO{ .nfy = .{ .Handler =
                                    .{ .exinf = comptime castToExinf(exinf),
                                       .tmehdr = @ptrCast(TMEHDR, tmehdr), }}};
 }
 
-pub fn NFYINFO(comptime args: var, comptime cfg_data: *CfgData) T_NFYINFO {
+pub fn NFYINFO(comptime args: anytype, comptime cfg_data: *CfgData) T_NFYINFO {
     // 通知モードを変数に格納
     comptime const nfymode: u32 = args.@"0";
     comptime const nfymode1 = nfymode & @as(u32, 0x0f);

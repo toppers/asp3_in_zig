@@ -169,7 +169,7 @@ pub const NFYHDR = TMEHDR;
 ///
 ///  トレースログの出力
 ///
-pub fn traceLog(comptime log_type: []const u8, args: var) void {
+pub fn traceLog(comptime log_type: []const u8, args: anytype) void {
     if (@hasDecl(option.log, log_type)) {
         @field(option.log, log_type)(args);
     }
@@ -178,7 +178,7 @@ pub fn traceLog(comptime log_type: []const u8, args: var) void {
 ///
 ///  アラインメントも含めてポインタをキャスト
 ///
-pub fn ptrAlignCast(comptime T: type, ptr: var) T {
+pub fn ptrAlignCast(comptime T: type, ptr: anytype) T {
     return @ptrCast(T, @alignCast(@alignOf(T), ptr));
 }
 

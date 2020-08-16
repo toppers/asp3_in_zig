@@ -259,7 +259,7 @@ pub const CfgData = struct {
     }
 
     // オブジェクトIDの取得
-    fn getId(comptime list: var, comptime name: []const u8) ID {
+    fn getId(comptime list: anytype, comptime name: []const u8) ID {
         comptime var id: ID = 1;
         comptime var p_item = list.head;
         inline while (p_item) |item| : (p_item = item.p_next) {
@@ -272,7 +272,7 @@ pub const CfgData = struct {
     }
 
     // オブジェクトの初期化ブロックの生成
-    fn genIniB(comptime INIB: type, comptime list: var) []INIB {
+    fn genIniB(comptime INIB: type, comptime list: anytype) []INIB {
         comptime var inib_table: [list.length]INIB = undefined;
         comptime var i: usize = 0;
         comptime var p_item = list.head;
@@ -649,7 +649,7 @@ extern fn _kernel_initialize_exception() void;
 ///
 ///  IDのexport
 ///
-fn exportConst(comptime target: var, comptime name: []const u8) void {
+fn exportConst(comptime target: anytype, comptime name: []const u8) void {
     _ = struct {
         var placeholder = target;
         comptime { @export(placeholder, .{ .name = name,
@@ -657,7 +657,7 @@ fn exportConst(comptime target: var, comptime name: []const u8) void {
     }.placeholder;
 }
 
-fn exportIdSymbol(comptime target: var, comptime name: []const u8) void {
+fn exportIdSymbol(comptime target: anytype, comptime name: []const u8) void {
     _ = struct {
         var placeholder = target;
         comptime { @export(placeholder, .{ .name = "id." ++ name,
@@ -665,7 +665,7 @@ fn exportIdSymbol(comptime target: var, comptime name: []const u8) void {
     }.placeholder;
 }
 
-fn exportId(comptime list: var) void {
+fn exportId(comptime list: anytype) void {
     comptime var id: ID = 1;
     comptime var p_item = list.head;
     inline while (p_item) |item| : (p_item = item.p_next) {

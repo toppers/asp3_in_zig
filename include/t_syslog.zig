@@ -119,7 +119,7 @@ extern fn syslog_wri_log(prio: c_uint, p_syslog: *SYSLOG) ER;
 ///
 ///  ログ情報のパラメータの強制変換
 ///
-fn logPar(arg: var) usize {
+fn logPar(arg: anytype) usize {
     return switch (@typeInfo(@TypeOf(arg))) {
         .Null => 0,
         .Bool => @boolToInt(arg),
@@ -141,7 +141,7 @@ fn logPar(arg: var) usize {
 ///
 ///  システムログ出力のためのライブラリ関数
 ///
-pub fn t_syslog(prio: c_uint, logtype: c_uint, args: var) void {
+pub fn t_syslog(prio: c_uint, logtype: c_uint, args: anytype) void {
     if (!TOPPERS_OMIT_SYSLOG) {
         var logbuf: SYSLOG = undefined;
 
@@ -159,7 +159,7 @@ pub fn t_syslog(prio: c_uint, logtype: c_uint, args: var) void {
 ///
 ///  ログ情報（コメント）を出力するためのライブラリ関数
 ///
-pub fn syslog(prio: c_uint, format: [:0]const u8, args: var) void {
+pub fn syslog(prio: c_uint, format: [:0]const u8, args: anytype) void {
     if (!TOPPERS_OMIT_SYSLOG) {
         var logbuf: SYSLOG = undefined;
 

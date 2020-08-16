@@ -110,10 +110,10 @@ pub const ACVCT = struct {          // アクセス許可ベクタ
 ///
 ///  EXINF型への強制変換
 ///
-fn sintToUsize(sint: var) usize {
+fn sintToUsize(sint: anytype) usize {
     return @bitCast(usize, @intCast(isize, sint));
 }
-pub fn castToExinf(exinf: var) EXINF {
+pub fn castToExinf(exinf: anytype) EXINF {
     return switch (@typeInfo(@TypeOf(exinf))) {
         .Null => null,
         .Bool => @intToPtr(EXINF, @boolToInt(exinf)),
@@ -256,7 +256,7 @@ pub noinline fn panic(message: []const u8,
 ///
 var buffer: std.io.FixedBufferStream([256]u8) = undefined;
 
-pub fn warn(comptime fmt: []const u8, args: var) void {
+pub fn warn(comptime fmt: []const u8, args: anytype) void {
     buffer.reset();
     buffer.outStream().print(fmt, args) catch {};
     buffer.buffer[buffer.pos] = 0;
