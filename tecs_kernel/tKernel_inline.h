@@ -191,7 +191,7 @@ eKernel_getNthTask(PRI taskPriority, uint_t nth, ID* p_taskID)
  *  CPUロック状態への遷移
  */
 Inline ER
-eKernel_lockCpu()
+eKernel_lockCpu(void)
 {
 	return(loc_cpu());
 }
@@ -200,7 +200,7 @@ eKernel_lockCpu()
  *  CPUロック状態の解除
  */
 Inline ER
-eKernel_unlockCpu()
+eKernel_unlockCpu(void)
 {
 	return(unl_cpu());
 }
@@ -209,7 +209,7 @@ eKernel_unlockCpu()
  *  ディスパッチの禁止
  */
 Inline ER
-eKernel_disableDispatch()
+eKernel_disableDispatch(void)
 {
 	return(dis_dsp());
 }
@@ -218,7 +218,7 @@ eKernel_disableDispatch()
  *  ディスパッチの許可
  */
 Inline ER
-eKernel_enableDispatch()
+eKernel_enableDispatch(void)
 {
 	return(ena_dsp());
 }
@@ -227,7 +227,7 @@ eKernel_enableDispatch()
  *  コンテキストの参照
  */
 Inline bool_t
-eKernel_senseContext()
+eKernel_senseContext(void)
 {
 	return(sns_ctx());
 }
@@ -236,7 +236,7 @@ eKernel_senseContext()
  *  CPUロック状態の参照
  */
 Inline bool_t
-eKernel_senseLock()
+eKernel_senseLock(void)
 {
 	return(sns_loc());
 }
@@ -245,7 +245,7 @@ eKernel_senseLock()
  *  ディスパッチ禁止状態の参照
  */
 Inline bool_t
-eKernel_senseDispatch()
+eKernel_senseDispatch(void)
 {
 	return(sns_dsp());
 }
@@ -254,7 +254,7 @@ eKernel_senseDispatch()
  *  ディスパッチ保留状態の参照
  */
 Inline bool_t
-eKernel_senseDispatchPendingState()
+eKernel_senseDispatchPendingState(void)
 {
 	return(sns_dpn());
 }
@@ -263,7 +263,7 @@ eKernel_senseDispatchPendingState()
  *  カーネル非動作状態の参照
  */
 Inline bool_t
-eKernel_senseKernel()
+eKernel_senseKernel(void)
 {
 	return(sns_ker());
 }
@@ -272,7 +272,7 @@ eKernel_senseKernel()
  *  カーネルの終了
  */
 Inline ER
-eKernel_exitKernel()
+eKernel_exitKernel(void)
 {
 	return(ext_ker());
 }
@@ -326,7 +326,7 @@ eiKernel_getTaskId(ID* p_taskId)
  *  CPUロック状態への遷移（非タスクコンテキスト用）
  */
 Inline ER
-eiKernel_lockCpu()
+eiKernel_lockCpu(void)
 {
 	return(loc_cpu());
 }
@@ -335,7 +335,7 @@ eiKernel_lockCpu()
  *  CPUロック状態の解除（非タスクコンテキスト用）
  */
 Inline ER
-eiKernel_unlockCpu()
+eiKernel_unlockCpu(void)
 {
 	return(unl_cpu());
 }
@@ -344,7 +344,7 @@ eiKernel_unlockCpu()
  *  コンテキストの参照（非タスクコンテキスト用）
  */
 Inline bool_t
-eiKernel_senseContext()
+eiKernel_senseContext(void)
 {
 	return(sns_ctx());
 }
@@ -353,7 +353,7 @@ eiKernel_senseContext()
  *  CPUロック状態の参照（非タスクコンテキスト用）
  */
 Inline bool_t
-eiKernel_senseLock()
+eiKernel_senseLock(void)
 {
 	return(sns_loc());
 }
@@ -362,7 +362,7 @@ eiKernel_senseLock()
  *  ディスパッチ禁止状態の参照（非タスクコンテキスト用）
  */
 Inline bool_t
-eiKernel_senseDispatch()
+eiKernel_senseDispatch(void)
 {
 	return(sns_dsp());
 }
@@ -371,7 +371,7 @@ eiKernel_senseDispatch()
  *  ディスパッチ保留状態の参照（非タスクコンテキスト用）
  */
 Inline bool_t
-eiKernel_senseDispatchPendingState()
+eiKernel_senseDispatchPendingState(void)
 {
 	return(sns_dpn());
 }
@@ -380,7 +380,7 @@ eiKernel_senseDispatchPendingState()
  *  カーネル非動作状態の参照（非タスクコンテキスト用）
  */
 Inline bool_t
-eiKernel_senseKernel()
+eiKernel_senseKernel(void)
 {
 	return(sns_ker());
 }
@@ -389,7 +389,7 @@ eiKernel_senseKernel()
  *  カーネルの終了（非タスクコンテキスト用）
  */
 Inline ER
-eiKernel_exitKernel()
+eiKernel_exitKernel(void)
 {
 	return(ext_ker());
 }
