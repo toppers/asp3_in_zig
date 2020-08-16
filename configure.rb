@@ -275,7 +275,7 @@ $tecsgen ||= $ruby + " \$(TECSDIR)/tecsgen.rb"
 #  には，正しく動作しない．
 #
 srcpath = $srcdir.split(/\//)
-cwdpath = Shell.new.cwd.split(/\//)
+cwdpath = Dir.pwd.split(/\//)
 $builddir = cwdpath[-srcpath.length .. -1].join("/")
 
 #
