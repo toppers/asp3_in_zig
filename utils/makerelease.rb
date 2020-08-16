@@ -4,7 +4,7 @@
 #  TOPPERS Software
 #      Toyohashi Open Platform for Embedded Real-Time Systems
 # 
-#  Copyright (C) 2006-2019 by Embedded and Real-Time Systems Laboratory
+#  Copyright (C) 2006-2020 by Embedded and Real-Time Systems Laboratory
 #              Graduate School of Information Science, Nagoya Univ., JAPAN
 # 
 #  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
@@ -41,7 +41,6 @@
 
 require "optparse"
 require "fileutils"
-require "shell"
 
 #
 #  オプションの定義
@@ -147,7 +146,7 @@ $fileList = []
 #
 #  プリフィックス（./カレントディレクトリ名）の取り出し
 #
-cwd = Shell.new.cwd
+cwd = Dir.pwd
 $prefix = "./" + File.basename(cwd)
 
 #

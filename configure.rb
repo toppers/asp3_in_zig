@@ -44,7 +44,6 @@
 Encoding.default_external = 'utf-8'
 require "optparse"
 require "fileutils"
-require "shell"
 
 #  オプションの定義
 #
@@ -256,13 +255,13 @@ if $srcdir.nil?
   if /^(.*)\/configure/ =~ $0
     $srcdir = $1
   else
-    $srcdir = Shell.new.cwd
+    $srcdir = Dir.pwd
   end
 end
 if /^\// =~ $srcdir
   $srcabsdir = $srcdir
 else
-  $srcabsdir = Shell.new.cwd + "/" + $srcdir
+  $srcabsdir = Dir.pwd + "/" + $srcdir
 end
 $tempmakefile ||= $srcdir + "/sample/Makefile"
 $tecsdir ||= "\$(SRCDIR)/tecsgen"
