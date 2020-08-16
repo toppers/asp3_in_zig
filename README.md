@@ -15,7 +15,9 @@ Zigのコンパイラは，最新版を利用してください（動作確認�
 
 その他の依存しているソフトウェアの動作確認バージョンは，次の通りです。
 
-    tecsgen          1.8.RC2
-    ruby             2.6.3p62
-    make             GNU Make 3.81
-    qemu-system-arm  version 5.0.0
+    arm-none-eabi-gcc      9.3.1 20200408
+    arm-none-eabi-objcopy  2.34.0.20200428
+    tecsgen                1.8.RC2
+    ruby                   2.6.3p62
+    make                   GNU Make 3.81
+    qemu-system-arm        version 5.0.0
