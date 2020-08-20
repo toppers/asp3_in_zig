@@ -21,7 +21,9 @@ Zigのコンパイラは，最新版を利用してください（動作確認�
     ruby                   2.6.3p62
     make                   GNU Make 3.81
     qemu-system-arm        version 5.0.0
-    
+
+以下はtoppers/asp3_in_zigをforkしたykominamiが追加した記述です。
+
 # Zig
 ## [The Zig Programming Language](https://ziglang.org/)
 ## [Releases · The Zig Programming Language](https://ziglang.org/download/)
@@ -49,7 +51,6 @@ asp3_in_zigのMakefileではarm-none-eabi-gccを-Eオプションを指定して
 公開されているTECS個別パッケージの最新版は1.7に同梱されているtecsgenは1.7です。TECS個別パッケージにはtecsgen以外の各種ユーティリティも含まれています。
 公開されているASP3簡易パッケージに同梱されているtecsgenは、1.6以上です。公開時期により異なります。
 asp3_in_zigでは、1.6以上であれば利用できます。
-## 
 ## 入手方法
 ### TECS個別パッケージから
 [TOPPERSプロジェクト／TECS](https://www.toppers.jp/tecs.html)
@@ -65,15 +66,15 @@ asp3_in_zigでは、1.6以上であれば利用できます。
 
 [asp3_arm_gcc-20191006.tar.gz](https://www.toppers.jp/download.cgi/asp3_arm_gcc-20191006.tar.gz)
 
+このASP3簡易パッケージ(最新版)のターゲットは、asp3_in_zigが対象とするターゲットを同じです。
+asp3_in_zigはこの簡易パッケージのソースを利用しませんが、簡易パッケージをコンパイル、実行ができる開発環境を構築できれば、後はzigをインストールすれば、asp3_in_zigで開発できます。
 
     tar xf asp3_arm_gcc-20191006.tar.gz
     cd asp3
     ディレクトリtecsgenをリポジトリasp_in_zigに作成したOBJ-ARMディレクトリと同じ階層にコピーする
 
 # 注意点
-## Zig言語はソースファイルにハードタブを含められません。
 [Documentation \- The Zig Programming Language](https://ziglang.org/documentation/master/#Source-Encoding)
-## Zig言語はソースファイルにハードタブを含められません。
 ## Zig言語はソースファイルには、以下の行に示す例外を除いて、ASCIIのコントロールキャラクタを含めれません。
 ### U+000a (LF): U+0000 - U+0009, U+000b - U+0001f, U+007
 ### Windowsの改行文字(CRLF)を含めれません。
