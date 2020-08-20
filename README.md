@@ -38,8 +38,12 @@ Ruby2.0以上で動作することを目指して開発しています。
 現在公式サポートがあるのは、Ruby 2.5, 2.6, 2.7系列です。
 
 また、Rubyはオープンソースですが、昔のソースが現在の一般的な開発環境でそのままコンパイルできない場合もあります。
+
+入手しやすさからも、公式サポートされているバージョンをお勧めします。
 ### クロスコンパイラに対応したCPP
-tecsgenは
+tecsgenはCヘッダファイルを解析するために、クロスコンパイラに対応するCPPを利用します。
+
+asp3_in_zigのMakefileではarm-none-eabi-gccを-Eオプションを指定してCPPとして利用しています。
 
 ## バージョンについて
 公開されているTECS個別パッケージの最新版は1.7に同梱されているtecsgenは1.7です。TECS個別パッケージにはtecsgen以外の各種ユーティリティも含まれています。
@@ -61,9 +65,16 @@ asp3_in_zigでは、1.6以上であれば利用できます。
 
 [asp3_arm_gcc-20191006.tar.gz](https://www.toppers.jp/download.cgi/asp3_arm_gcc-20191006.tar.gz)
 
+
     tar xf asp3_arm_gcc-20191006.tar.gz
     cd asp3
     ディレクトリtecsgenをリポジトリasp_in_zigに作成したOBJ-ARMディレクトリと同じ階層にコピーする
 
-
-    
+# 注意点
+## Zig言語はソースファイルにハードタブを含められません。
+[Documentation \- The Zig Programming Language](https://ziglang.org/documentation/master/#Source-Encoding)
+## Zig言語はソースファイルにハードタブを含められません。
+## Zig言語はソースファイルには、以下の行に示す例外を除いて、ASCIIのコントロールキャラクタを含めれません。
+### U+000a (LF): U+0000 - U+0009, U+000b - U+0001f, U+007
+### Windowsの改行文字(CRLF)を含めれません。
+### ハードタブを含めれません。
