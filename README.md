@@ -79,3 +79,10 @@ asp3_in_zigはこの簡易パッケージのソースを利用しませんが、
 ### U+000a (LF): U+0000 - U+0009, U+000b - U+0001f, U+007
 ### Windowsの改行文字(CRLF)を含めれません。
 ### ハードタブを含めれません。
+
+## Windows版zigコンパイラ(0.6.0+d139e44cf)で../sample/sample1_cfg.zigのコンパイル処理が終わらない（プロセスが終了しない）
+[zig-windows(master) hangs when compile sampel/sample1_cfg.zig](https://github.com/toppers/asp3_in_zig/issues/12)
+
+## Macでzigやarm-none-eabi-gccを実行するには、事前に実行の許可を与える必要がある。
+Apple Menu -> 市捨てｍ環境設定 -> セキュリティとプライバシー -> 一般 -> 左下の鍵のアイコンをクリック -> パスワード入力
+zigを実行しようとしてOSに実行を止められたら、セキュリティーとプライバシーのダイアログで実行を許可する。
