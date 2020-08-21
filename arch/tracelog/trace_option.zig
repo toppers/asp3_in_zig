@@ -47,10 +47,10 @@ usingnamespace @import("../../kernel/kernel_impl.zig");
 ///
 ///  トレースログ方法の設定
 ///
-pub fn taskStateChange(args: var) void {
+pub fn taskStateChange(args: anytype) void {
     traceWrite(LOG_TYPE_TSKSTAT, .{ args.@"0", args.@"0".tstat });
 }
-pub fn dispatchLeave(args: var) void {
+pub fn dispatchLeave(args: anytype) void {
     traceWrite(LOG_TYPE_DSP|LOG_LEAVE, .{ args.@"0" });
 }
 
@@ -81,7 +81,7 @@ extern fn tTraceLog_eTraceLog_write(p_trace: *const TRACE) ER;
 ///
 ///  ログ情報のパラメータの強制変換
 ///
-fn logPar(arg : var) usize {
+fn logPar(arg : anytype) usize {
     return switch (@typeInfo(@TypeOf(arg))) {
         .Bool => @boolToInt(arg),
         .Int, .ComptimeInt => @intCast(usize, arg),
@@ -97,7 +97,7 @@ fn logPar(arg : var) usize {
 ///
 ///  トレースログの書込み
 ///
-fn traceWrite(logtype: c_uint, args: var) void {
+fn traceWrite(logtype: c_uint, args: anytype) void {
     var tracebuf: TRACE = undefined;
 
     tracebuf.logtype = logtype;
