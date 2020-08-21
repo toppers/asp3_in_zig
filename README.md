@@ -21,3 +21,8 @@ Zigのコンパイラは，最新版を利用してください（動作確認�
     ruby                   2.6.3p62
     make                   GNU Make 3.81
     qemu-system-arm        version 5.0.0
+
+## 参考情報
+
+- 小南さんが，以下のページに，関連するソフトウェアに関する情報を詳細に記述くださっています。
+  https://github.com/ykominami/asp3_in_zig/blob/readme/README.md
