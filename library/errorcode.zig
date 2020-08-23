@@ -53,7 +53,13 @@ pub const c = @cImport({
 ///
 ///  C言語APIのエラーコードへの変換
 ///
-pub fn itronErrorCode(err: ItronError) ER {
+//  コードサイズの評価を行うために，エラーコードの変換をやめる場合には，
+//  以下のコードを用いる．
+//
+// pub fn itronErrorCode(err: ItronError) ER {
+//    return -@intCast(ER, @errorToInt(err));
+// }
+pub noinline fn itronErrorCode(err: ItronError) ER {
     return switch (err) {
         ItronError.SystemError => c.E_SYS,
         ItronError.NotSupported => c.E_NOSPT,

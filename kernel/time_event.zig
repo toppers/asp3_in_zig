@@ -208,7 +208,7 @@ pub fn initialize_tmevt() void {
 ///  をp_tmevtnに渡すと，移動後の空ノードの位置（すなわち挿入位置）を
 ///  返す．
 ///
-fn tmevt_up(index: usize, evttim: EVTTIM) usize {
+noinline fn tmevt_up(index: usize, evttim: EVTTIM) usize {
     var current = index;
     var parent: usize = undefined;
 
@@ -238,7 +238,7 @@ fn tmevt_up(index: usize, evttim: EVTTIM) usize {
 ///  をp_tmevtnに渡すと，移動後の空ノードの位置（すなわち挿入位置）を
 ///  返す．
 ///
-fn tmevt_down(index: usize, evttim: EVTTIM) usize {
+noinline fn tmevt_down(index: usize, evttim: EVTTIM) usize {
     var current = index;
     var child: usize = undefined;
     
@@ -360,7 +360,7 @@ fn tmevtb_delete_top() *TMEVTB {
 ///
 ///  current_evttimとcurrent_hrtcntを，現在の値に更新する．
 ///
-pub fn update_current_evttim() void {
+pub noinline fn update_current_evttim() void {
     var new_hrtcnt: HRTCNT = undefined;
     var hrtcnt_advance: HRTCNT = undefined;
     var previous_evttim: EVTTIM = undefined;
@@ -401,7 +401,7 @@ fn calc_current_evttim_ub() EVTTIM {
 ///
 ///  現在のイベント時刻を取得した後に呼び出すことを想定している．
 ///
-pub fn set_hrt_event() void {
+pub noinline fn set_hrt_event() void {
     if (num_tmevt == 0) {
         // タイムイベントがない場合
         if (HRTCNT_BOUND == null) {
@@ -436,7 +436,7 @@ pub fn set_hrt_event() void {
 ///  ルの初期化時か，高分解能タイマ割込みの処理中で，それが必要ない場
 ///  合にのみ使用する．
 ///
-pub fn tmevtb_register(p_tmevtb: *TMEVTB) void {
+pub noinline fn tmevtb_register(p_tmevtb: *TMEVTB) void {
     tmevtb_insert(p_tmevtb);
 }
 
@@ -448,7 +448,7 @@ pub fn tmevtb_register(p_tmevtb: *TMEVTB) void {
 ///  ルバック関数，コールバック関数へ渡す引数は，p_tmevtbが指すタイム
 ///  イベントブロック中に設定しておく．
 ///
-pub fn tmevtb_enqueue_reltim(p_tmevtb: *TMEVTB, time: RELTIM) void {
+pub noinline fn tmevtb_enqueue_reltim(p_tmevtb: *TMEVTB, time: RELTIM) void {
     // 現在のイベント時刻とタイムイベントの発生時刻を求める［ASPD1026］．
     update_current_evttim();
     p_tmevtb.evttim = calc_current_evttim_ub() +% time;
@@ -465,7 +465,7 @@ pub fn tmevtb_enqueue_reltim(p_tmevtb: *TMEVTB, time: RELTIM) void {
 ///
 ///  タイムイベントの登録解除
 ///
-pub fn tmevtb_dequeue(p_tmevtb: *TMEVTB) void {
+pub noinline fn tmevtb_dequeue(p_tmevtb: *TMEVTB) void {
     var current: usize = undefined;
 
     // タイムイベントブロックをヒープから削除する［ASPD1039］．
@@ -486,7 +486,7 @@ pub fn tmevtb_dequeue(p_tmevtb: *TMEVTB) void {
 ///  調整してはならない場合にtrue，そうでない場合にfalseを返す．現在の
 ///  イベント時刻を取得した後に呼び出すことを想定している．
 ///
-pub fn check_adjtim(adjtim: i32) bool {
+pub noinline fn check_adjtim(adjtim: i32) bool {
     if (adjtim > 0) {
         return num_tmevt > 0                    //［NGKI3588］
             and EVTTIM_LE(top_evttim() +% TMAX_ADJTIM, current_evttim);
@@ -500,7 +500,7 @@ pub fn check_adjtim(adjtim: i32) bool {
 ///
 ///  タイムイベントが発生するまでの時間の計算
 ///
-pub fn tmevt_lefttim(p_tmevtb: *TMEVTB) RELTIM {
+pub noinline fn tmevt_lefttim(p_tmevtb: *TMEVTB) RELTIM {
     var evttim: EVTTIM = undefined;
     var current_evttim_ub: EVTTIM = undefined;
 

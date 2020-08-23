@@ -129,8 +129,8 @@ pub fn make_wait(tstat: u8, p_winfo: *WINFO) void {
 ///  削除し，TCBのp_winfoフィールド，WINFOのp_tmevtbフィールドを設定す
 ///  る．また，タイムイベントブロックを登録する．
 ///
-pub fn make_wait_tmout(tstat: u8, p_winfo: *WINFO,
-                       p_tmevtb: *TMEVTB, tmout: TMO) void {
+pub noinline fn make_wait_tmout(tstat: u8, p_winfo: *WINFO,
+                                p_tmevtb: *TMEVTB, tmout: TMO) void {
     p_runtsk.?.tstat = tstat;
     make_non_runnable(p_runtsk.?);
     p_runtsk.?.p_winfo = p_winfo;
@@ -201,7 +201,7 @@ pub fn wait_dequeue_tmevtb(p_tcb: *TCB) void {
 ///  ク状態を更新し，待ち解除したタスクからの返値をnull（エラー無し）
 ///  とする．待ちキューからの削除は行わない．
 ///
-pub fn wait_complete(p_tcb: *TCB) void {
+pub noinline fn wait_complete(p_tcb: *TCB) void {
     wait_dequeue_tmevtb(p_tcb);
     p_tcb.p_winfo.* = WINFO{ .werror = null };
     make_non_wait(p_tcb);
@@ -221,7 +221,7 @@ pub fn wait_complete(p_tcb: *TCB) void {
 ///  いずれの関数も，タイムイベントのコールバック関数として用いるため
 ///  のもので，割込みハンドラから呼び出されることを想定している．
 ///
-pub fn wait_tmout(arg: usize) void {
+pub noinline fn wait_tmout(arg: usize) void {
     const p_tcb = @intToPtr(*TCB, arg);
 
     wait_dequeue_wobj(p_tcb);
@@ -237,7 +237,7 @@ pub fn wait_tmout(arg: usize) void {
     target_impl.lockCpu();
 }
 
-pub fn wait_tmout_ok(arg: usize) void {
+pub noinline fn wait_tmout_ok(arg: usize) void {
     const p_tcb = @intToPtr(*TCB, arg);
 
     p_tcb.p_winfo.* = WINFO{ .werror = null };
@@ -357,6 +357,9 @@ fn wobj_queue_insert(p_wobjcb: *WOBJCB) void {
 ///  キューにつなぐ．また，待ち情報ブロック（WINFO）のp_wobjcbを設定す
 ///  る．wobj_make_wait_tmoutは，タイムイベントブロックの登録も行う．
 ///
+///  noinlineにすると，型ごとにコードが生成され，サイズが大きくなるた
+///  め，noinlineにしていない．
+///
 pub fn wobj_make_wait(p_wobjcb: anytype, tstat: u8,
                       p_winfo_wobj: anytype) void {
     make_wait(tstat, &p_winfo_wobj.winfo);
@@ -409,7 +412,7 @@ pub fn wobj_change_priority(p_wobjcb: *WOBJCB, p_tcb: *TCB) void {
 ///  待ちキューにつながれているタスクをすべて待ち解除する．待ち解除し
 ///  たタスクからの返値は，ObjectDeletedとする．
 ///
-pub fn init_wait_queue(p_wait_queue: *queue.Queue) void {
+pub noinline fn init_wait_queue(p_wait_queue: *queue.Queue) void {
     while (!p_wait_queue.isEmpty()) {
         const p_tcb = getTCBFromQueue(p_wait_queue.deleteNext());
         wait_dequeue_tmevtb(p_tcb);

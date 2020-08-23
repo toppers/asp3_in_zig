@@ -451,10 +451,9 @@ fn start_r() callconv(.Naked) noreturn {
      \\  bx r1
      \\
      \\ _ext_tsk:
-     \\  .long %[ext_tsk]
+     \\  .long ext_tsk
      :
      : [cpsr_svc_unlock] "n" (@as(u32, arm.CPSR_SVC_MODE | CPSR_UNLOCK)),
-       [ext_tsk] "s" (task_term.ext_tsk),
        [overrun_start] "s" (overrun.overrun_start),
        [tcb_p_tinib] "J" (@as(i16, @byteOffsetOf(task.TCB, "p_tinib"))),
        [tinib_tskatr] "J" (@as(i16, @byteOffsetOf(task.TINIB, "tskatr"))),

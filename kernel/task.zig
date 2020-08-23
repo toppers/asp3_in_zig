@@ -412,7 +412,7 @@ pub fn initialize_task() void {
 ///  タを返す．レディキューが空の場合には，この関数を呼び出してはなら
 ///  ない．
 ///
-fn searchSchedtsk() *TCB {
+noinline fn searchSchedtsk() *TCB {
     return getTCBFromQueue(ready_queue[ready_primap.search()].p_next);
 }
 
@@ -422,7 +422,7 @@ fn searchSchedtsk() *TCB {
 ///  p_tcbで指定されるタスクをレディキューに挿入する．また，必要な場合
 ///  には，実行すべきタスクを更新する．
 ///
-pub fn make_runnable(p_tcb: *TCB) void {
+pub noinline fn make_runnable(p_tcb: *TCB) void {
     const prio = p_tcb.prio;
 
     ready_queue[prio].insertPrev(&p_tcb.task_queue);
@@ -441,7 +441,7 @@ pub fn make_runnable(p_tcb: *TCB) void {
 ///  p_tcbで指定されるタスクをレディキューに挿入する．また，必要な場合
 ///  には，実行すべきタスクを更新する．
 ///
-pub fn make_non_runnable(p_tcb: *TCB) void {
+pub noinline fn make_non_runnable(p_tcb: *TCB) void {
     const prio = p_tcb.prio;
     const p_queue = &ready_queue[prio];
 
@@ -480,7 +480,7 @@ pub fn set_dspflg() void {
 ///  時に初期化すべき変数の初期化と，タスク起動のためのコンテキストを
 ///  設定する．
 ///
-fn make_dormant(p_tcb: *TCB) void {
+noinline fn make_dormant(p_tcb: *TCB) void {
     p_tcb.tstat = TS_DORMANT;
     p_tcb.bprio = @intCast(TaskPrio, p_tcb.p_tinib.ipri);
     p_tcb.prio = p_tcb.bprio;
@@ -498,7 +498,7 @@ fn make_dormant(p_tcb: *TCB) void {
 ///
 ///  p_tcbで指定されるタスクの状態を休止状態から実行できる状態とする．
 ///
-pub fn make_active(p_tcb: *TCB) void {
+pub noinline fn make_active(p_tcb: *TCB) void {
     target_impl.activateContext(p_tcb);
     p_tcb.tstat = TS_RUNNABLE;
     traceLog("taskStateChange", .{ p_tcb });
@@ -515,7 +515,8 @@ pub fn make_active(p_tcb: *TCB) void {
 ///  優先度が同じタスクの中で，mtxmodeがfalseの時は最低，mtxmodeがtrue
 ///  の時は最高とする．
 ///
-pub fn change_priority(p_tcb: *TCB, newprio: TaskPrio, mtxmode: bool) void {
+pub noinline fn change_priority(p_tcb: *TCB, newprio: TaskPrio,
+                                mtxmode: bool) void {
     const oldprio = p_tcb.prio;
 
     p_tcb.prio = newprio;
@@ -562,7 +563,7 @@ pub fn change_priority(p_tcb: *TCB, newprio: TaskPrio, mtxmode: bool) void {
 ///  レディキュー中の，p_queueで指定されるタスクキューを回転させる．ま
 ///  た，必要な場合には，実行すべきタスクを更新する．
 ///
-pub fn rotate_ready_queue(prio: TaskPrio) void {
+pub noinline fn rotate_ready_queue(prio: TaskPrio) void {
     const p_queue = &ready_queue[prio];
 
     if (!p_queue.isEmpty() and p_queue.p_next.p_next != p_queue) {
@@ -582,7 +583,7 @@ pub fn rotate_ready_queue(prio: TaskPrio) void {
 ///  p_tcbで指定されるタスクを終了させる処理を行う．タスクの起動要求
 ///  キューイング数が0でない場合には，再度起動するための処理を行う．
 ///
-pub fn task_terminate(p_tcb: *TCB) void {
+pub noinline fn task_terminate(p_tcb: *TCB) void {
     if (isRunnable(p_tcb.tstat)) {
         make_non_runnable(p_tcb);
     }
