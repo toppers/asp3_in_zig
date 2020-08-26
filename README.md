@@ -22,6 +22,10 @@ Zigのコンパイラは，最新版を利用してください（動作確認�
     make                   GNU Make 3.81
     qemu-system-arm        version 5.0.0
 
+## 利用条件
+
+このレポジトリに含まれるプログラムの利用条件は，[TOPPERSライセンス](https://www.toppers.jp/license.html)です。
+
 ## 参考情報
 
 - 小南さんが，以下のページに，関連するソフトウェアに関する情報を詳細に記述くださっています。
