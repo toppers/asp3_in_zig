@@ -57,7 +57,7 @@ pub const c = @cImport({
 //  以下のコードを用いる．
 //
 // pub fn itronErrorCode(err: ItronError) ER {
-//    return -@intCast(ER, @errorToInt(err));
+//    return @intCast(ER, @errorToInt(err));
 // }
 pub noinline fn itronErrorCode(err: ItronError) ER {
     return switch (err) {
