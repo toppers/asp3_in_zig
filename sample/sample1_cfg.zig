@@ -42,9 +42,6 @@ fn configuration(comptime cfg: *CfgData) void {
 //                                NFYINFO(.{ TNFY_ACTTSK, "TASK1" }, cfg),
 //                                2_000_000, 0));
     cfg.CRE_ALM("ALMHDR1", CALM(TA_NULL, NFY_TMEHDR(0, alarm_handler)));
-    if (zig.TOPPERS_SUPPORT_OVRHDR) {
-        cfg.DEF_OVR(DOVR(TA_NULL, overrun_handler));
-    }
     if (@hasDecl(option.target._test, "INTNO1")) {
         cfg.CFG_INT(option.target._test.INTNO1,
                     CINT(option.target._test.INTNO1_INTATR,

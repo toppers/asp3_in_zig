@@ -95,8 +95,5 @@ extern void	cpuexc_handler(void *p_excinf);
 #endif /* CPUEXC1 */
 extern void	cyclic_handler(EXINF exinf);
 extern void	alarm_handler(EXINF exinf);
-#ifdef TOPPERS_SUPPORT_OVRHDR
-extern void	overrun_handler(ID tskid, EXINF exinf);
-#endif /* TOPPERS_SUPPORT_OVRHDR */
 
 #endif /* TOPPERS_MACRO_ONLY */
