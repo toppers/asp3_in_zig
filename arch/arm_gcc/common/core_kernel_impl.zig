@@ -297,7 +297,7 @@ pub noinline fn dispatch() void {
      : "r0","r1","r2","r3","r4","r5","r6","r7",
        "r8","r9","r10","r11","r12","lr","memory","cc"
     );
-    if (TOPPERS_SUPPORT_OVRHDR) {
+    if (comptime TOPPERS_SUPPORT_OVRHDR) {
         overrun.overrun_start();
     }
 }
