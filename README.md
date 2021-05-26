@@ -11,7 +11,7 @@ TOPPERS/ASP3 Kernel written in Zig Programming Language
     % make
     % qemu-system-arm -M realview-eb-mpcore -semihosting -m 128M -nographic -kernel asp
 
-Zigのコンパイラは，最新版を利用してください（動作確認は，2020年8月16日版）。古い版では動作しません。
+Zigのコンパイラは，Release 0.7.1を利用してください。古い版や最新版では動作しません。
 
 その他の依存しているソフトウェアの動作確認バージョンは，次の通りです。
 

@@ -2,7 +2,7 @@
 ///  TOPPERS Software
 ///      Toyohashi Open Platform for Embedded Real-Time Systems
 /// 
-///  Copyright (C) 2020 by Embedded and Real-Time Systems Laboratory
+///  Copyright (C) 2020-2021 by Embedded and Real-Time Systems Laboratory
 ///                 Graduate School of Informatics, Nagoya Univ., JAPAN
 ///
 ///  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
@@ -50,12 +50,12 @@ fn bitSizeOfPrio(comptime level: comptime_int) comptime_int {
 
 /// 優先度の段階数が level の時の優先度のデータ型
 pub fn PrioType(comptime level: comptime_int) type {
-    return std.meta.IntType(false, bitSizeOfPrio(level));
+    return std.meta.Int(.unsigned, bitSizeOfPrio(level));
 }
 
 /// 優先度の段階数が level の時のビットマップのデータ型
 fn BitmapType(comptime level: comptime_int) type {
-    return std.meta.IntType(false, level);
+    return std.meta.Int(.unsigned, level);
 }
 
 /// 1段のビットマップでの実装

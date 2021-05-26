@@ -6,7 +6,7 @@
 # 
 #  Copyright (C) 2001-2003 by Embedded and Real-Time Systems Laboratory
 #                              Toyohashi Univ. of Technology, JAPAN
-#  Copyright (C) 2006-2020 by Embedded and Real-Time Systems Laboratory
+#  Copyright (C) 2006-2021 by Embedded and Real-Time Systems Laboratory
 #              Graduate School of Information Science, Nagoya Univ., JAPAN
 # 
 #  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
@@ -62,7 +62,7 @@ require "fileutils"
 #  -B <bannerobj>		バナー表示のオブジェクトファイル（.oファイル名で指定）
 #  -L <kernel_lib>		カーネルライブラリ（libkernel.a）のディレクトリ名
 #						（省略した場合，カーネルライブラリもmakeする）
-#  -M <mode>			コンパイルモード（safe，fast，smallのいずれか）
+#  -M <mode>			コンパイルモード（Safe，Fast，Smallのいずれか）
 #  -n <bind_cfg>		カーネルとコンフィギュレーションデータを一体で
 #						コンパイルする場合のシステムコンフィギュレーショ
 #						ン記述のファイル（.zig）
@@ -119,7 +119,7 @@ $applobjs = []
 $syssvcobjs = []
 $bannerobj = nil
 $kernel_lib = ""
-$mode = "safe"
+$mode = "Safe"
 $bind_cfg = ""
 $srcdir = nil
 $srclang = "c"
@@ -173,7 +173,7 @@ OptionParser.new(nil, 22) do |opt|
   end
   opt.on("-f", "invalid option (remained for compatibility)") do |val|
   end
-  opt.on("-M mode",			"compile mode (safe, fast, or small)") do |val|
+  opt.on("-M mode",			"compile mode (Safe, Fast, or Small)") do |val|
     $mode = val
   end
   opt.on("-n cfg_file",		"system configuration description file when " \

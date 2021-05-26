@@ -185,7 +185,7 @@ ifdef BIND_CFG
 	ZIGOPTS := $(ZIGOPTS) -DBIND_CFG=\"$(BIND_CFG).zig\"
 endif
 ZIGOPTS := --main-pkg-path $(SRCDIR) -ffunction-sections $(ZIGOPTS)
-ZIGOPTS := --release-@(MODE) $(ZIGOPTS)
+ZIGOPTS := -O Release@(MODE) $(ZIGOPTS)
 ZIGFLAGS = $(ZIGOPTS) $(CDEFS) $(INCLUDES)
 
 #
@@ -464,7 +464,7 @@ endif
 #
 .PHONY: $(APPL_ZIGOBJS)
 $(APPL_ZIGOBJS): $(OBJDIR)/%.o: %.zig
-	zig build-obj --name $(OBJDIR)/$* $(ZIGFLAGS) $<
+	zig build-obj -femit-bin=$@ $(ZIGFLAGS) $<
 
 $(SYSSVC_COBJS): $(OBJDIR)/%.o: %.c
 	$(CC) -c -o $@ -MD -MP -MF $(DEPDIR)/$*.d $(CFLAGS) $(SYSSVC_CFLAGS) $<
