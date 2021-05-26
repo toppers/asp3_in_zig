@@ -4,7 +4,7 @@
 /// 
 ///  Copyright (C) 2000-2003 by Embedded and Real-Time Systems Laboratory
 ///                                 Toyohashi Univ. of Technology, JAPAN
-///  Copyright (C) 2004-2020 by Embedded and Real-Time Systems Laboratory
+///  Copyright (C) 2004-2021 by Embedded and Real-Time Systems Laboratory
 ///                 Graduate School of Informatics, Nagoya Univ., JAPAN
 ///
 ///  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
@@ -123,8 +123,8 @@ fn logPar(arg: anytype) usize {
     return switch (@typeInfo(@TypeOf(arg))) {
         .Null => 0,
         .Bool => @boolToInt(arg),
-        .Int =>
-            if (@TypeOf(arg).is_signed) @bitCast(usize, @intCast(isize, arg))
+        .Int => |int|
+            if (int.is_signed) @bitCast(usize, @intCast(isize, arg))
             else @intCast(usize, arg),
         .ComptimeInt =>
             if (arg < 0) @bitCast(usize, @intCast(isize, arg))
