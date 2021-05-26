@@ -55,7 +55,7 @@ static const char banner[] = "\n"
 " (" __DATE__ ", " __TIME__ ")\n"
 "Copyright (C) 2000-2003 by Embedded and Real-Time Systems Laboratory\n"
 "                            Toyohashi Univ. of Technology, JAPAN\n"
-"Copyright (C) 2004-2020 by Embedded and Real-Time Systems Laboratory\n"
+"Copyright (C) 2004-2021 by Embedded and Real-Time Systems Laboratory\n"
 "               Graduate School of Informatics, Nagoya Univ., JAPAN\n"
 "%s";
 
