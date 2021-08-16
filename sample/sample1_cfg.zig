@@ -76,3 +76,9 @@ pub fn genConfig(comptime dummy: void) type {
     return GenCfgData(&cfg);
 }
 export const _ = if (@hasDecl(@This(), "BIND_CFG")) {} else genConfig({}){};
+
+///
+///  リンクエラーを防ぐための関数（エラーになる原因は不明）
+///
+export fn __aeabi_unwind_cpp_pr0() void {
+}

@@ -118,7 +118,8 @@ pub fn castToExinf(exinf: anytype) EXINF {
         .Null => null,
         .Bool => @intToPtr(EXINF, @boolToInt(exinf)),
         .Int => |int|
-            @intToPtr(EXINF, if (int.is_signed) sintToUsize(exinf) else exinf),
+            @intToPtr(EXINF, if (int.signedness == .signed) sintToUsize(exinf)
+                             else exinf),
         .ComptimeInt =>
             @intToPtr(EXINF, if (exinf < 0) sintToUsize(exinf) else exinf),
         .Enum => @intToPtr(EXINF, @enumToInt(arg)),
@@ -144,7 +145,7 @@ pub fn exinfToPtr(comptime T: type, exinf: EXINF) T {
 }
 pub fn exinfToInt(comptime T: type, exinf: EXINF) T {
     if (@typeInfo(T) == .Int) {
-        return @intCast(T, if (@typeInfo(T).Int.is_signed)
+        return @intCast(T, if (@typeInfo(T).Int.signedness == .signed)
                             @bitCast(isize, @ptrToInt(exinf))
                             else @ptrToInt(exinf));
     }

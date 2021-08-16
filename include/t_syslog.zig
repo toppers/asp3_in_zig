@@ -124,7 +124,7 @@ fn logPar(arg: anytype) usize {
         .Null => 0,
         .Bool => @boolToInt(arg),
         .Int => |int|
-            if (int.is_signed) @bitCast(usize, @intCast(isize, arg))
+            if (int.signedness == .signed) @bitCast(usize, @intCast(isize, arg))
             else @intCast(usize, arg),
         .ComptimeInt =>
             if (arg < 0) @bitCast(usize, @intCast(isize, arg))

@@ -185,6 +185,7 @@ ifdef BIND_CFG
 	ZIGOPTS := $(ZIGOPTS) -DBIND_CFG=\"$(BIND_CFG).zig\"
 endif
 ZIGOPTS := --main-pkg-path $(SRCDIR) -ffunction-sections $(ZIGOPTS)
+ZIGOPTS := --cache-dir zig-cache $(ZIGOPTS)
 ZIGOPTS := -O Release@(MODE) $(ZIGOPTS)
 ZIGFLAGS = $(ZIGOPTS) $(CDEFS) $(INCLUDES)
 

@@ -3,7 +3,7 @@
 ///      Toyohashi Open Platform for Embedded Real-Time Systems/
 ///      Advanced Standard Profile Kernel
 /// 
-///  Copyright (C) 2020 by Embedded and Real-Time Systems Laboratory
+///  Copyright (C) 2020-2021 by Embedded and Real-Time Systems Laboratory
 ///                 Graduate School of Informatics, Nagoya Univ., JAPAN
 ///
 ///  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
@@ -632,12 +632,14 @@ export fn _kernel_initialize_exception() void {
 ///
 ///  ターゲット依存部からexportする関数
 ///
-usingnamespace target_impl.ExportDefs;
+//usingnamespace target_impl.ExportDefs;
+export const export_target_impl: target_impl.ExportDefs = undefined;
 
 ///
 ///  タイマドライバからexportする関数
 ///
-usingnamespace target_timer.ExportDefs;
+//usingnamespace target_timer.ExportDefs;
+export const export_target_timer: target_timer.ExportDefs = undefined;
 
 //
 //  システムログ機能用の高分解能タイマの現在のカウント値の読出し関数
