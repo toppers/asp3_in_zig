@@ -3,7 +3,7 @@
 ///      Toyohashi Open Platform for Embedded Real-Time Systems/
 ///      Advanced Standard Profile Kernel
 ///
-///  Copyright (C) 2006-2020 by Embedded and Real-Time Systems Laboratory
+///  Copyright (C) 2006-2021 by Embedded and Real-Time Systems Laboratory
 ///                 Graduate School of Informatics, Nagoya Univ., JAPAN
 ///
 ///  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
@@ -568,77 +568,72 @@ fn config_int(intno: INTNO, intatr: ATR, intpri: PRI) void {
 //  み優先度マスク）を，スタックの先頭に保存する．
 //
 pub fn irc_begin_int() callconv(.Naked) void {
+    // r1をGICC_BASEに設定する
+    asm volatile("" :: [gicc_base] "{r1}" (@as(u32, GICC_BASE)));
+    if (GIC_PL390_ERRATA) {         // GIC 390 Errata 801120への対策
+        // r2をGICD_BASEに設定する
+        asm volatile("" :: [gicd_base] "{r2}" (@as(u32, GICD_BASE)));
+    }
+
+    // 割込み要因を取得する．
+    if (GIC_PL390_ERRATA) {         // GIC 390 Errata 801120への対策
+        asm volatile(
+         \\  ldr r0, [r1, %[offset_hppir]]
+         :
+         : [offset_hppir] "i" (@ptrToInt(GICC_HPPIR) - GICC_BASE),
+        );
+    }
     asm volatile(
-     \\ irc_begin_int:
-     \\ // 割込み要因を取得する．
-        ++ "\n" ++                  // GIC 390 Errata 801120への対策
-        (if (GIC_PL390_ERRATA)
-     \\  ldr r1, 5f
-     \\  ldr r0, [r1]
-        else "") ++ "\n" ++
-     \\  ldr r1, 2f
-     \\  ldr r3, [r1]
+     \\  ldr r3, [r1, %[offset_iar]]
      \\  lsl r4, r3, #22            // 下位10ビットを取り出す
      \\  lsr r4, r4, #22
-        ++ "\n" ++                  // GIC 390 Errata 801120への対策
-        (if (GIC_PL390_ERRATA)
-     \\  movw r0, #1023
-     \\  cmp r4, r0
-     \\  beq .Lirc_begin_int_errata_1
-     \\  movw r0, #1022
-     \\  cmp r4, r0
-     \\  beq .Lirc_begin_int_errata_1
-     \\  cmp r3, #0
-     \\  bne .Lirc_begin_int_errata_2
-     \\  ldr r1, 6f                 // 割込み要求があるかチェック
-     \\  ldr r0, [r1]
-     \\  tst r0, #0x01
-     \\  movweq r4, #1024           // 無効な割込みとみなす
-     \\ .Lirc_begin_int_errata_1:
-     \\  ldr r1, 7f                 // 割込み優先度レジスタ0に書き込み
-     \\  ldr r0, [r1]
-     \\  str r0, [r1]
-        ++ "\n" ++
-        arm.asm_data_sync_barrier("r0")
-        ++ "\n" ++
-     \\ .Lirc_begin_int_errata_2:
-        else "")
-        ++ "\n" ++
-     \\
+     :
+     : [offset_iar] "i" (@ptrToInt(GICC_IAR) - GICC_BASE),
+    );
+    if (GIC_PL390_ERRATA) {         // GIC 390 Errata 801120への対策
+        asm volatile(
+         \\  movw r0, #1023
+         \\  cmp r4, r0
+         \\  beq .Lirc_begin_int_errata_1
+         \\  movw r0, #1022
+         \\  cmp r4, r0
+         \\  beq .Lirc_begin_int_errata_1
+         \\  cmp r3, #0
+         \\  bne .Lirc_begin_int_errata_2
+         \\  ldr r0, [r2, %[offset_isactiver0]]
+         \\  tst r0, #0x01          // 割込み要求があるかチェック
+         \\  movweq r4, #1024       // 無効な割込みとみなす
+         \\ .Lirc_begin_int_errata_1:
+         \\ // 割込み優先度レジスタ0に書き込み
+         \\  ldr r0, [r2, %[offset_ipriorityr0]]
+         \\  str r0, [r2, %[offset_ipriorityr0]]
+            ++ "\n" ++
+            arm.asm_data_sync_barrier("r0")
+            ++ "\n" ++
+         \\ .Lirc_begin_int_errata_2:
+         :
+         : [offset_isactiver0] "i" (@ptrToInt(GICD_ISACTIVER(0)) - GICD_BASE),
+           [offset_ipriorityr0] "i" (@ptrToInt(GICD_IPRIORITYR(0)) - GICD_BASE),
+        );
+    }
+    asm volatile(
      \\ // 割込み要因の割込み優先度を求め，割込み優先度マスクに設定する．
-     \\  ldr r1, 4f                 // 受け付けた割込みの割込み優先度を取得
-     \\  ldr r0, [r1]
-     \\  ldr r1, 1f                 // 割込み発生前の割込み優先度を取得
-     \\  ldr r2, [r1]
-     \\  str r0, [r1]               // 新しい割込み優先度マスクをセットする
+     \\  ldr r0, [r1, %[offset_rpr]]    // 受け付けた割込みの割込み優先度を取得
+     \\  ldr r2, [r1, %[offset_pmr]]    // 割込み発生前の割込み優先度を取得
+     \\  str r0, [r1, %[offset_pmr]]    // 新しい割込み優先度マスクをセットする
         ++ "\n" ++
         arm.asm_data_sync_barrier("r0") // 割込み優先度マスクが
         ++ "\n" ++                      //     セットされるのを待つ
      \\  str r2, [sp]               // irc_end_intで用いる情報を保存
-     \\
      \\ // EOIを発行する．
-     \\  ldr r1, 3f                 // EOIレジスタへの書込み */
-     \\  str r3, [r1]
+     \\  str r3, [r1, %[offset_eoir]]
      \\
      \\ // r4に割込み番号を入れた状態でリターンする．
      \\  bx lr
-     \\ 1:
-        ++ "  .long 0x" ++ usizeToHexString(@ptrToInt(GICC_PMR)) ++ "\n" ++
-     \\ 2:
-        ++ "  .long 0x" ++ usizeToHexString(@ptrToInt(GICC_IAR)) ++ "\n" ++
-     \\ 3:
-        ++ "  .long 0x" ++ usizeToHexString(@ptrToInt(GICC_EOIR)) ++ "\n" ++
-     \\ 4:
-        ++ "  .long 0x" ++ usizeToHexString(@ptrToInt(GICC_RPR)) ++ "\n" ++
-        (if (GIC_PL390_ERRATA)
-     \\ 5:
-        ++ "  .long 0x" ++ usizeToHexString(@ptrToInt(GICC_HPPIR)) ++ "\n" ++
-     \\ 6:
-        ++ "  .long 0x" ++ usizeToHexString(@ptrToInt(GICD_ISACTIVER(0)))
-        ++ "\n" ++
-     \\ 7:
-        ++ "  .long 0x" ++ usizeToHexString(@ptrToInt(GICD_IPRIORITYR(0)))
-        else "")
+     :
+     : [offset_pmr] "i" (@ptrToInt(GICC_PMR) - GICC_BASE),
+       [offset_eoir] "i" (@ptrToInt(GICC_EOIR) - GICC_BASE),
+       [offset_rpr] "i" (@ptrToInt(GICC_RPR) - GICC_BASE),
     );
     unreachable;
 }
@@ -648,14 +643,12 @@ pub fn irc_begin_int() callconv(.Naked) void {
 //
 pub fn irc_end_int() callconv(.Naked) void {
     asm volatile(
-     \\ irc_end_int:
      \\ // 割込み優先度マスクを元に戻す．
      \\  ldr r2, [sp]           // irc_begin_intで保存した情報を復帰
-     \\  ldr r1, 1f             // 割込み優先度マスク（GICC_PMR）を元に戻す
-     \\  str r2, [r1]
+     \\  str r2, [r1]           // 割込み優先度マスク（GICC_PMR）を元に戻す
      \\  bx lr
-     \\ 1:
-        ++ "  .long 0x" ++ usizeToHexString(@ptrToInt(GICC_PMR))
+     :
+     : [gicc_pmr] "{r1}" (@ptrToInt(GICC_PMR)),
     );
     unreachable;
 }
@@ -668,18 +661,15 @@ pub fn irc_end_int() callconv(.Naked) void {
 //
 pub fn irc_get_intpri() callconv(.Naked) void {
     asm volatile(
-     \\ irc_get_intpri:
      \\ // 割込み優先度マスクを外部表現に変換して返す．
-     \\  ldr r1, 1f             // 現在の割込み優先度（GICC_PMR）を取得
-     \\  ldr r0, [r1]
+     \\  ldr r0, [r1]           // 現在の割込み優先度（GICC_PMR）を取得
      \\  asr r0, r0, %[gic_pri_shift]
      \\  sub r0, r0, %[gic_pri_mask]
      \\  bx lr
-     \\ 1:
-        ++ "  .long 0x" ++ usizeToHexString(@ptrToInt(GICC_PMR))
-        :
-        : [gic_pri_shift] "n" (@as(u32, GIC_PRI_SHIFT)),
-          [gic_pri_mask] "n" (@as(u32, GIC_PRI_MASK)),
+     :
+     : [gic_pri_shift] "n" (@as(u32, GIC_PRI_SHIFT)),
+       [gic_pri_mask] "n" (@as(u32, GIC_PRI_MASK)),
+       [gicc_pmr] "{r1}" (@ptrToInt(GICC_PMR)),
     );
     unreachable;
 }
@@ -694,12 +684,11 @@ pub fn irc_begin_exc() callconv(.Naked) void {
     asm volatile(
      \\ irc_begin_exc:
      \\ // 割込み優先度マスクを保存する．
-     \\  ldr r1, 1f             // 現在の割込み優先度（GICC_PMR）を取得
-     \\  ldr r2, [r1]
+     \\  ldr r2, [r1]           // 現在の割込み優先度（GICC_PMR）を取得
      \\  str r2, [sp]           // irc_end_excで用いる情報を保存
      \\  bx lr
-     \\ 1:
-        ++ "  .long 0x" ++ usizeToHexString(@ptrToInt(GICC_PMR))
+     :
+     : [gicc_pmr] "{r1}" (@ptrToInt(GICC_PMR)),
     );
     unreachable;
 }
@@ -709,14 +698,12 @@ pub fn irc_begin_exc() callconv(.Naked) void {
 //
 pub fn irc_end_exc() callconv(.Naked) void {
     asm volatile(
-     \\ irc_end_exc:
      \\ // 割込み優先度マスクを元に戻す．
      \\  ldr r2, [sp]           // irc_begin_excで保存した情報を復帰
-     \\  ldr r1, 1f             // 割込み優先度マスク（GICC_PMR）を元に戻す
-     \\  str r2, [r1]
+     \\  str r2, [r1]           // 割込み優先度マスク（GICC_PMR）を元に戻す
      \\  bx lr
-     \\ 1:
-        ++ "  .long 0x" ++ usizeToHexString(@ptrToInt(GICC_PMR))
+     :
+     : [gicc_pmr] "{r1}" (@ptrToInt(GICC_PMR)),
     );
     unreachable;
 }

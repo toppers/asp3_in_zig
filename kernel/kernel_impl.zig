@@ -192,24 +192,3 @@ pub fn exportCheck(comptime val: u32, comptime name: []const u8) void {
                                            .section = ".TOPPERS.check", }); }
     }.placeholder;
 }
-
-///
-///  インラインアセンブラ中に定数値を埋め込むために用いる関数
-///
-fn digitToChar(digit: u4) u8 {
-    return switch (digit) {
-        0...9 => digit + @as(u8, '0'),
-        0xa...0xf => digit - 10 + @as(u8, 'a'),
-    };
-}
-
-pub fn usizeToHexString(comptime val: usize) [8]u8 {
-    return [1]u8{ digitToChar((val >> 28) & 0xf) }
-        ++ [1]u8{ digitToChar((val >> 24) & 0xf) }
-        ++ [1]u8{ digitToChar((val >> 20) & 0xf) }
-        ++ [1]u8{ digitToChar((val >> 16) & 0xf) }
-        ++ [1]u8{ digitToChar((val >> 12) & 0xf) }
-        ++ [1]u8{ digitToChar((val >> 8) & 0xf) }
-        ++ [1]u8{ digitToChar((val >> 4) & 0xf) }
-        ++ [1]u8{ digitToChar((val >> 0) & 0xf) };
-}

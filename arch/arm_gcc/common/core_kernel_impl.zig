@@ -656,7 +656,7 @@ fn irq_handler() callconv(.Naked) void {
      \\ //
      \\ // irc_begin_intは，スタックトップ（r0の場所）に，irc_end_int
      \\ // で用いる情報を保存する．
-     \\  bl irc_begin_int
+     \\  bl %[irc_begin_int]
         ++ "\n" ++
         (if (comptime TNUM_INHNO <= 256 or !arm.isEnabled(arm.Feature.has_v7))
      \\  cmp r4, %[tnum_inhno]          // TNUM_INHNOの値によってはエラーになる
@@ -704,7 +704,7 @@ fn irq_handler() callconv(.Naked) void {
      \\
      \\ // 割込みコントローラを操作する．
      \\ irq_handler_2:
-     \\  bl irc_end_int
+     \\  bl %[irc_end_int]
      \\
      \\ // 例外ネストカウントをデクリメントする．
      \\  ldr r2, 4f
@@ -1248,7 +1248,7 @@ fn exc_entry() callconv(.Naked) void {
      \\ // CPU例外が発生した状況の判断に用いるために，CPU例外発生前
      \\ // の割込み優先度マスクと例外ネストカウントをスタックに保存
      \\ // する．
-     \\  bl irc_get_intpri
+     \\  bl %[irc_get_intpri]
      \\  push {r0}                      // 割込み優先度マスクを保存
      \\  ldr r2, 4f
      \\  ldr r3, [r2]
@@ -1356,7 +1356,7 @@ fn exc_entry() callconv(.Naked) void {
      \\
      \\ // 割込みコントローラを操作して，割込み優先度マスクを，CPU
      \\ // 例外発生時の値に設定する．
-     \\  bl irc_end_exc
+     \\  bl %[irc_end_exc]
      \\
      \\ // 例外ネストカウントをデクリメントする．
      \\  ldr r2, 4f
