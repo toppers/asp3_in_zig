@@ -260,7 +260,7 @@ pub fn ExportAlmCfg(alminib_table: []ALMINIB) type {
     exportCheck(@offsetOf(ALMINIB, "nfyhdr"), "offsetof_ALMINIB_nfyhdr");
 
     const tnum_alm = alminib_table.len;
-    defer _ = tnum_alm;
+
     return struct {
         pub export const _kernel_alminib_table = alminib_table;
 

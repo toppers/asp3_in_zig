@@ -438,7 +438,7 @@ pub fn cre_flg(cflg: T_CFLG) ItronError!FLGINIB {
 ///
 pub fn ExportFlgCfg(flginib_table: []FLGINIB) type {
     const tnum_flg = flginib_table.len;
-    defer _ = tnum_flg;
+
     return struct {
         pub export const _kernel_flginib_table = flginib_table;
 

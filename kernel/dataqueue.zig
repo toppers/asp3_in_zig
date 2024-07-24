@@ -594,7 +594,7 @@ pub fn cre_dtq(comptime cdtq: T_CDTQ) ItronError!DTQINIB {
 ///
 pub fn ExportDtqCfg(dtqinib_table: []DTQINIB) type {
     const tnum_dtq = dtqinib_table.len;
-    defer _ = tnum_dtq;
+
     return struct {
         pub export const _kernel_dtqinib_table = dtqinib_table;
 

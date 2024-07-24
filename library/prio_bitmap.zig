@@ -97,7 +97,7 @@ fn OneLevelBitmap(comptime level: comptime_int) type {
         /// 優先度ビットマップのサーチ
         pub fn search(self: @This()) Prio {
             assert(self.bitmap != 0);
-            return @intCast(Prio, @ctz(Bitmap, self.bitmap));
+            return @intCast(Prio, @ctz(self.bitmap));
         }
 
         /// 優先度ビットマップの整合性検査
